@@ -250,10 +250,26 @@ type Parser(lexer : Tokenizer) =
     member val FuncFlowLevel = 0 with get, set
 
 
+    // Block rules in Python 3.9 grammar //////////////////////////////////////////////////////////
+
+    member this.ParseDecorated() =
+        ASTNode.Empty
+
+    member this.ParseClassStmt() =
+        ASTNode.Empty
+
+    member this.ParseFuncDefStmt() =
+        ASTNode.Empty
+
+
+
+
+
     member this.ParseVarArgsList() =
         ASTNode.Empty
 
 
+    // Simple Statement rules in Python 3.9 grammar ///////////////////////////////////////////////
 
     member this.ParseStmt() =
         ASTNode.Empty
@@ -262,7 +278,7 @@ type Parser(lexer : Tokenizer) =
         ASTNode.Empty
 
 
-    // Statement rules in Python 3.9 grammar //////////////////////////////////////////////////////
+    // Compound Statement rules in Python 3.9 grammar /////////////////////////////////////////////
     
     member this.ParseCompoundStmt() =
         match this.Lexer.Symbol with
@@ -271,14 +287,30 @@ type Parser(lexer : Tokenizer) =
         |   Token.For _ -> this.ParseForStmt()
         |   Token.Try _ -> this.ParseTryStmt()
         |   Token.With _ -> this.ParseWithStmt()
-        |   Token.Def _
-        |   Token.Class _
-        |   Token.Matrice _
+        |   Token.Def _ -> this.ParseFuncDefStmt()
+        |   Token.Class _ -> this.ParseClassStmt()
+        |   Token.Matrice _ -> this.ParseDecorated()
         |   Token.Async _ -> this.ParseAsyncStmt()
         |   _ -> raise ( SyntaxError(this.Lexer.Symbol, "Unexpected statement!") )
 
     member this.ParseAsyncStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Async _ ->
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                match this.Lexer.Symbol with
+                |   Token.Def _ ->
+                        let right = this.ParseFuncDefStmt()
+                        ASTNode.AsyncFuncDef(startPos, this.Lexer.Position, op1, right)
+                |   Token.With _ 
+                |   Token.For _ ->
+                        let right = this.ParseStmt()
+                        ASTNode.AsyncStmt(startPos, this.Lexer.Position, op1, right)
+                |   _ ->
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting either 'def', 'with' or 'for' in async statement!") )
+        |   _   ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'async' in async statement!") )
 
     member this.ParseIfStmt() =
         let startPos = this.Lexer.Position
