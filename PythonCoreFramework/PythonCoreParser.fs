@@ -324,7 +324,37 @@ type Parser(lexer : Tokenizer) =
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'if' statement!") )
 
     member this.ParseWhileStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.While _ ->
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let left = this.ParseNamedExpr()
+                match this.Lexer.Symbol with
+                |   Token.Colon _ ->
+                        let op2 = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        let right = this.ParseSuite()
+                        match this.Lexer.Symbol with
+                        |   Token.Else _ ->
+                                let start2 = this.Lexer.Position
+                                let op3 = this.Lexer.Symbol
+                                this.Lexer.Advance()
+                                match this.Lexer.Symbol with
+                                |   Token.Colon _ ->
+                                        let op4 = this.Lexer.Symbol
+                                        this.Lexer.Advance()
+                                        let right2 = this.ParseSuite()
+                                        let node = ASTNode.Else(start2, this.Lexer.Position, op3, op4, right2)
+                                        ASTNode.While(startPos, this.Lexer.Position, op1, left, op2, right, node)
+                                |   _ ->
+                                        raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in else statement!") )
+                        |   _ ->
+                                ASTNode.While(startPos, this.Lexer.Position, op1, left, op2, right, ASTNode.Empty)
+                |   _ ->
+                        raise ( SyntaxError(this.Lexer.Symbol, "Missing ':' in while statement!") )
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expected 'while' statement!") )
 
     member this.ParseForStmt() =
         ASTNode.Empty
