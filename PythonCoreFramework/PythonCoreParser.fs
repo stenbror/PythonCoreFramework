@@ -488,7 +488,40 @@ type Parser(lexer : Tokenizer) =
 
     member this.ParseExceptClause() =
         let startPos = this.Lexer.Position
-        ASTNode.Empty
+        match this.Lexer.Symbol with
+        |   Token.Except _ ->
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let left, op2, right =  match this.Lexer.Symbol with
+                                        |   Token.Colon _ ->    
+                                                ASTNode.Empty, Token.Empty, ASTNode.Empty
+                                        |   _   ->
+                                                let tmp = this.ParseTest()
+                                                match this.Lexer.Symbol with
+                                                |   Token.As _ ->
+                                                        let op3 = this.Lexer.Symbol
+                                                        this.Lexer.Advance()
+                                                        match this.Lexer.Symbol with
+                                                        |   Token.Name _ ->
+                                                                let start3 = this.Lexer.Position 
+                                                                let name = this.Lexer.Symbol
+                                                                this.Lexer.Advance()
+                                                                let nodeRight = ASTNode.Name(start3, this.Lexer.Position, name)
+                                                                tmp, op3, nodeRight
+                                                        |   _ ->
+                                                                raise ( SyntaxError(this.Lexer.Symbol, "Missing name literal afer 'as' in except statement!") )
+                                                |   _ ->
+                                                        tmp, Token.Empty, ASTNode.Empty
+                match this.Lexer.Symbol with
+                |   Token.Colon _ ->
+                        let op4 = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        let next = this.ParseSuite()
+                        ASTNode.Except(startPos, this.Lexer.Position, op1, left, op2, right, op4, next)
+                |   _ ->
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in except statement!") )
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'except' in except statement!") )
 
     member this.ParseSuite() =
         let startPos = this.Lexer.Position
