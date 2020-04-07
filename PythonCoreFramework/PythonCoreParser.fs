@@ -91,6 +91,7 @@ type Token =
     |   Name of int * int * string * Trivia array
     |   Number of int * int * string * Trivia array
     |   String of int * int * string array * Trivia array
+    |   TypeComment of int * int * string
     |   Indent of Trivia array
     |   Dedent of Trivia array
     |   Newline of int * int * Trivia array
@@ -154,7 +155,7 @@ type ASTNode =
     |   Elif of int * int * Token * ASTNode * Token * ASTNode
     |   Else of int * int * Token * Token * ASTNode
     |   While of int * int * Token * ASTNode * Token * ASTNode * ASTNode
-    |   For of int * int * Token * ASTNode * Token * ASTNode * Token * ASTNode * ASTNode * ASTNode
+    |   For of int * int * Token * ASTNode * Token * ASTNode * Token * Token * ASTNode * ASTNode
     |   Try of int * int * Token * Token * ASTNode * ASTNode array * ASTNode * ASTNode
     |   Finally of int * int * Token * Token * ASTNode
     |   With of int * int * Token * ASTNode array * Token * ASTNode * ASTNode
@@ -357,21 +358,70 @@ type Parser(lexer : Tokenizer) =
                 raise ( SyntaxError(this.Lexer.Symbol, "Expected 'while' statement!") )
 
     member this.ParseForStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.For _ ->
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let left = this.ParseExprList()
+                match this.Lexer.Symbol with
+                |   Token.In _ ->
+                        let op2 = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        let right = this.ParseTestList()
+                        match this.Lexer.Symbol with
+                        |   Token.Colon _ ->
+                                let op3 = this.Lexer.Symbol
+                                this.Lexer.Advance()
+                                let op4 =   match this.Lexer.Symbol with
+                                            |   Token.TypeComment _ ->
+                                                    let tmpOp = this.Lexer.Symbol
+                                                    this.Lexer.Advance()
+                                                    tmpOp
+                                            |   _   ->
+                                                    Token.Empty
+                                let next = this.ParseSuite()
+                                match this.Lexer.Symbol with
+                                |   Token.Else _ ->
+                                        let start2 = this.Lexer.Position
+                                        let op5 = this.Lexer.Symbol
+                                        this.Lexer.Advance()
+                                        match this.Lexer.Symbol with
+                                        |   Token.Colon _ ->
+                                                let op6 = this.Lexer.Symbol
+                                                this.Lexer.Advance()
+                                                let right2 = this.ParseSuite()
+                                                let node = ASTNode.Else(start2, this.Lexer.Position, op5, op6, right2)
+                                                ASTNode.For(startPos, this.Lexer.Position, op1, left, op2, right, op3, op4, next, node)
+                                        |   _ ->
+                                                raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in else statement!") )
+                                |   _   ->
+                                        ASTNode.For(startPos, this.Lexer.Position, op1, left, op2, right, op3, op4, next, ASTNode.Empty)
+                        |   _   ->
+                                raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in for statement!") )
+                |   _   ->
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expected 'in' in for statement!") )
+        |   _   ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'for' statement!") )
 
     member this.ParseTryStmt() =
+        let startPos = this.Lexer.Position
         ASTNode.Empty
 
     member this.ParseWithStmt() =
+        let startPos = this.Lexer.Position
         ASTNode.Empty
 
     member this.ParseWithItem() =
+        let startPos = this.Lexer.Position
         ASTNode.Empty
 
     member this.ParseExceptClause() =
+        let startPos = this.Lexer.Position
         ASTNode.Empty
 
     member this.ParseSuite() =
+        let startPos = this.Lexer.Position
         ASTNode.Empty
 
     // Expression rules in Python 3.9 grammar /////////////////////////////////////////////////////
