@@ -406,7 +406,77 @@ type Parser(lexer : Tokenizer) =
 
     member this.ParseTryStmt() =
         let startPos = this.Lexer.Position
-        ASTNode.Empty
+        match this.Lexer.Symbol with
+        |   Token.Try _ ->
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                match this.Lexer.Symbol with
+                |   Token.Colon _ ->
+                        let op2 = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        let left = this.ParseSuite()
+                        match this.Lexer.Symbol with
+                        |   Token.Finally _ ->
+                                let op3 = this.Lexer.Symbol
+                                this.Lexer.Advance()
+                                match this.Lexer.Symbol with
+                                |   Token.Colon _ ->
+                                        let start2 = this.Lexer.Position
+                                        let op4 = this.Lexer.Symbol
+                                        this.Lexer.Advance()
+                                        let right3 = this.ParseSuite()
+                                        let node = ASTNode.Finally(start2, this.Lexer.Position, op3, op4, right3)
+                                        ASTNode.Try(startPos, this.Lexer.Position, op1, op2, left, [||], ASTNode.Empty, node)
+                                |   _ ->
+                                        raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in finally statement!") )
+                        |   _ ->
+                                match this.Lexer.Symbol with
+                                |   Token.Except _ ->
+                                        let mutable nodes : ASTNode list = []
+                                        while   match this.Lexer.Symbol with
+                                                | Token.Except _ ->
+                                                        nodes <- this.ParseExceptClause() :: nodes
+                                                        true
+                                                | _ ->
+                                                        false
+                                            do ()
+                                        let node =  match this.Lexer.Symbol with
+                                                    |   Token.Else _ ->
+                                                            let start2 = this.Lexer.Position
+                                                            let op6 = this.Lexer.Symbol
+                                                            this.Lexer.Advance()
+                                                            match this.Lexer.Symbol with
+                                                            |   Token.Colon _ ->
+                                                                    let op7 = this.Lexer.Symbol
+                                                                    this.Lexer.Advance()
+                                                                    let right5 = this.ParseSuite()
+                                                                    ASTNode.Else(start2, this.Lexer.Position, op6, op7, right5)
+                                                            |   _ ->
+                                                                    raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in else statement!") )
+                                                    |   _ ->
+                                                            ASTNode.Empty
+                                        let fin =   match this.Lexer.Symbol with
+                                                    |   Token.Finally _ ->
+                                                            let op5 = this.Lexer.Symbol
+                                                            this.Lexer.Advance()
+                                                            match this.Lexer.Symbol with
+                                                            |   Token.Colon _ ->
+                                                                    let start3 = this.Lexer.Position
+                                                                    let op6 = this.Lexer.Symbol
+                                                                    this.Lexer.Advance()
+                                                                    let right4 = this.ParseSuite()
+                                                                    ASTNode.Finally(start3, this.Lexer.Position, op5, op6, right4)
+                                                            | _ ->
+                                                                    raise ( SyntaxError(this.Lexer.Symbol, "Missing ':' in finally statement!") )
+                                                    |   _ ->
+                                                            ASTNode.Empty
+                                        ASTNode.Try(startPos, this.Lexer.Position, op1, op2, left, List.toArray(List.rev nodes), node, fin)
+                                |   _ ->
+                                        raise ( SyntaxError(this.Lexer.Symbol, "Missing expect statement!") )
+                |   _   ->
+                        raise ( SyntaxError(this.Lexer.Symbol, "Missing ':' in try statement!") )
+        |    _   ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expected 'try' in try statement!") )
 
     member this.ParseWithStmt() =
         let startPos = this.Lexer.Position
