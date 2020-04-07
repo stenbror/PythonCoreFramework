@@ -158,7 +158,7 @@ type ASTNode =
     |   For of int * int * Token * ASTNode * Token * ASTNode * Token * Token * ASTNode * ASTNode
     |   Try of int * int * Token * Token * ASTNode * ASTNode array * ASTNode * ASTNode
     |   Finally of int * int * Token * Token * ASTNode
-    |   With of int * int * Token * ASTNode array * Token * ASTNode * ASTNode
+    |   With of int * int * Token * ASTNode array * Token array * Token * Token * ASTNode
     |   WithItem of int * int * ASTNode * Token * ASTNode
     |   Except of int * int * Token * ASTNode * Token * ASTNode * Token * ASTNode
     |   Suite of int * int * Token * Token * ASTNode array * Token
@@ -251,6 +251,14 @@ type Parser(lexer : Tokenizer) =
 
 
     member this.ParseVarArgsList() =
+        ASTNode.Empty
+
+
+
+    member this.ParseStmt() =
+        ASTNode.Empty
+
+    member this.ParseSimpleStmt() =
         ASTNode.Empty
 
 
@@ -480,11 +488,51 @@ type Parser(lexer : Tokenizer) =
 
     member this.ParseWithStmt() =
         let startPos = this.Lexer.Position
-        ASTNode.Empty
+        match this.Lexer.Symbol with
+        |   Token.With _ ->
+                let mutable nodes : ASTNode list = []
+                let mutable ops : Token list = []
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                nodes <- this.ParseWithItem() :: nodes
+                while   match this.Lexer.Symbol with
+                        |   Token.Comma _ ->
+                                ops <- this.Lexer.Symbol :: ops
+                                this.Lexer.Advance()
+                                nodes <- this.ParseWithItem() :: nodes
+                                true
+                        |   _ ->
+                                false
+                    do ()
+                match this.Lexer.Symbol with
+                |   Token.Colon _ ->
+                        let op2 = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        let op3 =   match this.Lexer.Symbol with
+                                    |   Token.TypeComment _ ->
+                                            let tmpOp = this.Lexer.Symbol
+                                            this.Lexer.Advance()
+                                            tmpOp
+                                    |   _ ->
+                                            Token.Empty
+                        let right = this.ParseSuite()
+                        ASTNode.With(startPos, this.Lexer.Position, op1, List.toArray(List.rev nodes), List.toArray(List.rev ops), op2, op3, right)
+                |   _   ->
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in with statement!") )
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'with' in with statement!") )
 
     member this.ParseWithItem() =
         let startPos = this.Lexer.Position
-        ASTNode.Empty
+        let left = this.ParseTest()
+        match this.Lexer.Symbol with
+        |   Token.As _ ->
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = this.ParseExpr()
+                ASTNode.WithItem(startPos, this.Lexer.Position, left, op1, right)
+        |   _ ->
+                ASTNode.WithItem(startPos, this.Lexer.Position, left, Token.Empty, ASTNode.Empty)
 
     member this.ParseExceptClause() =
         let startPos = this.Lexer.Position
@@ -525,7 +573,30 @@ type Parser(lexer : Tokenizer) =
 
     member this.ParseSuite() =
         let startPos = this.Lexer.Position
-        ASTNode.Empty
+        match this.Lexer.Symbol with
+        |   Newline _   ->
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                match this.Lexer.Symbol with
+                |   Token.Indent _ ->
+                        let op2 = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        let mutable nodes : ASTNode list = []
+                        nodes <- this.ParseStmt() :: nodes
+                        while   match this.Lexer.Symbol with
+                                |   Token.Dedent _ ->
+                                        false
+                                |   _ ->
+                                        nodes <- this.ParseStmt() :: nodes
+                                        true
+                            do ()
+                        let op3 = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        ASTNode.Suite(startPos, this.Lexer.Position, op1, op2, List.toArray(List.rev nodes), op3)
+                |   _ ->
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting indentation in statement block!") )
+        |   _   ->
+                this.ParseSimpleStmt()
 
     // Expression rules in Python 3.9 grammar /////////////////////////////////////////////////////
 
