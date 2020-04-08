@@ -133,7 +133,7 @@ type ASTNode =
     |   PowerAssign of int * int * ASTNode * Token * ASTNode
     |   FloorDivAssign of int * int * ASTNode * Token * ASTNode
     |   AnnAssign of int * int * ASTNode * Token * ASTNode * Token * ASTNode
-    |   Assign of int * int * ASTNode * Token * ASTNode
+    |   Assign of int * int * ASTNode * Token * Token * ASTNode
     |   Del of int * int * Token * ASTNode
     |   Pass of int * int * Token
     |   Break of int * int * Token
@@ -329,7 +329,108 @@ type Parser(lexer : Tokenizer) =
                 this.ParseExprStmt()
 
     member this.ParseExprStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        let left = this.ParseTestListStarExpr()
+        match this.Lexer.Symbol with
+        |   Token.PlusAssign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestList()
+                ASTNode.PlusAssign(startPos, this.Lexer.Position, left, op, right)
+        |   Token.MinusAssign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestList()
+                ASTNode.MinusAssign(startPos, this.Lexer.Position, left, op, right)
+        |   Token.MulAssign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestList()
+                ASTNode.MulAssign(startPos, this.Lexer.Position, left, op, right)
+        |   Token.PowerAssign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestList()
+                ASTNode.PowerAssign(startPos, this.Lexer.Position, left, op, right)
+        |   Token.FloorDivAssign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestList()
+                ASTNode.FloorDivAssign(startPos, this.Lexer.Position, left, op, right)
+        |   Token.DivAssign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestList()
+                ASTNode.DivAssign(startPos, this.Lexer.Position, left, op, right)
+        |   Token.ModuloAssign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestList()
+                ASTNode.ModuloAssign(startPos, this.Lexer.Position, left, op, right)
+        |   Token.MatriceAssign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestList()
+                ASTNode.MatriceAssign(startPos, this.Lexer.Position, left, op, right)
+        |   Token.BitAndAssign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestList()
+                ASTNode.AndAssign(startPos, this.Lexer.Position, left, op, right)
+        |   Token.BitOrAssign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestList()
+                ASTNode.OrAssign(startPos, this.Lexer.Position, left, op, right)
+        |   Token.BitXorAssign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestList()
+                ASTNode.XorAssign(startPos, this.Lexer.Position, left, op, right)
+        |   Token.ShiftLeftAssign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestList()
+                ASTNode.ShiftLeftAssign(startPos, this.Lexer.Position, left, op, right)
+        |   Token.ShiftRightAssign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestList()
+                ASTNode.ShiftRightAssign(startPos, this.Lexer.Position, left, op, right)
+        |   Token.Colon _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let rigth = this.ParseTest()
+                match this.Lexer.Symbol with
+                |   Token.Assign _ ->
+                        let op2 = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        let next = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestListStarExpr()
+                        ASTNode.AnnAssign(startPos, this.Lexer.Position, left, op, rigth, op2, next)
+                |   _ ->
+                        ASTNode.AnnAssign(startPos, this.Lexer.Position, left, op, rigth, Token.Empty, ASTNode.Empty)          
+        |   Token.Assign _ ->
+                let mutable res = left
+                while   match this.Lexer.Symbol with
+                        |   Token.Assign _ ->
+                                let op = this.Lexer.Symbol
+                                this.Lexer.Advance()
+                                let right = match this.Lexer.Symbol with | Token.Yield _ -> this.ParseYieldExpr() | _ -> this.ParseTestListStarExpr()
+                                let op2 =   match this.Lexer.Symbol with
+                                            |   Token.TypeComment _ ->
+                                                    let tmpOp = this.Lexer.Symbol
+                                                    this.Lexer.Advance()
+                                                    tmpOp
+                                            |   _ ->
+                                                    Token.Empty
+                                res <- ASTNode.Assign(startPos, this.Lexer.Position, res, op, op2, right)
+                                true
+                        |   _ ->
+                                false
+                    do ()
+                res
+        |   _   ->
+                left
 
     member this.ParseTestListStarExpr() =
         let startPos = this.Lexer.Position
