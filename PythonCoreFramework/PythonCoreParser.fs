@@ -331,12 +331,62 @@ type Parser(lexer : Tokenizer) =
     member this.ParseExprStmt() =
         ASTNode.Empty
 
+    member this.ParseTestListStarExpr() =
+        let startPos = this.Lexer.Position
+        let mutable nodes : ASTNode list = []
+        let mutable ops : Token list = []
+        nodes <- ( match this.Lexer.Symbol with | Token.Mul _ -> this.ParseStarExpr() | _ -> this.ParseTest() ) :: nodes
+        while   match this.Lexer.Symbol with
+                |   Token.Comma _ ->
+                        ops <- this.Lexer.Symbol :: ops
+                        this.Lexer.Advance()
+                        match this.Lexer.Symbol with
+                        |   Token.PlusAssign _
+                        |   Token.MinusAssign _
+                        |   Token.MulAssign _
+                        |   Token.PowerAssign _
+                        |   Token.FloorDivAssign _
+                        |   Token.DivAssign _
+                        |   Token.ModuloAssign _
+                        |   Token.MatriceAssign _
+                        |   Token.BitAndAssign _
+                        |   Token.BitOrAssign _
+                        |   Token.BitXorAssign _
+                        |   Token.ShiftLeftAssign _
+                        |   Token.ShiftRightAssign _
+                        |   Token.Colon _
+                        |   Token.Assign _
+                        |   Token.Newline _
+                        |   Token.SemiColon _ ->
+                                false
+                        |   _ ->
+                               nodes <- ( match this.Lexer.Symbol with | Token.Mul _ -> this.ParseStarExpr() | _ -> this.ParseTest() ) :: nodes
+                               true
+                |   _ ->
+                        false
+            do ()
+        ASTNode.TestList(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops))
+
     member this.ParseDelStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Del _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = this.ParseExprList()
+                ASTNode.Del(startPos, this.Lexer.Position, op, right)
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'del' in del statement!") )
 
     member this.ParsePassStmt() =
-        ASTNode.Empty
-
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Pass _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                ASTNode.Pass(startPos, this.Lexer.Position, op)
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'pass' in pass statement!") )
 
     // Compound Statement rules in Python 3.9 grammar /////////////////////////////////////////////
     
