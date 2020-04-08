@@ -272,9 +272,69 @@ type Parser(lexer : Tokenizer) =
     // Simple Statement rules in Python 3.9 grammar ///////////////////////////////////////////////
 
     member this.ParseStmt() =
-        ASTNode.Empty
+        match this.Lexer.Symbol with
+        |   Token.If _
+        |   Token.While _
+        |   Token.For _
+        |   Token.Try _
+        |   Token.With _
+        |   Token.Def _
+        |   Token.Class _
+        |   Token.Matrice _
+        |   Token.Async _ ->
+                this.ParseCompoundStmt()
+        |   _   ->
+                this.ParseSimpleStmt()
 
     member this.ParseSimpleStmt() =
+        let startPos = this.Lexer.Position
+        let mutable nodes : ASTNode list = []
+        let mutable ops : Token list = []
+        nodes <- this.ParseSmallStmt() :: nodes
+        while   match this.Lexer.Symbol with
+                |   Token.SemiColon _   ->
+                        ops <- this.Lexer.Symbol :: ops
+                        this.Lexer.Advance()
+                        nodes <- this.ParseSmallStmt() :: nodes
+                        true
+                |   _   ->
+                        false
+            do ()
+        let op =    match this.Lexer.Symbol with
+                    |   Token.Newline _ ->
+                            let tmpOp = this.Lexer.Symbol
+                            this.Lexer.Advance()
+                            tmpOp
+                    |   _ ->
+                            raise ( SyntaxError(this.Lexer.Symbol, "Expecting newline after statements!") )
+        ASTNode.SimpleStmtList(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops), op)
+
+    member this.ParseSmallStmt() =
+        match this.Lexer.Symbol with
+        |   Token.Del _ ->
+                this.ParseDelStmt()
+        |   Token.Pass _ ->
+                this.ParsePassStmt()
+        |   Token.Break _
+        |   Token.Continue _
+        |   Token.Return _
+        |   Token.Raise _
+        |   Token.Yield _
+        |   Token.Import _
+        |   Token.From _
+        |   Token.Global _
+        |   Token.Nonlocal _
+        |   Token.Assert _
+        |   _ ->
+                this.ParseExprStmt()
+
+    member this.ParseExprStmt() =
+        ASTNode.Empty
+
+    member this.ParseDelStmt() =
+        ASTNode.Empty
+
+    member this.ParsePassStmt() =
         ASTNode.Empty
 
 
