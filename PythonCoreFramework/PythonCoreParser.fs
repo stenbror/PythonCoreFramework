@@ -250,6 +250,20 @@ type Parser(lexer : Tokenizer) =
     member val FuncFlowLevel = 0 with get, set
 
 
+    // Start rules in Python 3.9 grammar //////////////////////////////////////////////////////////
+
+    member this.ParseSingleInput() =
+        ASTNode.Empty
+
+    member this.ParseFileInput() =
+        ASTNode.Empty
+
+    member this.ParseEvalInput() =
+        ASTNode.Empty
+
+    member this.ParseFuncTypeInput() =
+        ASTNode.Empty
+
     // Block rules in Python 3.9 grammar //////////////////////////////////////////////////////////
 
     member this.ParseDecorated() =
@@ -334,13 +348,24 @@ type Parser(lexer : Tokenizer) =
     member this.ParseFuncDefStmt() =
         ASTNode.Empty
 
-
-
-
-
-    member this.ParseVarArgsList() =
+    member this.ParseParameters() = 
         ASTNode.Empty
 
+    member this.ParseTypedArgsList() =
+        this.ParseCommonArgsList(true)
+
+    member this.ParseVarArgsList() =
+        this.ParseCommonArgsList()
+
+    member this.ParseCommonArgsList(?isTyped : bool) =
+        let typed = match isTyped with Some x -> x | _ -> false
+        ASTNode.Empty
+
+    member this.ParseTFPDef() =
+        ASTNode.Empty
+
+    member this.ParseVFPDef() =
+        ASTNode.Empty
 
     // Simple Statement rules in Python 3.9 grammar ///////////////////////////////////////////////
 
@@ -2084,3 +2109,14 @@ type Parser(lexer : Tokenizer) =
                         ASTNode.YieldExpr(startPos, this.Lexer.Position, op1, right)
         |   _   ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Missing 'yield' in yield expression!") )
+
+// Func rules in Python 3.9 grammar ///////////////////////////////////////////////////////////////
+
+    member this.ParseFuncBodySuite() =
+        ASTNode.Empty
+
+    member this.ParseFuncType() =
+        ASTNode.Empty
+
+    member this.ParseTypeList() =
+        ASTNode.Empty
