@@ -319,12 +319,17 @@ type Parser(lexer : Tokenizer) =
         |   Token.Continue _
         |   Token.Return _
         |   Token.Raise _
-        |   Token.Yield _
+        |   Token.Yield _ ->
+                this.ParseFlowStmt()
         |   Token.Import _
-        |   Token.From _
-        |   Token.Global _
-        |   Token.Nonlocal _
-        |   Token.Assert _
+        |   Token.From _ ->
+                this.ParseImportStmt()
+        |   Token.Global _ ->
+                this.ParseGlobalStmt()
+        |   Token.Nonlocal _ ->
+                this.ParseNonlocalStmt()
+        |   Token.Assert _ ->
+                this.ParseAssertStmt()
         |   _ ->
                 this.ParseExprStmt()
 
@@ -515,18 +520,79 @@ type Parser(lexer : Tokenizer) =
                 raise ( SyntaxError(this.Lexer.Symbol, "Illegal flow statement!") )
 
     member this.ParseBreakStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Break _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                ASTNode.Break(startPos, this.Lexer.Position, op)
+        | _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'break' statement!") )
 
     member this.ParseContinueStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Continue _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                ASTNode.Continue(startPos, this.Lexer.Position, op)
+        | _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'continue' statement!") )
 
     member this.ParseReturnStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Return _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                match this.Lexer.Symbol with
+                |   Token.Newline _
+                |   Token.SemiColon _ ->
+                        ASTNode.Return(startPos, this.Lexer.Position, op, ASTNode.Empty)
+                |   _ ->
+                        let right = this.ParseTestListStarExpr()
+                        ASTNode.Return(startPos, this.Lexer.Position, op, right)
+        | _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'return' statement!") )
 
     member this.ParseYieldStmt() =
         this.ParseYieldExpr()
 
     member this.ParseRaiseStmt() =
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Raise _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                match this.Lexer.Symbol with
+                |   Token.Newline _
+                |   Token.SemiColon _ ->
+                        ASTNode.Raise(startPos, this.Lexer.Position, op, ASTNode.Empty, Token.Empty, ASTNode.Empty)
+                |   _ ->
+                        let left = this.ParseTest()
+                        match this.Lexer.Symbol with
+                        |   Token.From _ ->
+                                let op2 = this.Lexer.Symbol
+                                this.Lexer.Advance()
+                                let right = this.ParseTest()
+                                ASTNode.Raise(startPos, this.Lexer.Position, op, left, op2, right)
+                        |   _ ->
+                            ASTNode.Raise(startPos, this.Lexer.Position, op, left, Token.Empty, ASTNode.Empty)
+        | _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'raise' statement!") )
+
+    member this.ParseImportStmt() =
+        ASTNode.Empty
+
+
+
+    member this.ParseGlobalStmt() =
+        ASTNode.Empty
+
+    member this.ParseNonlocalStmt() =
+        ASTNode.Empty
+
+    member this.ParseAssertStmt() =
         ASTNode.Empty
 
     // Compound Statement rules in Python 3.9 grammar /////////////////////////////////////////////
