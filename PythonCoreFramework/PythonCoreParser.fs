@@ -489,6 +489,46 @@ type Parser(lexer : Tokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'pass' in pass statement!") )
 
+    member this.ParseFlowStmt() =
+        match this.Lexer.Symbol, this.FuncFlowLevel, this.FlowLevel with
+        |   Token.Return _ , _ , _ when this.FuncFlowLevel <= 0 ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Found 'return' outside of function!") )
+        |   Token.Return _ , _ , _ ->
+                this.ParseReturnStmt()
+        |   Token.Break _ , _ , _ when this.FuncFlowLevel <= 0 ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Found 'break' outside of loop statement!") )
+        |   Token.Break _ , _ , _ ->
+                this.ParseBreakStmt()
+        |   Token.Continue _ , _ , _ when this.FuncFlowLevel <= 0 ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Found 'continue' outside of loop statement!") )
+        |   Token.Continue _ , _ , _ ->
+                this.ParseContinueStmt()
+        |   Token.Raise _ , _ , _ when this.FuncFlowLevel <= 0 ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Found 'raise' outside of loop statement!") )
+        |   Token.Raise _ , _ , _ ->
+                this.ParseRaiseStmt()
+        |   Token.Yield _ , _ , _ when this.FuncFlowLevel <= 0 ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Found 'yield' outside of loop statement!") )
+        |   Token.Yield _ , _ , _ ->
+                this.ParseYieldStmt()
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Illegal flow statement!") )
+
+    member this.ParseBreakStmt() =
+        ASTNode.Empty
+
+    member this.ParseContinueStmt() =
+        ASTNode.Empty
+
+    member this.ParseReturnStmt() =
+        ASTNode.Empty
+
+    member this.ParseYieldStmt() =
+        this.ParseYieldExpr()
+
+    member this.ParseRaiseStmt() =
+        ASTNode.Empty
+
     // Compound Statement rules in Python 3.9 grammar /////////////////////////////////////////////
     
     member this.ParseCompoundStmt() =
