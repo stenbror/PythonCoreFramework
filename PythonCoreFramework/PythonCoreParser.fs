@@ -140,13 +140,13 @@ type ASTNode =
     |   Continue of int * int * Token
     |   Return of int * int * Token * ASTNode
     |   Raise of int * int * Token * ASTNode * Token * ASTNode
-    |   Import of int * int *ASTNode
+    |   Import of int * int * Token * ASTNode
     |   ImportFrom of int * int * Token array * ASTNode * Token * Token * ASTNode * Token
     |   ImportAsName of int * int * ASTNode * Token * ASTNode
     |   DottedAsName of int * int * ASTNode * Token * ASTNode
     |   ImportAsNames of int * int * ASTNode array
     |   DottedAsNames of int * int *ASTNode array
-    |   DottedName of int * int * ASTNode array
+    |   DottedName of int * int * ASTNode array * Token array
     |   Global of int * int * Token * ASTNode array * Token array
     |   Nonlocal of int * int * Token * ASTNode array * Token array
     |   Assert of int * int * Token * ASTNode * Token * ASTNode
@@ -582,9 +582,65 @@ type Parser(lexer : Tokenizer) =
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'raise' statement!") )
 
     member this.ParseImportStmt() =
+        match this.Lexer.Symbol with
+        |   Token.Import _ ->
+                this.ParseImportNameStmt()
+        |   Token.From _ ->
+                this.ParseImportFromStmt()
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expected 'import' or 'from' in import statement!") )
+
+    member this.ParseImportNameStmt() =
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Import _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = this.ParseDottedAsNameStmt()
+                ASTNode.Import(startPos, this.Lexer.Position, op, right)
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'import' in import statement!") )
+
+    member this.ParseImportFromStmt() =
         ASTNode.Empty
 
+    member this.ParseImportAsNameStmt() =
+        ASTNode.Empty
 
+    member this.ParseDottedAsNameStmt() =
+        ASTNode.Empty
+
+    member this.ParseImportAsNamesStmt() =
+        ASTNode.Empty
+
+    member this.ParseDottedAsNamesStmt() =
+        ASTNode.Empty
+
+    member this.ParseDottedNameStmt() =
+        let startPos = this.Lexer.Position
+        let mutable nodes : ASTNode list = []
+        let mutable ops : Token list = []
+        match this.Lexer.Symbol with
+        |   Token.Name _ ->
+                nodes <- ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol) :: nodes
+                this.Lexer.Advance()
+                while   match this.Lexer.Symbol with
+                        |   Token.Dot _ ->
+                                ops <- this.Lexer.Symbol :: ops
+                                this.Lexer.Advance()
+                                match this.Lexer.Symbol with
+                                |   Token.Name _ ->
+                                        nodes <- ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol) :: nodes
+                                        this.Lexer.Advance()
+                                |   _ ->
+                                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting name literal after '.'") )
+                                true
+                        |   _ ->
+                                false
+                    do ()
+                ASTNode.DottedName(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops))
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Missing name literal!") )
 
     member this.ParseGlobalStmt() =
         let startPos = this.Lexer.Position
