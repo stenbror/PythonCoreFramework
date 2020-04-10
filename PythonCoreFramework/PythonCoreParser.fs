@@ -223,7 +223,7 @@ type ASTNode =
     |   CompIf of int * int * Token * ASTNode * ASTNode
     |   YieldExpr of int * int * Token * ASTNode
     |   YieldFromExpr of int * int * Token * Token * ASTNode
-    |   FuncBodySuite of int * int * Token * ASTNode * Token * Token * ASTNode array * Token
+    |   FuncBodySuite of int * int * Token * Token * Token * Token * ASTNode array * Token
     |   FuncTypeInput of int * int * ASTNode * Token * Token
     |   FuncType of int * int * Token * ASTNode * Token * Token * ASTNode
     |   TypeList of int * int * ASTNode array * Token array
@@ -2113,7 +2113,44 @@ type Parser(lexer : Tokenizer) =
 // Func rules in Python 3.9 grammar ///////////////////////////////////////////////////////////////
 
     member this.ParseFuncBodySuite() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Newline _ ->
+                let mutable nodes : ASTNode list = [] 
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                match this.Lexer.Symbol with
+                |   Token.Indent _ ->
+                        let op2 = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        let tc, nl =    match this.Lexer.Symbol with
+                                        |   Token.TypeComment _ ->
+                                                let tmp1 = this.Lexer.Symbol
+                                                this.Lexer.Advance()
+                                                match this.Lexer.Symbol with
+                                                |   Token.Newline _ ->
+                                                        let tmp2 = this.Lexer.Symbol
+                                                        this.Lexer.Advance()
+                                                        tmp1, tmp2
+                                                |   _ ->
+                                                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting newline after type comment!") )
+                                        |   _ ->
+                                            Token.Empty, Token.Empty
+                        nodes <- this.ParseStmt() :: nodes
+                        while   match this.Lexer.Symbol with
+                                |   Token.Dedent _ ->
+                                        false
+                                |   _ ->
+                                        nodes <- this.ParseStmt() :: nodes
+                                        true
+                            do ()
+                        let op3 = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        ASTNode.FuncBodySuite(startPos, this.Lexer.Position, op1, op2, tc, nl, List.toArray(List.rev nodes), op3)
+                |   _ ->
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting indentation in function block statement!") )
+        |   _ ->
+                this.ParseSimpleStmt()
 
     member this.ParseFuncType() =
         ASTNode.Empty
