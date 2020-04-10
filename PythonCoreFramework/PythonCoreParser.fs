@@ -2183,4 +2183,89 @@ type Parser(lexer : Tokenizer) =
             raise ( SyntaxError(this.Lexer.Symbol, "Expected '(' in func definition!") )
 
     member this.ParseTypeList() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        let mutable nodes : ASTNode list = []
+        let mutable ops : Token list = []
+        match this.Lexer.Symbol with
+        |   Token.Mul _ ->
+                let start2 = this.Lexer.Position
+                let opMul = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let node = this.ParseTest()
+                nodes <- ASTNode.TypedMul(start2, this.Lexer.Position, opMul, node) :: nodes
+                while   match this.Lexer.Symbol with
+                        |   Token.Comma _ ->
+                                ops <- this.Lexer.Symbol :: ops
+                                this.Lexer.Advance()
+                                match this.Lexer.Symbol with
+                                |   Token.RightParen _ ->
+                                        false
+                                |   Token.Power _ ->
+                                        let start2 = this.Lexer.Position
+                                        let opPower = this.Lexer.Symbol
+                                        this.Lexer.Advance()
+                                        let node = this.ParseTest()
+                                        nodes <- ASTNode.TypedPower(start2, this.Lexer.Position, opPower, node) :: nodes
+                                        false
+                                |   _ ->
+                                        nodes <- this.ParseTest() :: nodes
+                                        true
+                        |   _ ->
+                                false
+                    do ()
+        |   Token.Power _ ->
+                let start2 = this.Lexer.Position
+                let opPower = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let node = this.ParseTest()
+                nodes <- ASTNode.TypedPower(start2, this.Lexer.Position, opPower, node) :: nodes
+        |   _ ->
+                nodes <- this.ParseTest() :: nodes
+                while   match this.Lexer.Symbol with
+                        |   Token.Comma _ ->
+                                ops <- this.Lexer.Symbol :: ops
+                                this.Lexer.Advance()
+                                match this.Lexer.Symbol with
+                                |   Token.RightParen _ ->
+                                        false
+                                |   Token.Power _ ->
+                                        let start2 = this.Lexer.Position
+                                        let opPower = this.Lexer.Symbol
+                                        this.Lexer.Advance()
+                                        let node = this.ParseTest()
+                                        nodes <- ASTNode.TypedPower(start2, this.Lexer.Position, opPower, node) :: nodes
+                                        false
+                                |   Token.Mul _ ->
+                                        let start3 = this.Lexer.Position
+                                        let opMul = this.Lexer.Symbol
+                                        this.Lexer.Advance()
+                                        let node = this.ParseTest()
+                                        nodes <- ASTNode.TypedMul(start3, this.Lexer.Position, opMul, node) :: nodes
+                                        while   match this.Lexer.Symbol with
+                                                |   Token.Comma _ ->
+                                                        ops <- this.Lexer.Symbol :: ops
+                                                        this.Lexer.Advance()
+                                                        match this.Lexer.Symbol with
+                                                        |   Token.RightParen _ ->
+                                                                false
+                                                        |   Token.Power _ ->
+                                                                let start2 = this.Lexer.Position
+                                                                let opPower = this.Lexer.Symbol
+                                                                this.Lexer.Advance()
+                                                                let node = this.ParseTest()
+                                                                nodes <- ASTNode.TypedPower(start2, this.Lexer.Position, opPower, node) :: nodes
+                                                                false
+                                                        |   _ ->
+                                                                nodes <- this.ParseTest() :: nodes
+                                                                true
+                                                |   _ ->
+                                                        false
+                                            do ()
+                                        false
+                                |   _ ->
+                                        nodes <- this.ParseTest() :: nodes
+                                        true
+                        |   _ ->
+                                false
+                    do ()
+        ASTNode.TypeList(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops))
