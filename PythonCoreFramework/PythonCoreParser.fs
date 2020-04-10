@@ -253,9 +253,82 @@ type Parser(lexer : Tokenizer) =
     // Block rules in Python 3.9 grammar //////////////////////////////////////////////////////////
 
     member this.ParseDecorated() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Matrice _ ->
+                let left = this.ParseDecorators()
+                match this.Lexer.Symbol with
+                |   Token.Class _ ->
+                        let right = this.ParseClassStmt()
+                        ASTNode.Decorated(startPos, this.Lexer.Position, left, right)
+                |   Token.Def _ ->
+                        let right = this.ParseFuncDefStmt()
+                        ASTNode.Decorated(startPos, this.Lexer.Position, left, right)
+                |   Token.Async _ ->
+                        let right = this.ParseAsyncFuncDefStmt()
+                        ASTNode.Decorated(startPos, this.Lexer.Position, left, right)
+                |   _ ->
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'class', 'def' or 'async' after decorator statement!") )
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting '@' in decorator statement!") )
+
+    member this.ParseDecorators() =
+        match this.Lexer.Symbol with
+        |   Token.Matrice _ ->
+                let startPos = this.Lexer.Position
+                let mutable nodes : ASTNode list = []
+                while   match this.Lexer.Symbol with
+                        |   Token.Matrice _ ->
+                                nodes <- this.ParseDecorator() :: nodes
+                                true
+                        |   _ ->
+                                false
+                    do ()
+                ASTNode.Decorators(startPos, this.Lexer.Position, List.toArray(List.rev nodes))
+        |   _ ->
+                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting '@' in decorator statement!") )
+
+    member this.ParseDecorator() =
+        match this.Lexer.Symbol with
+        |   Token.Matrice _ ->
+                let startPos = this.Lexer.Position
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let left = this.ParseDottedNameStmt()
+                match this.Lexer.Symbol with
+                |   Token.LeftParen _ ->
+                        let op3 = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        let right = this.ParseArgsList()
+                        let op4 =   match this.Lexer.Symbol with
+                                    |   Token.RightParen _ ->
+                                            let tmpOp = this.Lexer.Symbol
+                                            this.Lexer.Advance()
+                                            tmpOp
+                                    |   _ ->
+                                            raise ( SyntaxError(this.Lexer.Symbol, "Expecting ')' in decorator statement!") )
+                        match this.Lexer.Symbol with
+                        |   Token.Newline _ ->
+                                let op2 = this.Lexer.Symbol
+                                this.Lexer.Advance()
+                                ASTNode.Decorator(startPos, this.Lexer.Position, op, left, op3, right, op4, op2)
+                        |   _ ->
+                                raise ( SyntaxError(this.Lexer.Symbol, "Expecting newline after decorator statement!") )
+                |   _ ->
+                        match this.Lexer.Symbol with
+                        |   Token.Newline _ ->
+                                let op2 = this.Lexer.Symbol
+                                this.Lexer.Advance()
+                                ASTNode.Decorator(startPos, this.Lexer.Position, op, left, Token.Empty, ASTNode.Empty, Token.Empty, op2)
+                        |   _ ->
+                                raise ( SyntaxError(this.Lexer.Symbol, "Expecting newline after decorator statement!") )
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting '@' in decorator statement!") )
 
     member this.ParseClassStmt() =
+        ASTNode.Empty
+
+    member this.ParseAsyncFuncDefStmt() =
         ASTNode.Empty
 
     member this.ParseFuncDefStmt() =
