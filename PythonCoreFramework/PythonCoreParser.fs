@@ -587,10 +587,72 @@ type Parser(lexer : Tokenizer) =
 
 
     member this.ParseGlobalStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Global _ ->
+                let mutable nodes : ASTNode list = []
+                let mutable ops : Token list = []
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                match this.Lexer.Symbol with
+                |   Token.Name _ ->
+                        let name1 = ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol)
+                        this.Lexer.Advance()
+                        nodes <- name1 :: nodes
+                        while   match this.Lexer.Symbol with
+                                |   Token.Comma _ ->
+                                        ops <- this.Lexer.Symbol :: ops
+                                        this.Lexer.Advance()
+                                        match this.Lexer.Symbol with
+                                        |   Token.Name _ ->
+                                                let name2 = ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol)
+                                                this.Lexer.Advance()
+                                                nodes <- name2 :: nodes
+                                                true
+                                        |   _ ->
+                                                raise ( SyntaxError(this.Lexer.Symbol, "Expecting name literal after ',' in global statement!") )
+                                |   _ ->
+                                        false
+                            do ()
+                        ASTNode.Global(startPos, this.Lexer.Position, op, List.toArray(List.rev nodes), List.toArray(List.rev ops))
+                |   _ ->
+                    raise ( SyntaxError(this.Lexer.Symbol, "Expecting name literal in global statement!") )
+        |   _ ->
+            raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'global' in global statement!") )
 
     member this.ParseNonlocalStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Nonlocal _ ->
+                let mutable nodes : ASTNode list = []
+                let mutable ops : Token list = []
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                match this.Lexer.Symbol with
+                |   Token.Name _ ->
+                        let name1 = ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol)
+                        this.Lexer.Advance()
+                        nodes <- name1 :: nodes
+                        while   match this.Lexer.Symbol with
+                                |   Token.Comma _ ->
+                                        ops <- this.Lexer.Symbol :: ops
+                                        this.Lexer.Advance()
+                                        match this.Lexer.Symbol with
+                                        |   Token.Name _ ->
+                                                let name2 = ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol)
+                                                this.Lexer.Advance()
+                                                nodes <- name2 :: nodes
+                                                true
+                                        |   _ ->
+                                                raise ( SyntaxError(this.Lexer.Symbol, "Expecting name literal after ',' in nonlocal statement!") )
+                                |   _ ->
+                                        false
+                            do ()
+                        ASTNode.Nonlocal(startPos, this.Lexer.Position, op, List.toArray(List.rev nodes), List.toArray(List.rev ops))
+                |   _ ->
+                    raise ( SyntaxError(this.Lexer.Symbol, "Expecting name literal in nonlocal statement!") )
+        |   _ ->
+            raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'nonlocal' in nonlocal statement!") )
 
     member this.ParseAssertStmt() =
         ASTNode.Empty
