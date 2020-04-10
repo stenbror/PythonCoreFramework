@@ -655,7 +655,22 @@ type Parser(lexer : Tokenizer) =
             raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'nonlocal' in nonlocal statement!") )
 
     member this.ParseAssertStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Assert _ ->
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let left = this.ParseTest()
+                match this.Lexer.Symbol with
+                |   Token.Comma _ ->
+                        let op2 = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        let right = this.ParseTest()
+                        ASTNode.Assert(startPos, this.Lexer.Position, op1, left, op2, right)
+                |   _ ->
+                        ASTNode.Assert(startPos, this.Lexer.Position, op1, left, Token.Empty, ASTNode.Empty)
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'assert' in assert statement!") )
 
     // Compound Statement rules in Python 3.9 grammar /////////////////////////////////////////////
     
