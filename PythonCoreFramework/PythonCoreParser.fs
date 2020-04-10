@@ -2153,7 +2153,34 @@ type Parser(lexer : Tokenizer) =
                 this.ParseSimpleStmt()
 
     member this.ParseFuncType() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.LeftParen _ ->
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let left =  match this.Lexer.Symbol with
+                            |   Token.RightParen _ ->
+                                    ASTNode.Empty
+                            |   _ ->
+                                    this.ParseTypeList()
+                let op2 =   match this.Lexer.Symbol with
+                            |   Token.RightParen _ ->
+                                    let tmp1 = this.Lexer.Symbol
+                                    this.Lexer.Advance()
+                                    tmp1
+                            |   _ ->
+                                    raise ( SyntaxError(this.Lexer.Symbol, "Expecting ')' in func definition!") )
+                let op3 =   match this.Lexer.Symbol with
+                            |   Token.Ptr _ ->
+                                    let tmp2 = this.Lexer.Symbol
+                                    this.Lexer.Advance()
+                                    tmp2
+                            |   _ ->
+                                    raise ( SyntaxError(this.Lexer.Symbol, "Expecting '->' in func definition!") )
+                let right = this.ParseTest()
+                ASTNode.FuncType(startPos, this.Lexer.Position, op1, left, op2, op3, right)
+        |   _ ->
+            raise ( SyntaxError(this.Lexer.Symbol, "Expected '(' in func definition!") )
 
     member this.ParseTypeList() =
         ASTNode.Empty
