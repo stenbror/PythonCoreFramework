@@ -141,7 +141,7 @@ type ASTNode =
     |   Return of int * int * Token * ASTNode
     |   Raise of int * int * Token * ASTNode * Token * ASTNode
     |   Import of int * int * Token * ASTNode
-    |   ImportFrom of int * int * Token array * ASTNode * Token * Token * ASTNode * Token
+    |   ImportFrom of int * int * Token * Token array * ASTNode * Token * Token * ASTNode * Token
     |   ImportAsName of int * int * ASTNode * Token * ASTNode
     |   DottedAsName of int * int * ASTNode * Token * ASTNode
     |   ImportAsNames of int * int * ASTNode array * Token array
@@ -602,7 +602,56 @@ type Parser(lexer : Tokenizer) =
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'import' in import statement!") )
 
     member this.ParseImportFromStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.From _ ->
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let mutable dots : Token list = []
+                while   match this.Lexer.Symbol with
+                        |   Token.Dot _
+                        |   Token.Elipsis _ ->
+                                dots <- this.Lexer.Symbol :: dots
+                                this.Lexer.Advance()
+                                true
+                        |   _ ->
+                                false
+                    do ()
+                let left =  match this.Lexer.Symbol, dots.Length with
+                            |   Token.Import _ , _ when dots.Length = 0 ->
+                                    raise ( SyntaxError(this.Lexer.Symbol, "Minimum one '.' in from part of import statement!") )
+                            |   Token.Import _ , _ ->
+                                    ASTNode.Empty
+                            |   _ ->
+                                    this.ParseDottedNameStmt()
+                match this.Lexer.Symbol with
+                |   Token.Import _ ->
+                        let op2 = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        match this.Lexer.Symbol with
+                        |   Token.Mul _ ->
+                                let op3 = this.Lexer.Symbol
+                                this.Lexer.Advance()
+                                ASTNode.ImportFrom(startPos, this.Lexer.Position, op1, List.toArray(List.rev dots), left, op2, op3, ASTNode.Empty, Token.Empty)
+                        |   Token.LeftParen _ ->
+                                let op4 = this.Lexer.Symbol
+                                this.Lexer.Advance()
+                                let right = this.ParseImportAsNamesStmt()
+                                let op5 =   match this.Lexer.Symbol with
+                                            |   Token.RightParen _ ->
+                                                   let tmpOp = this.Lexer.Symbol
+                                                   this.Lexer.Advance()
+                                                   tmpOp
+                                            |   _ ->
+                                                    raise ( SyntaxError(this.Lexer.Symbol, "Expecting ')' in import statement!") )
+                                ASTNode.ImportFrom(startPos, this.Lexer.Position, op1, List.toArray(List.rev dots), left, op2, op4, right, op5)
+                        |   _ ->
+                                let right = this.ParseImportAsNamesStmt()
+                                ASTNode.ImportFrom(startPos, this.Lexer.Position, op1, List.toArray(List.rev dots), left, op2, Token.Empty, right, Token.Empty)
+                |   _ ->
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expected 'import' in import from statement!" ) )
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'from' in imort statement!") )
 
     member this.ParseImportAsNameStmt() =
         let startPos = this.Lexer.Position
