@@ -576,6 +576,7 @@ type Parser(lexer : Tokenizer) =
                                                         Token.Empty
                                 com <- typeComm1 :: com
                                 match this.Lexer.Symbol with
+                                |   Token.Colon _
                                 |   Token.RightParen _ ->
                                         false
                                 |   Token.Power _ ->
@@ -648,6 +649,7 @@ type Parser(lexer : Tokenizer) =
                                                         Token.Empty
                                 com <- typeComm1 :: com
                                 match this.Lexer.Symbol with
+                                |   Token.Colon _
                                 |   Token.RightParen _ ->
                                         false
                                 |   Token.Power _ ->
@@ -698,6 +700,7 @@ type Parser(lexer : Tokenizer) =
                                                                                 Token.Empty
                                                         com <- typeComm1 :: com
                                                         match this.Lexer.Symbol with
+                                                        |   Token.Colon _
                                                         |   Token.RightParen _ ->
                                                                 false
                                                         |   Token.Power _ ->
