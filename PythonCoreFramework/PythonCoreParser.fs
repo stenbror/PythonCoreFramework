@@ -256,7 +256,33 @@ type Parser(lexer : Tokenizer) =
         this.FuncFlowLevel <- 0
         this.FlowLevel <- 0
         let startPos = 0
-        ASTNode.Empty
+        let op, node =  match this.Lexer.Symbol with
+                        |   Token.Newline _ ->
+                                let tmpOp = this.Lexer.Symbol
+                                this.Lexer.Advance()
+                                tmpOp, ASTNode.Empty
+                        |   Token.Matrice _
+                        |   Token.Async _
+                        |   Token.Def _
+                        |   Token.Class _
+                        |   Token.If _
+                        |   Token.While _
+                        |   Token.For _
+                        |   Token.Try _
+                        |   Token.With _ ->
+                                let tmpNode = this.ParseStmt()
+                                let tmpOp2 =    match this.Lexer.Symbol with
+                                                |   Token.Newline _ ->
+                                                        let tmpOp3 = this.Lexer.Symbol
+                                                        this.Lexer.Advance()
+                                                        tmpOp3
+                                                |   _ ->
+                                                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting newline after single line input!") )
+                                tmpOp2, tmpNode
+                        |   _ ->
+                                let tmpNode = this.ParseSimpleStmt()
+                                Token.Empty, tmpNode
+        ASTNode.SingleInput(startPos, this.Lexer.Position, node, op)
 
     member this.ParseFileInput() =
         this.FuncFlowLevel <- 0
