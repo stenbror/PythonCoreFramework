@@ -302,10 +302,10 @@ type Parser(lexer : Tokenizer) =
                         true
             do ()
         let op =    match this.Lexer.Symbol with
-        |   Token.EOF _ ->
-                this.Lexer.Symbol
-        |   _ ->
-                raise ( SyntaxError(this.Lexer.Symbol, "Expecting end of file!") )
+                    |   Token.EOF _ ->
+                            this.Lexer.Symbol
+                    |   _ ->
+                            raise ( SyntaxError(this.Lexer.Symbol, "Expecting end of file!") )
         ASTNode.FileInput(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops), op)
 
     member this.ParseEvalInput() =
@@ -596,12 +596,12 @@ type Parser(lexer : Tokenizer) =
                                                 ops <- this.Lexer.Symbol :: ops
                                                 this.Lexer.Advance()
                                                 let typeComm1 = match this.Lexer.Symbol with
-                                                |   Token.TypeComment _ ->
-                                                        let tmpOp = this.Lexer.Symbol
-                                                        this.Lexer.Advance()
-                                                        tmpOp
-                                                |   _ ->
-                                                        Token.Empty
+                                                                |   Token.TypeComment _ ->
+                                                                        let tmpOp = this.Lexer.Symbol
+                                                                        this.Lexer.Advance()
+                                                                        tmpOp
+                                                                |   _ ->
+                                                                        Token.Empty
                                                 com <- typeComm1 :: com
                                         |   _ ->
                                                 ()
@@ -627,12 +627,12 @@ type Parser(lexer : Tokenizer) =
                         ops <- this.Lexer.Symbol :: ops
                         this.Lexer.Advance()
                         let typeComm1 = match this.Lexer.Symbol with
-                        |   Token.TypeComment _ ->
-                                let tmpOp = this.Lexer.Symbol
-                                this.Lexer.Advance()
-                                tmpOp
-                        |   _ ->
-                                Token.Empty
+                                        |   Token.TypeComment _ ->
+                                                let tmpOp = this.Lexer.Symbol
+                                                this.Lexer.Advance()
+                                                tmpOp
+                                        |   _ ->
+                                                Token.Empty
                         com <- typeComm1 :: com
                 |   _ ->
                         ()
@@ -669,12 +669,12 @@ type Parser(lexer : Tokenizer) =
                                                 ops <- this.Lexer.Symbol :: ops
                                                 this.Lexer.Advance()
                                                 let typeComm1 = match this.Lexer.Symbol with
-                                                |   Token.TypeComment _ ->
-                                                        let tmpOp = this.Lexer.Symbol
-                                                        this.Lexer.Advance()
-                                                        tmpOp
-                                                |   _ ->
-                                                        Token.Empty
+                                                                |   Token.TypeComment _ ->
+                                                                        let tmpOp = this.Lexer.Symbol
+                                                                        this.Lexer.Advance()
+                                                                        tmpOp
+                                                                |   _ ->
+                                                                        Token.Empty
                                                 com <- typeComm1 :: com
                                         |   _ ->
                                                 ()
@@ -720,12 +720,12 @@ type Parser(lexer : Tokenizer) =
                                                                         ops <- this.Lexer.Symbol :: ops
                                                                         this.Lexer.Advance()
                                                                         let typeComm1 = match this.Lexer.Symbol with
-                                                                        |   Token.TypeComment _ ->
-                                                                                let tmpOp = this.Lexer.Symbol
-                                                                                this.Lexer.Advance()
-                                                                                tmpOp
-                                                                        |   _ ->
-                                                                                Token.Empty
+                                                                                        |   Token.TypeComment _ ->
+                                                                                                let tmpOp = this.Lexer.Symbol
+                                                                                                this.Lexer.Advance()
+                                                                                                tmpOp
+                                                                                        |   _ ->
+                                                                                                Token.Empty
                                                                         com <- typeComm1 :: com
                                                                 |   _ ->
                                                                         ()
