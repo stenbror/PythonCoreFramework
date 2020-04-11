@@ -436,8 +436,27 @@ type Parser(lexer : Tokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'def' in function declaration!") )
 
-    member this.ParseParameters() = 
-        ASTNode.Empty
+    member this.ParseParameters() =
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.LeftParen _ ->
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = match this.Lexer.Symbol with
+                            |   Token.RightParen _ ->
+                                    ASTNode.Empty
+                            |   _ ->
+                                    this.ParseTypedArgsList()
+                let op2 =   match this.Lexer.Symbol with
+                            |   Token.RightParen _ ->
+                                    let tmpOp2 = this.Lexer.Symbol
+                                    this.Lexer.Advance()
+                                    tmpOp2
+                            |   _ ->
+                                    raise ( SyntaxError(this.Lexer.Symbol, "Expecting ')' in function declaration!") )
+                ASTNode.Parameters(startPos, this.Lexer.Position, op1, right, op2)
+        | _ ->  
+                raise ( SyntaxError(this.Lexer.Symbol, "Expected '(' in function declaration!") )
 
     member this.ParseTypedArgsList() =
         this.ParseCommonArgsList(true)
