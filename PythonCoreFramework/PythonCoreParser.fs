@@ -224,7 +224,7 @@ type ASTNode =
     |   YieldExpr of int * int * Token * ASTNode
     |   YieldFromExpr of int * int * Token * Token * ASTNode
     |   FuncBodySuite of int * int * Token * Token * Token * Token * ASTNode array * Token
-    |   FuncTypeInput of int * int * ASTNode * Token * Token
+    |   FuncTypeInput of int * int * ASTNode * Token array * Token
     |   FuncType of int * int * Token * ASTNode * Token * Token * ASTNode
     |   TypeList of int * int * ASTNode array * Token array
     |   TypeListStar of int * int * Token * ASTNode
@@ -262,7 +262,23 @@ type Parser(lexer : Tokenizer) =
         ASTNode.Empty
 
     member this.ParseFuncTypeInput() =
-        ASTNode.Empty
+        let startPos = 0
+        let right = this.ParseFuncType()
+        let mutable nodes : Token list = []
+        while   match this.Lexer.Symbol with
+                |   Token.Newline _ ->
+                        nodes <- this.Lexer.Symbol :: nodes
+                        this.Lexer.Advance()
+                        true
+                |   _ ->
+                        false
+            do ()
+        let op =    match this.Lexer.Symbol with
+                    |   Token.EOF _ ->
+                            this.Lexer.Symbol
+                    |   _ ->
+                            raise ( SyntaxError(this.Lexer.Symbol, "Expecting end of file!") )
+        ASTNode.FuncTypeInput(startPos, this.Lexer.Position, right, List.toArray(List.rev nodes), op)
 
     // Block rules in Python 3.9 grammar //////////////////////////////////////////////////////////
 
