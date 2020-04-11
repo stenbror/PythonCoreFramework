@@ -480,6 +480,7 @@ type Parser(lexer : Tokenizer) =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
         |   Token.Def _ ->
+                this.FlowLevel <- this.FlowLevel + 1
                 let op1 = this.Lexer.Symbol
                 this.Lexer.Advance()
                 match this.Lexer.Symbol with
@@ -512,6 +513,7 @@ type Parser(lexer : Tokenizer) =
                                     |   _ ->
                                             Token.Empty
                         let suite = this.ParseFuncBodySuite()
+                        this.FlowLevel <- this.FlowLevel - 1
                         ASTNode.FuncDef(startPos, this.Lexer.Position, op1, left, right, op2, next, op3, op4, ASTNode.Empty)
                 |   _ ->
                         raise ( SyntaxError(this.Lexer.Symbol, "Expecting name of function!") )
@@ -1398,6 +1400,7 @@ type Parser(lexer : Tokenizer) =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
         |   Token.If _ ->
+                this.FlowLevel <- this.FlowLevel + 1
                 let op1 = this.Lexer.Symbol
                 this.Lexer.Advance()
                 let left = this.ParseNamedExpr()
@@ -1436,10 +1439,12 @@ type Parser(lexer : Tokenizer) =
                                         this.Lexer.Advance()
                                         let right3 = this.ParseSuite()
                                         let node = ASTNode.Else(start3, this.Lexer.Position, op5, op6, right3)
+                                        this.FlowLevel <- this.FlowLevel - 1
                                         ASTNode.If(startPos, this.Lexer.Position, op1, left, op2, right, List.toArray(List.rev nodes), node)
                                 |   _ ->
                                         raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in else statement!") )
                         |   _   ->
+                                this.FlowLevel <- this.FlowLevel - 1
                                 ASTNode.If(startPos, this.Lexer.Position, op1, left, op2, right, List.toArray(List.rev nodes), ASTNode.Empty)
                 |   _ -> 
                         raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in if statement!") )
@@ -1450,6 +1455,7 @@ type Parser(lexer : Tokenizer) =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
         |   Token.While _ ->
+                this.FlowLevel <- this.FlowLevel + 1
                 let op1 = this.Lexer.Symbol
                 this.Lexer.Advance()
                 let left = this.ParseNamedExpr()
@@ -1469,10 +1475,12 @@ type Parser(lexer : Tokenizer) =
                                         this.Lexer.Advance()
                                         let right2 = this.ParseSuite()
                                         let node = ASTNode.Else(start2, this.Lexer.Position, op3, op4, right2)
+                                        this.FlowLevel <- this.FlowLevel - 1
                                         ASTNode.While(startPos, this.Lexer.Position, op1, left, op2, right, node)
                                 |   _ ->
                                         raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in else statement!") )
                         |   _ ->
+                                this.FlowLevel <- this.FlowLevel - 1
                                 ASTNode.While(startPos, this.Lexer.Position, op1, left, op2, right, ASTNode.Empty)
                 |   _ ->
                         raise ( SyntaxError(this.Lexer.Symbol, "Missing ':' in while statement!") )
@@ -1483,6 +1491,7 @@ type Parser(lexer : Tokenizer) =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
         |   Token.For _ ->
+                this.FlowLevel <- this.FlowLevel + 1
                 let op1 = this.Lexer.Symbol
                 this.Lexer.Advance()
                 let left = this.ParseExprList()
@@ -1514,10 +1523,12 @@ type Parser(lexer : Tokenizer) =
                                                 this.Lexer.Advance()
                                                 let right2 = this.ParseSuite()
                                                 let node = ASTNode.Else(start2, this.Lexer.Position, op5, op6, right2)
+                                                this.FlowLevel <- this.FlowLevel - 1
                                                 ASTNode.For(startPos, this.Lexer.Position, op1, left, op2, right, op3, op4, next, node)
                                         |   _ ->
                                                 raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in else statement!") )
                                 |   _   ->
+                                        this.FlowLevel <- this.FlowLevel - 1
                                         ASTNode.For(startPos, this.Lexer.Position, op1, left, op2, right, op3, op4, next, ASTNode.Empty)
                         |   _   ->
                                 raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in for statement!") )
@@ -1530,6 +1541,7 @@ type Parser(lexer : Tokenizer) =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
         |   Token.Try _ ->
+                this.FlowLevel <- this.FlowLevel + 1
                 let op1 = this.Lexer.Symbol
                 this.Lexer.Advance()
                 match this.Lexer.Symbol with
@@ -1548,6 +1560,7 @@ type Parser(lexer : Tokenizer) =
                                         this.Lexer.Advance()
                                         let right3 = this.ParseSuite()
                                         let node = ASTNode.Finally(start2, this.Lexer.Position, op3, op4, right3)
+                                        this.FlowLevel <- this.FlowLevel - 1
                                         ASTNode.Try(startPos, this.Lexer.Position, op1, op2, left, [||], ASTNode.Empty, node)
                                 |   _ ->
                                         raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in finally statement!") )
@@ -1592,6 +1605,7 @@ type Parser(lexer : Tokenizer) =
                                                                     raise ( SyntaxError(this.Lexer.Symbol, "Missing ':' in finally statement!") )
                                                     |   _ ->
                                                             ASTNode.Empty
+                                        this.FlowLevel <- this.FlowLevel - 1
                                         ASTNode.Try(startPos, this.Lexer.Position, op1, op2, left, List.toArray(List.rev nodes), node, fin)
                                 |   _ ->
                                         raise ( SyntaxError(this.Lexer.Symbol, "Missing expect statement!") )
@@ -1604,6 +1618,7 @@ type Parser(lexer : Tokenizer) =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
         |   Token.With _ ->
+                this.FlowLevel <- this.FlowLevel + 1
                 let mutable nodes : ASTNode list = []
                 let mutable ops : Token list = []
                 let op1 = this.Lexer.Symbol
@@ -1630,6 +1645,7 @@ type Parser(lexer : Tokenizer) =
                                     |   _ ->
                                             Token.Empty
                         let right = this.ParseSuite()
+                        this.FlowLevel <- this.FlowLevel - 1
                         ASTNode.With(startPos, this.Lexer.Position, op1, List.toArray(List.rev nodes), List.toArray(List.rev ops), op2, op3, right)
                 |   _   ->
                         raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in with statement!") )
