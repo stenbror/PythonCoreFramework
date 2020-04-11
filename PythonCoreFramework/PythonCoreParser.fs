@@ -109,12 +109,12 @@ type ASTNode =
     |   AsyncFuncDef of int * int * Token * ASTNode
     |   FuncDef of int * int * Token * ASTNode * ASTNode * Token * ASTNode * Token * Token * ASTNode
     |   Parameters of int * int * Token * ASTNode * Token
-    |   TypedArgsList of int * int * ASTNode array * Token array
+    |   TypedArgsList of int * int * ASTNode array * Token array * Token array
     |   TypedAssign of int * int * ASTNode * ASTNode * Token * ASTNode
     |   TypedMul of int * int * Token * ASTNode
     |   TypedPower of int * int * Token * ASTNode
     |   TFPDef of int * int * ASTNode * Token * ASTNode
-    |   VarArgsList of int * int * ASTNode array * Token array
+    |   VarArgsList of int * int * ASTNode array * Token array * Token array
     |   VarAssign of int * int * ASTNode * ASTNode * Token * ASTNode
     |   VarMul of int * int * Token * ASTNode
     |   VarPower of int * int * Token * ASTNode
@@ -548,7 +548,201 @@ type Parser(lexer : Tokenizer) =
 
     member private this.ParseCommonArgsList(?isTyped : bool) =
         let typed = match isTyped with Some x -> x | _ -> false
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        let mutable nodes : ASTNode list = []
+        let mutable ops : Token list = []
+        let mutable com : Token list = []
+        match this.Lexer.Symbol with
+        |   Token.Mul _ ->
+                let start2 = this.Lexer.Position
+                let opMul = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let node =  this.ParseCommonAssignment(typed)
+                match typed with
+                |   true ->
+                        nodes <- ASTNode.TypedMul(start2, this.Lexer.Position, opMul, node) :: nodes
+                |   _ ->
+                        nodes <- ASTNode.VarMul(start2, this.Lexer.Position, opMul, node) :: nodes
+                while   match this.Lexer.Symbol with
+                        |   Token.Comma _ ->
+                                ops <- this.Lexer.Symbol :: ops
+                                this.Lexer.Advance()
+                                let typeComm1 = match this.Lexer.Symbol with
+                                                |   Token.TypeComment _ ->
+                                                        let tmpOp = this.Lexer.Symbol
+                                                        this.Lexer.Advance()
+                                                        tmpOp
+                                                |   _ ->
+                                                        Token.Empty
+                                com <- typeComm1 :: com
+                                match this.Lexer.Symbol with
+                                |   Token.RightParen _ ->
+                                        false
+                                |   Token.Power _ ->
+                                        let start2 = this.Lexer.Position
+                                        let opPower = this.Lexer.Symbol
+                                        this.Lexer.Advance()
+                                        let node = this.ParseCommonAssignment(typed)
+                                        match typed with
+                                        |   true ->
+                                                nodes <- ASTNode.TypedPower(start2, this.Lexer.Position, opPower, node) :: nodes
+                                        |   _ ->
+                                                nodes <- ASTNode.VarPower(start2, this.Lexer.Position, opPower, node) :: nodes
+                                        match this.Lexer.Symbol with
+                                        |   Token.Comma _ ->
+                                                ops <- this.Lexer.Symbol :: ops
+                                                this.Lexer.Advance()
+                                                let typeComm1 = match this.Lexer.Symbol with
+                                                |   Token.TypeComment _ ->
+                                                        let tmpOp = this.Lexer.Symbol
+                                                        this.Lexer.Advance()
+                                                        tmpOp
+                                                |   _ ->
+                                                        Token.Empty
+                                                com <- typeComm1 :: com
+                                        |   _ ->
+                                                ()
+                                        false
+                                |   _ ->
+                                        nodes <- this.ParseCommonAssignment(typed) :: nodes
+                                        true
+                        |   _ ->
+                                false
+                    do ()
+        |   Token.Power _ ->
+                let start2 = this.Lexer.Position
+                let opPower = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let node = this.ParseCommonAssignment(typed)
+                match typed with
+                |   true ->
+                        nodes <- ASTNode.TypedPower(start2, this.Lexer.Position, opPower, node) :: nodes
+                |   _ ->
+                        nodes <- ASTNode.VarPower(start2, this.Lexer.Position, opPower, node) :: nodes
+                match this.Lexer.Symbol with
+                |   Token.Comma _ ->
+                        ops <- this.Lexer.Symbol :: ops
+                        this.Lexer.Advance()
+                        let typeComm1 = match this.Lexer.Symbol with
+                        |   Token.TypeComment _ ->
+                                let tmpOp = this.Lexer.Symbol
+                                this.Lexer.Advance()
+                                tmpOp
+                        |   _ ->
+                                Token.Empty
+                        com <- typeComm1 :: com
+                |   _ ->
+                        ()
+        |   _ ->
+                nodes <- this.ParseTest() :: nodes
+                while   match this.Lexer.Symbol with
+                        |   Token.Comma _ ->
+                                ops <- this.Lexer.Symbol :: ops
+                                this.Lexer.Advance()
+                                let typeComm1 = match this.Lexer.Symbol with
+                                                |   Token.TypeComment _ ->
+                                                        let tmpOp = this.Lexer.Symbol
+                                                        this.Lexer.Advance()
+                                                        tmpOp
+                                                |   _ ->
+                                                        Token.Empty
+                                com <- typeComm1 :: com
+                                match this.Lexer.Symbol with
+                                |   Token.RightParen _ ->
+                                        false
+                                |   Token.Power _ ->
+                                        let start2 = this.Lexer.Position
+                                        let opPower = this.Lexer.Symbol
+                                        this.Lexer.Advance()
+                                        let node = this.ParseCommonAssignment(typed)
+                                        match typed with
+                                        |   true ->
+                                                nodes <- ASTNode.TypedPower(start2, this.Lexer.Position, opPower, node) :: nodes
+                                        |   _ ->
+                                                nodes <- ASTNode.VarPower(start2, this.Lexer.Position, opPower, node) :: nodes
+                                        match this.Lexer.Symbol with
+                                        |   Token.Comma _ ->
+                                                ops <- this.Lexer.Symbol :: ops
+                                                this.Lexer.Advance()
+                                                let typeComm1 = match this.Lexer.Symbol with
+                                                |   Token.TypeComment _ ->
+                                                        let tmpOp = this.Lexer.Symbol
+                                                        this.Lexer.Advance()
+                                                        tmpOp
+                                                |   _ ->
+                                                        Token.Empty
+                                                com <- typeComm1 :: com
+                                        |   _ ->
+                                                ()
+                                        false
+                                |   Token.Mul _ ->
+                                        let start2 = this.Lexer.Position
+                                        let opMul = this.Lexer.Symbol
+                                        this.Lexer.Advance()
+                                        let node =  this.ParseCommonAssignment(typed)
+                                        match typed with
+                                        |   true ->
+                                                nodes <- ASTNode.TypedMul(start2, this.Lexer.Position, opMul, node) :: nodes
+                                        |   _ ->
+                                                nodes <- ASTNode.VarMul(start2, this.Lexer.Position, opMul, node) :: nodes
+                                        while   match this.Lexer.Symbol with
+                                                |   Token.Comma _ ->
+                                                        ops <- this.Lexer.Symbol :: ops
+                                                        this.Lexer.Advance()
+                                                        let typeComm1 = match this.Lexer.Symbol with
+                                                                        |   Token.TypeComment _ ->
+                                                                                let tmpOp = this.Lexer.Symbol
+                                                                                this.Lexer.Advance()
+                                                                                tmpOp
+                                                                        |   _ ->
+                                                                                Token.Empty
+                                                        com <- typeComm1 :: com
+                                                        match this.Lexer.Symbol with
+                                                        |   Token.RightParen _ ->
+                                                                false
+                                                        |   Token.Power _ ->
+                                                                let start2 = this.Lexer.Position
+                                                                let opPower = this.Lexer.Symbol
+                                                                this.Lexer.Advance()
+                                                                let node = this.ParseCommonAssignment(typed)
+                                                                match typed with
+                                                                |   true ->
+                                                                        nodes <- ASTNode.TypedPower(start2, this.Lexer.Position, opPower, node) :: nodes
+                                                                |   _ ->
+                                                                        nodes <- ASTNode.VarPower(start2, this.Lexer.Position, opPower, node) :: nodes
+                                                                match this.Lexer.Symbol with
+                                                                |   Token.Comma _ ->
+                                                                        ops <- this.Lexer.Symbol :: ops
+                                                                        this.Lexer.Advance()
+                                                                        let typeComm1 = match this.Lexer.Symbol with
+                                                                        |   Token.TypeComment _ ->
+                                                                                let tmpOp = this.Lexer.Symbol
+                                                                                this.Lexer.Advance()
+                                                                                tmpOp
+                                                                        |   _ ->
+                                                                                Token.Empty
+                                                                        com <- typeComm1 :: com
+                                                                |   _ ->
+                                                                        ()
+                                                                false
+                                                        |   _ ->
+                                                                nodes <- this.ParseCommonAssignment(typed) :: nodes
+                                                                true
+                                                |   _ ->
+                                                        false
+                                            do ()
+                                        false
+                                |   _ ->
+                                        nodes <- this.ParseCommonAssignment(typed) :: nodes
+                                        true
+                        |   _ ->
+                                false
+                    do ()
+        match typed with
+        |   true ->
+                ASTNode.TypedArgsList(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops), List.toArray(List.rev com))
+        |   _ ->
+                ASTNode.VarArgsList(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops), List.toArray(List.rev com))
 
     member private this.ParseCommonAssignment(?isTyped : bool) =
         let typed = match isTyped with Some x -> x | _ -> false
