@@ -464,15 +464,55 @@ type Parser(lexer : Tokenizer) =
     member this.ParseVarArgsList() =
         this.ParseCommonArgsList()
 
-    member this.ParseCommonArgsList(?isTyped : bool) =
+    member private this.ParseCommonArgsList(?isTyped : bool) =
         let typed = match isTyped with Some x -> x | _ -> false
         ASTNode.Empty
 
+    member private this.ParseCommonAssignment(?isTyped : bool) =
+        let typed = match isTyped with Some x -> x | _ -> false
+        let startPos = this.Lexer.Position
+        let left =  match typed with
+                    |   true ->
+                            this.ParseTFPDef()
+                    |   _ ->
+                            this.ParseVFPDef()
+        match this.Lexer.Symbol with
+        |   Token.Assign _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = this.ParseTest()
+                ASTNode.Assign(startPos, this.Lexer.Position, left, Token.Empty, op, right)
+        |   _ ->
+                left
+
     member this.ParseTFPDef() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Name _ ->
+                let name = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let left = ASTNode.Name(startPos, this.Lexer.Position, name)
+                let op1, right =    match this.Lexer.Symbol with
+                                    |   Token.Colon _ ->
+                                            let tmpOp = this.Lexer.Symbol
+                                            this.Lexer.Advance()
+                                            let tmpRight = this.ParseTest()
+                                            tmpOp, tmpRight
+                                    |   _ ->
+                                            Token.Empty, ASTNode.Empty
+                ASTNode.TFPDef(startPos, this.Lexer.Position, left, op1, right)
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting name literal in argument!") )
 
     member this.ParseVFPDef() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Name _ ->
+                let name = this.Lexer.Symbol
+                this.Lexer.Advance()
+                ASTNode.Name(startPos, this.Lexer.Position, name)
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting name literal in argument!") )
 
     // Simple Statement rules in Python 3.9 grammar ///////////////////////////////////////////////
 
