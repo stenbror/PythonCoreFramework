@@ -384,7 +384,15 @@ type Parser(lexer : Tokenizer) =
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'class' in class declaration!") )
 
     member this.ParseAsyncFuncDefStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Async _ ->
+                let op = this.Lexer.Symbol
+                this.Lexer.Advance()
+                let right = this.ParseFuncDefStmt()
+                ASTNode.AsyncFuncDef(startPos, this.Lexer.Position, op, right)
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'async' in async function declaration!") )
 
     member this.ParseFuncDefStmt() =
         ASTNode.Empty
