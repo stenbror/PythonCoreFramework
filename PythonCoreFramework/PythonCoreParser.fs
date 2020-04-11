@@ -107,7 +107,7 @@ type ASTNode =
     |   Decorated of int * int * ASTNode * ASTNode
     |   Class of int * int * Token * ASTNode * Token * ASTNode * Token * Token * ASTNode
     |   AsyncFuncDef of int * int * Token * ASTNode
-    |   FuncDef of int * int * Token * ASTNode * ASTNode * Token * ASTNode * Token * ASTNode * ASTNode
+    |   FuncDef of int * int * Token * ASTNode * ASTNode * Token * ASTNode * Token * Token * ASTNode
     |   Parameters of int * int * Token * ASTNode * Token
     |   TypedArgsList of int * int * ASTNode array * Token array
     |   TypedAssign of int * int * ASTNode * ASTNode * Token * ASTNode
@@ -395,7 +395,46 @@ type Parser(lexer : Tokenizer) =
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'async' in async function declaration!") )
 
     member this.ParseFuncDefStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Def _ ->
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                match this.Lexer.Symbol with
+                |   Token.Name _ ->
+                        let start2 = this.Lexer.Position
+                        let name = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        let left = ASTNode.Name(start2, this.Lexer.Position, name)
+                        let right = this.ParseParameters()
+                        let op2, next = match this.Lexer.Symbol with    // '->' test
+                                        |   Token.Ptr _ ->
+                                                let tmpOp1 = this.Lexer.Symbol
+                                                this.Lexer.Advance()
+                                                let tmpNext = this.ParseTest()
+                                                tmpOp1, tmpNext
+                                        |   _ ->
+                                                Token.Empty, ASTNode.Empty
+                        let op3 =   match this.Lexer.Symbol with
+                                    |   Token.Colon _ ->
+                                            let tmpOp2 = this.Lexer.Symbol
+                                            this.Lexer.Advance()
+                                            tmpOp2
+                                    |   _ ->
+                                            raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in function declaration!") )
+                        let op4 =   match this.Lexer.Symbol with
+                                    |   Token.TypeComment _ ->
+                                            let tmpOp3 = this.Lexer.Symbol
+                                            this.Lexer.Advance()
+                                            tmpOp3
+                                    |   _ ->
+                                            Token.Empty
+                        let suite = this.ParseFuncBodySuite()
+                        ASTNode.FuncDef(startPos, this.Lexer.Position, op1, left, right, op2, next, op3, op4, ASTNode.Empty)
+                |   _ ->
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting name of function!") )
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'def' in function declaration!") )
 
     member this.ParseParameters() = 
         ASTNode.Empty
