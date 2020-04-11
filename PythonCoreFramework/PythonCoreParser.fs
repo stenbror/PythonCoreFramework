@@ -340,7 +340,48 @@ type Parser(lexer : Tokenizer) =
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting '@' in decorator statement!") )
 
     member this.ParseClassStmt() =
-        ASTNode.Empty
+        let startPos = this.Lexer.Position
+        match this.Lexer.Symbol with
+        |   Token.Class _ ->
+                let op1 = this.Lexer.Symbol
+                this.Lexer.Advance()
+                match this.Lexer.Symbol with
+                |   Token.Name _ ->
+                        let start2 = this.Lexer.Position
+                        let name = this.Lexer.Symbol
+                        this.Lexer.Advance()
+                        let left = ASTNode.Name(start2, this.Lexer.Position, name)
+                        let op2, right, op3 =   match this.Lexer.Symbol with
+                                                |   Token.LeftParen _ ->
+                                                        let tmpOp1 = this.Lexer.Symbol
+                                                        this.Lexer.Advance()
+                                                        let tmpRight =  match this.Lexer.Symbol with
+                                                                        |   Token.RightParen _ ->
+                                                                                ASTNode.Empty
+                                                                        |   _ ->
+                                                                                this.ParseArgsList()
+                                                        match this.Lexer.Symbol with
+                                                        |   Token.RightParen _ ->
+                                                                let tmpOp2 = this.Lexer.Symbol
+                                                                this.Lexer.Advance()
+                                                                tmpOp1, tmpRight, tmpOp2
+                                                        |   _ ->
+                                                                raise ( SyntaxError(this.Lexer.Symbol, "Expecting ')' in class declaration!") )
+                                                |   _ ->
+                                                        Token.Empty, ASTNode.Empty, Token.Empty
+                        let op4 =   match this.Lexer.Symbol with  
+                                    |   Token.Colon _ ->
+                                            let tmpOp = this.Lexer.Symbol
+                                            this.Lexer.Advance()
+                                            tmpOp
+                                    |   _ ->
+                                            Token.Empty
+                        let next = this.ParseSuite()
+                        ASTNode.Class(startPos, this.Lexer.Position, op1, left, op2, right, op3, op4, next)
+                |   _ ->
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting name of class!") )
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'class' in class declaration!") )
 
     member this.ParseAsyncFuncDefStmt() =
         ASTNode.Empty
