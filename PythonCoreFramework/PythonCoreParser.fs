@@ -253,13 +253,53 @@ type Parser(lexer : Tokenizer) =
     // Start rules in Python 3.9 grammar //////////////////////////////////////////////////////////
 
     member this.ParseSingleInput() =
+        this.FuncFlowLevel <- 0
+        this.FlowLevel <- 0
+        let startPos = 0
         ASTNode.Empty
 
     member this.ParseFileInput() =
-        ASTNode.Empty
+        this.FuncFlowLevel <- 0
+        this.FlowLevel <- 0
+        let startPos = 0
+        let mutable ops : Token list = []
+        let mutable nodes : ASTNode list = []
+        while   match this.Lexer.Symbol with
+                |   Token.Newline _ ->
+                        ops <- this.Lexer.Symbol :: ops
+                        this.Lexer.Advance()
+                        true
+                |   Token.EOF _ ->
+                        false
+                |   _ ->
+                        nodes <- this.ParseStmt() :: nodes
+                        true
+            do ()
+        let op =    match this.Lexer.Symbol with
+        |   Token.EOF _ ->
+                this.Lexer.Symbol
+        |   _ ->
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting end of file!") )
+        ASTNode.FileInput(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops), op)
 
     member this.ParseEvalInput() =
-        ASTNode.Empty
+        let startPos = 0
+        let right = this.ParseTestList()
+        let mutable nodes : Token list = []
+        while   match this.Lexer.Symbol with
+                |   Token.Newline _ ->
+                        nodes <- this.Lexer.Symbol :: nodes
+                        this.Lexer.Advance()
+                        true
+                |   _ ->
+                        false
+            do ()
+        let op =    match this.Lexer.Symbol with
+                    |   Token.EOF _ ->
+                            this.Lexer.Symbol
+                    |   _ ->
+                            raise ( SyntaxError(this.Lexer.Symbol, "Expecting end of file!") )
+        ASTNode.EvalInput(startPos, this.Lexer.Position, right, List.toArray(List.rev nodes), op)
 
     member this.ParseFuncTypeInput() =
         let startPos = 0
