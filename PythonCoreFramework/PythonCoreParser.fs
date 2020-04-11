@@ -233,17 +233,30 @@ type ASTNode =
 
 exception SyntaxError of Token * string
 
+
+type ITokenizer =
+
+    abstract member Symbol : Token with get, set
+
+    abstract member Position : int with get, set
+
+    abstract member Advance : unit -> unit
+
+
 type Tokenizer() =
     
-    member val Symbol = Token.Empty with get, set
-    member val Position = 0 with get, set
+    interface ITokenizer with
 
-    member public this.Advance() =
-        ()
+        member val Symbol = Token.Empty with get, set
+    
+        member val Position = 0 with get, set
+
+        member this.Advance() =
+            ()
     
 
 
-type Parser(lexer : Tokenizer) =
+type Parser(lexer : ITokenizer) =
     
     member val Lexer = lexer with get, set
     member val FlowLevel = 0 with get, set
