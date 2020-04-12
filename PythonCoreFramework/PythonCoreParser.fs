@@ -101,7 +101,7 @@ type Token =
     |   ShiftRightAssign of int * int * Trivia array
     |   Name of int * int * string * Trivia array
     |   Number of int * int * string * Trivia array
-    |   String of int * int * string array * Trivia array
+    |   String of int * int * string * Trivia array
     |   TypeComment of int * int * string
     |   Indent of Trivia array
     |   Dedent of Trivia array
@@ -631,7 +631,36 @@ type Tokenizer() =
     // All strings are handled here ///////////////////////////////////////////////////////////////
 
     member this.HandleStrings() =
-        Token.Empty
+
+        let getChar() = if index < this.sourceBuffer.Length then this.sourceBuffer.[index] else ' '
+
+        let quoteChar = getChar() // 1
+        let mutable quoteLength = 1
+        let mutable quoteEndLength = 0
+        index <- index + 1
+        if getChar() = quoteChar then    
+            index <- index + 1 // 2
+            if getChar() = quoteChar then // 3
+                index <- index + 1
+                quoteLength <- 3
+            else 
+                quoteEndLength <- 1 // Empty string found
+        while quoteLength <> quoteEndLength do
+            if index + 1 = this.sourceBuffer.Length then
+                if quoteLength = 1 then
+                    raise ( LexicalError(index, "Found end of file in single quote string!" ) )
+                else
+                    raise ( LexicalError(index, "Change exception later") ) // raise more input
+            if getChar() = '\r' || getChar() = '\n' then
+                if quoteLength = 1 then
+                    raise ( LexicalError ( index, "Found newline in single quote string. Not allowed, please use tripple quote string!" ) )
+            if quoteChar = getChar() then
+                quoteEndLength <- quoteEndLength + 1
+            else
+                quoteEndLength <- 0
+            index <- index + 1
+
+        Token.String( (this :> ITokenizer).Position, index, new string( this.sourceBuffer.[ (this :> ITokenizer).Position .. index - 1 ] ), [| |] )
             
 
 
