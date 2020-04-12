@@ -496,7 +496,137 @@ type Tokenizer() =
     // All numbers is handled here ////////////////////////////////////////////////////////////////
 
     member this.HandleNumbers() =
-        Token.Empty
+
+        let isHexDigit(ch : char) : bool =
+            match ch with
+            | '0'| '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+            | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
+            | 'A' | 'B' | 'C' | 'D' | 'E' | 'F'  ->  true
+            |   _   ->  false
+
+        let isOctetDigit(ch : char) : bool =
+            match ch with
+            | '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' -> true
+            |   _   ->  false
+
+        let isBinaryDigit(ch : char ) : bool =
+            match ch with
+            | '0' | '1' ->  true
+            |   _ ->    false
+
+        let getChar() = if index < this.sourceBuffer.Length then this.sourceBuffer.[index] else ' '
+
+        (this :> ITokenizer).Position <- index // Mark start of Number
+
+        if getChar() = '0' then
+            index <- index + 1
+            if getChar() = 'x' || getChar() = 'X' then
+                index <- index + 1
+                let mutable isLock = true
+                while isLock do
+                    if getChar() = '_' then index <- index + 1
+                    if isHexDigit(getChar()) = false then raise ( LexicalError(index, "") )
+                    while isHexDigit(getChar()) do index <- index + 1
+                    if getChar() <> '_' then isLock <- false
+            else if getChar() = 'o' || getChar() = 'O' then
+                index <- index + 1
+                let mutable isLock = true
+                while isLock do
+                    if getChar() = '_' then index <- index + 1
+                    if getChar() = '8' || getChar() = '9' then raise ( LexicalError(index, "Illegal octet digit '8' or '9' not allowed!") )
+                    else if isOctetDigit(getChar()) = false then raise ( LexicalError(index, "Expecting octet digit(s) in octet number!") )
+                    while isOctetDigit(getChar()) do index <- index + 1
+                    if getChar() <> '_' then isLock <- false
+            else if getChar() = 'b' || getChar() = 'B' then     
+                index <- index + 1
+                let mutable isLock = true
+                while isLock do
+                    if getChar() = '_' then index <- index + 1
+                    if getChar() < '0' || getChar() > '1' then raise ( LexicalError(index, "Illegal binary digit, only '0' and '1' is allowed!") )
+                    else if isBinaryDigit(getChar()) = false then raise ( LexicalError(index, "Expecting binary digit(s) in binary number!") )
+                    while isBinaryDigit(getChar()) do index <- index + 1
+                    if getChar() <> '_' then isLock <- false
+                if Char.IsDigit(getChar()) then raise ( LexicalError(index, "Expecting binary digit(s) in binary number!") )
+            else
+                let mutable isLocked = true
+                if Char.IsDigit(getChar()) <> true && getChar() <> '_' then isLocked <- false
+                while isLocked do
+                    if getChar() = '_' then index <- index + 1
+                    if Char.IsDigit(getChar()) <> true then raise ( LexicalError(index, "Expecting digit in numbers after '_'") )
+                    if getChar() <> '0' then isLocked <- false
+                    else 
+                        index <- index + 1
+                        if Char.IsDigit(getChar()) <> true then isLocked <- false
+                if Char.IsDigit(getChar()) = true then raise ( LexicalError(index, "illegal old octet style, not supported anymore!") )
+
+                if getChar() = '.' then 
+                    index <- index + 1
+                    let mutable isLock = true
+                    if Char.IsDigit(getChar()) <> true then isLock <- false
+                    while isLock do
+                        if Char.IsDigit(getChar()) <> true then raise ( LexicalError(index, "Expecting digit in number after '_'") )
+                        else index <- index + 1
+                        if getChar() = '_' then index <- index + 1
+                        if Char.IsDigit(getChar()) <> true then isLock <- false
+                    if getChar() = '_' then raise ( LexicalError(index, "Illegal '_' in number!") )
+                        
+                if getChar() = 'e' || getChar() = 'E' then 
+                    index <- index + 1
+                    if getChar() = '+' || getChar() = '-' then
+                        index <- index + 1
+                        if Char.IsDigit(getChar()) <> true then raise ( LexicalError(index, "Expecting digit in number after '+' or '-' in exponent!") )
+                    else if Char.IsDigit(getChar()) <> true then
+                        raise ( LexicalError(index, "Expecting digit after 'e' or 'E' in exponent!") )
+                    let mutable isLock = true
+                    while isLock do
+                        if Char.IsDigit(getChar()) <> true then raise ( LexicalError(index, "Expecting digit in number after '_'") )
+                        else index <- index + 1
+                        if getChar() = '_' then index <- index + 1
+                        if Char.IsDigit(getChar()) <> true then isLock <- false
+                    if getChar() = '_' then raise ( LexicalError(index, "Illegal '_' in number!") )         
+
+                if getChar() = 'j' || getChar() = 'J' then
+                    index <- index + 1
+        else
+            let mutable isLocked = true
+            if Char.IsDigit(getChar()) <> true then isLocked <- false
+            while isLocked do
+                if Char.IsDigit(getChar()) <> true then raise ( LexicalError(index, "Expecting digit in number after '_'") )
+                else index <- index + 1
+                if getChar() = '_' then index <- index + 1
+                if Char.IsDigit(getChar()) <> true then isLocked <- false
+            if getChar() = '_' then raise ( LexicalError(index, "Illegal '_' in number!") )   
+
+            if getChar() = '.' then 
+                index <- index + 1
+                let mutable isLock = true
+                if Char.IsDigit(getChar()) <> true then isLock <- false
+                while isLock do
+                    if Char.IsDigit(getChar()) <> true then raise ( LexicalError(index, "Expecting digit in number after '_'") )
+                    else index <- index + 1
+                    if getChar() = '_' then index <- index + 1
+                    if Char.IsDigit(getChar()) <> true then isLock <- false
+                if getChar() = '_' then raise ( LexicalError(index, "Illegal '_' in number!") )
+                    
+            if getChar() = 'e' || getChar() = 'E' then 
+                index <- index + 1
+                if getChar() = '+' || getChar() = '-' then
+                    index <- index + 1
+                    if Char.IsDigit(getChar()) <> true then raise ( LexicalError(index, "Expecting digit in number after '+' or '-' in exponent!") )
+                else if Char.IsDigit(getChar()) <> true then
+                    raise ( LexicalError(index, "Expecting digit after 'e' or 'E' in exponent!") )
+                let mutable isLock = true
+                while isLock do
+                    if Char.IsDigit(getChar()) <> true then raise ( LexicalError(index, "Expecting digit in number after '_'") )
+                    else index <- index + 1
+                    if getChar() = '_' then index <- index + 1
+                    if Char.IsDigit(getChar()) <> true then isLock <- false
+                if getChar() = '_' then raise ( LexicalError(index, "Illegal '_' in number!") )         
+
+            if getChar() = 'j' || getChar() = 'J' then
+                index <- index + 1
+
+        Token.Number( (this :> ITokenizer).Position, index, new string ( this.sourceBuffer.[ (this :> ITokenizer).Position .. index - 1 ] ), [| |] )
 
     // All strings are handled here ///////////////////////////////////////////////////////////////
 
