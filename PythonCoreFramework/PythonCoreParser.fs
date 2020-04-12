@@ -2561,7 +2561,7 @@ type Parser(lexer : ITokenizer) =
                 |   Token.RightParen _ ->
                         let op2 = this.Lexer.Symbol
                         this.Lexer.Advance()
-                        ASTNode.Call(startPos, this.Lexer.Position, op1, ASTNode.Empty, op2)
+                        ASTNode.Tuple(startPos, this.Lexer.Position, op1, ASTNode.Empty, op2)
                 |   _ ->
                         let node =  match this.Lexer.Symbol with
                                     |   Token.Yield _   ->  this.ParseYieldExpr()
@@ -2570,7 +2570,7 @@ type Parser(lexer : ITokenizer) =
                         |   Token.RightParen _  ->
                                 let op2 = this.Lexer.Symbol
                                 this.Lexer.Advance()
-                                ASTNode.Call(startPos, this.Lexer.Position, op1, node, op2)
+                                ASTNode.Tuple(startPos, this.Lexer.Position, op1, node, op2)
                         |   _   ->
                                 raise ( SyntaxError(this.Lexer.Symbol, "Missing ')' in expression!") )
         |   Token.LeftBracket _ ->
@@ -2580,14 +2580,14 @@ type Parser(lexer : ITokenizer) =
                 |   Token.RightBracket _ ->
                         let op2 = this.Lexer.Symbol
                         this.Lexer.Advance()
-                        ASTNode.Call(startPos, this.Lexer.Position, op1, ASTNode.Empty, op2)
+                        ASTNode.List(startPos, this.Lexer.Position, op1, ASTNode.Empty, op2)
                 |   _ ->
                         let node = this.ParseTestListComp()
                         match this.Lexer.Symbol with
                         |   Token.RightBracket _  ->
                                 let op2 = this.Lexer.Symbol
                                 this.Lexer.Advance()
-                                ASTNode.Index(startPos, this.Lexer.Position, op1, node, op2)
+                                ASTNode.List(startPos, this.Lexer.Position, op1, node, op2)
                         |   _   ->
                                 raise ( SyntaxError(this.Lexer.Symbol, "Missing ']' in expression!") )
         |   Token.LeftCurly _   ->
