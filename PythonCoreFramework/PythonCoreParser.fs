@@ -1,9 +1,20 @@
-﻿namespace PythonCoreFramework
+﻿
+// PythonCore - Tokenizer, Parser, AST tree, Exceptions for 3.9 grammar of Python
+// Written by Richard Magnor Stenbro. 
+
+namespace PythonCoreFramework
+
+open System
+
+// Whitespace in sourcecode ///////////////////////////////////////////////////////////////////////
 
 type Trivia =
     |   Whitespace of char array
     |   Newline of char array
     |   Comment of char array
+    |   LineContinuation of char
+
+// Tokenizer produces these symbols for parser ////////////////////////////////////////////////////
 
 type Token =
     |   False of int * int * Trivia array
@@ -97,6 +108,8 @@ type Token =
     |   Newline of int * int * Trivia array
     |   EOF of Trivia array
     |   Empty
+
+// Resulting nodes by parsing of sourcecode ///////////////////////////////////////////////////////
 
 type ASTNode =
     |   SingleInput of int * int * ASTNode * Token
@@ -231,8 +244,13 @@ type ASTNode =
     |   TypeListPower of int * int * Token * ASTNode
     |   Empty 
 
+// Exceptions provided in error situations ////////////////////////////////////////////////////////
+
+exception LexicalError of int * string
+
 exception SyntaxError of Token * string
 
+// Interface for communication between tokenizer and parser ///////////////////////////////////////
 
 type ITokenizer =
 
@@ -242,6 +260,11 @@ type ITokenizer =
 
     abstract member Advance : unit -> unit
 
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Tokenizer for Python 3.9 ///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 type Tokenizer() =
 
@@ -284,6 +307,15 @@ type Tokenizer() =
             ( "True",       Token.True );
         ] |> Map.ofList
 
+    let mutable index = 0
+    let mutable parenthezis : char array = Array.zeroCreate 100
+    let mutable level = 0 
+    let mutable indentStack : int array = Array.zeroCreate 100
+    let mutable pending : int = 0
+    let mutable indentLevel : int = 0
+    let mutable atBOL : bool = true
+
+    member val sourceBuffer : char array = [| |] with get, set
 
     
     interface ITokenizer with
@@ -293,7 +325,7 @@ type Tokenizer() =
         member val Position = 0 with get, set
 
         member this.Advance() =
-            ()
+            this.NextSymbol() // Extend with indent / dedent etc later here !
 
     member this.IsReservedKeywordOrLiteralName(key : string) =
         match keywords.ContainsKey(key) with
@@ -353,8 +385,129 @@ type Tokenizer() =
         |   ',', _ , _      ->  Some(Token.Comma)
         |   '~', _ , _      ->  Some(Token.BitInvert)
         |   _ , _ , _       ->  option.None
-    
 
+    // Main tokenizer loop ////////////////////////////////////////////////////////////////////////
+
+    member this.NextSymbol() =
+
+        let readOneChar() : char =
+            if index < this.sourceBuffer.Length then
+                this.sourceBuffer.[index]
+            else
+                ' '
+
+        let readThreeChars() : char * char * char =
+            if index < this.sourceBuffer.Length - 2 then
+                this.sourceBuffer.[index], this.sourceBuffer.[index + 1], this.sourceBuffer.[index + 2]
+            else if index < this.sourceBuffer.Length - 1 then
+                this.sourceBuffer.[index], this.sourceBuffer.[index + 1], ' '
+            else if index < this.sourceBuffer.Length then
+                this.sourceBuffer.[index], ' ', ' '
+            else 
+                ' ', ' ', ' '
+
+        while readOneChar() = ' ' || readOneChar() = '\t' do index <- index + 1 // Whitespace
+
+        (this :> ITokenizer).Position <- index // Set start of current symbol to collect
+
+        (this :> ITokenizer).Symbol <-  match this.IsOperatorOrDelimiter(readThreeChars()) with
+                                        |   Some(x) -> x( (this :> ITokenizer).Position, index, [||] )
+                                        |   Option.None -> Token.Empty
+
+        if (this :> ITokenizer).Symbol <> Token.Empty then
+            match (this :> ITokenizer).Symbol with
+            |   Token.LeftParen _ ->
+                    if level >= 100 then raise ( LexicalError(index, "Maximum 100 level of nested parethezis allowd!" ) )
+                    parenthezis.[level] <- '('
+                    level <- level + 1
+            |   Token.LeftBracket _ ->
+                    if level >= 100 then raise ( LexicalError(index, "Maximum 100 level of nested parethezis allowd!" ) )
+                    parenthezis.[level] <- '['
+                    level <- level + 1
+            |   Token.LeftCurly _ ->
+                    if level >= 100 then raise ( LexicalError(index, "Maximum 100 level of nested parethezis allowd!" ) )
+                    parenthezis.[level] <- '{'
+                    level <- level + 1
+            |   Token.RightParen _  ->
+                    if level > 0 && parenthezis.[level - 1] <> '(' then raise ( LexicalError(index, "Closing parenthezis ')' is not matched by a starting '('") )
+                    level <- level - 1
+            |   Token.RightBracket _ ->
+                    if level > 0 && parenthezis.[level - 1] <> '[' then raise ( LexicalError(index, "Closing parenthezis ']' is not matched by a starting '['") )
+                    level <- level - 1
+            |   Token.RightCurly _ ->
+                    if level > 0 && parenthezis.[level - 1] <> '{' then raise ( LexicalError(index, "Closing parenthezis '}' is not matched by a starting '{'") )
+                    level <- level - 1
+            |   _ ->
+                    ()
+        else if Char.IsLetter(readOneChar()) || readOneChar() = '_' then
+            while Char.IsLetterOrDigit(readOneChar()) || readOneChar() = '_' do index <- index
+            let check = new string( this.sourceBuffer.[ (this :> ITokenizer).Position .. index - 1] )
+            
+            if ( check.Length = 1 || check.Length = 2 ) && ( readOneChar() = '\'' || readOneChar() = '"' ) then
+                (* Check for valid prefix before string *)
+                if check.Length = 1 then
+                    match check with
+                    |   "u"
+                    |   "U"
+                    |   "f"
+                    |   "F"
+                    |   "b"
+                    |   "B"
+                    |   "r"
+                    |   "R" ->
+                        (this :> ITokenizer).Symbol <- this.HandleStrings()
+                    |   _   ->
+                        raise ( LexicalError(index, "Illegal prefix for string!") )
+                else
+                    match check with
+                    |   "fr"
+                    |   "Fr"
+                    |   "fR"
+                    |   "FR"
+                    |   "rb"
+                    |   "Rb"
+                    |   "rB"
+                    |   "RB"    ->  
+                        (this :> ITokenizer).Symbol <- this.HandleStrings()
+                    |   _   ->
+                        raise ( LexicalError(index, "Illegal prefix for string!") ) 
+            else
+                match this.IsReservedKeywordOrLiteralName(check) with
+                |   Some(x) ->
+                        (this :> ITokenizer).Symbol <- x( (this :> ITokenizer).Position, index, [| |] )
+                |   Option.None ->
+                        (this :> ITokenizer).Symbol <- Token.Name( (this :> ITokenizer).Position, index, check, [| |] )
+
+        else if Char.IsDigit(readOneChar()) || readOneChar() = '.' then
+
+            (this :> ITokenizer).Symbol <- this.HandleNumbers()
+
+        else if readOneChar() = '\'' || readOneChar() = '"' then
+
+            (this :> ITokenizer).Symbol <- this.HandleStrings()
+        
+        else if readOneChar() = '#' then
+            ()
+        //else if this.sourceBuffer.[index] = 0x0000 then
+        //    ()
+        else
+            raise ( LexicalError(index, "") )
+
+    // All numbers is handled here ////////////////////////////////////////////////////////////////
+
+    member this.HandleNumbers() =
+        Token.Empty
+
+    // All strings are handled here ///////////////////////////////////////////////////////////////
+
+    member this.HandleStrings() =
+        Token.Empty
+            
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Python parser for 3.9 grammar //////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 type Parser(lexer : ITokenizer) =
     
