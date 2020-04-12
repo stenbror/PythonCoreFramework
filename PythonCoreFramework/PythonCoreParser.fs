@@ -244,6 +244,47 @@ type ITokenizer =
 
 
 type Tokenizer() =
+
+    let keywords =  
+        [ 
+            ( "and",        Token.And );
+            ( "as",         Token.As );
+            ( "assert",     Token.Assert );
+            ( "async",      Token.Async );
+            ( "await",      Token.Await );
+            ( "break",      Token.Break );
+            ( "class",      Token.Class );
+            ( "continue",   Token.Continue );
+            ( "def",        Token.Def );
+            ( "del",        Token.Del );
+            ( "elif",       Token.Elif );
+            ( "else",       Token.Else );
+            ( "except",     Token.Except );
+            ( "finally",    Token.Finally );
+            ( "for",        Token.For );
+            ( "from",       Token.From );
+            ( "global",     Token.Global );
+            ( "if",         Token.If );
+            ( "import",     Token.Import );
+            ( "in",         Token.In );
+            ( "is",         Token.Is );
+            ( "lambda",     Token.Lambda );
+            ( "nonlocal",   Token.Nonlocal );
+            ( "not",        Token.Not );
+            ( "or",         Token.Or );
+            ( "pass",       Token.Pass );
+            ( "raise",      Token.Raise );
+            ( "return",     Token.Return );
+            ( "try",        Token.Try );
+            ( "while",      Token.While );
+            ( "with",       Token.With );
+            ( "yield",      Token.Yield );
+            ( "False",      Token.False );
+            ( "None",       Token.None );
+            ( "True",       Token.True );
+        ] |> Map.ofList
+
+
     
     interface ITokenizer with
 
@@ -253,6 +294,65 @@ type Tokenizer() =
 
         member this.Advance() =
             ()
+
+    member this.IsReservedKeywordOrLiteralName(key : string) =
+        match keywords.ContainsKey(key) with
+        |   true    ->  
+                Some(keywords.Item(key))
+        |   _   ->
+                option.None
+
+    member this.IsOperatorOrDelimiter(c1, c2, c3) =
+        match c1, c2, c3 with
+        |   '<', '<', '='   ->  Some(Token.ShiftLeftAssign)
+        |   '<', '<', _     ->  Some(Token.ShiftLeft)
+        |   '<', '>', _     ->  Some(Token.NotEqual)
+        |   '<', '=', _     ->  Some(Token.LessEqual)
+        |   '<', _ , _      ->  Some(Token.Less)
+        |   '>', '>', '='   ->  Some(Token.ShiftRightAssign)
+        |   '>', '>', _     ->  Some(Token.ShiftRight)
+        |   '>', '=', _     ->  Some(Token.GreaterEqual)
+        |   '>', _ , _      ->  Some(Token.Greater)
+        |   '*', '*', '='   ->  Some(Token.PowerAssign)
+        |   '*', '*', _     ->  Some(Token.Power)
+        |   '*', '=', _     ->  Some(Token.MulAssign)
+        |   '*', _ , _      ->  Some(Token.Mul)
+        |   '/', '/', '='   ->  Some(Token.FloorDivAssign)
+        |   '/', '/', _     ->  Some(Token.FloorDiv)
+        |   '/', '=', _     ->  Some(Token.DivAssign)
+        |   '/', _ , _      ->  Some(Token.Div)
+        |   '.', '.', '.'   ->  Some(Token.Elipsis)
+        |   '.', _ , _      ->  Some(Token.Dot)
+        |   '+', '=', _     ->  Some(Token.PlusAssign)
+        |   '+', _ , _      ->  Some(Token.Plus)
+        |   '-', '>', _     ->  Some(Token.Ptr)
+        |   '-', '=', _     ->  Some(Token.MinusAssign)
+        |   '-', _ , _      ->  Some(Token.Minus)
+        |   '%', '=', _     ->  Some(Token.ModuloAssign)
+        |   '%', _ , _      ->  Some(Token.Modulo)
+        |   '&', '=', _     ->  Some(Token.BitAndAssign)
+        |   '&', _ , _      ->  Some(Token.BitOrAssign)
+        |   '|', '=', _     ->  Some(Token.BitOrAssign)
+        |   '|', _ , _      ->  Some(Token.BitOr)
+        |   '^', '=', _     ->  Some(Token.BitXorAssign)
+        |   '^', _ , _      ->  Some(Token.BitXor)
+        |   '@', '=', _     ->  Some(Token.MatriceAssign)
+        |   '@', _ , _      ->  Some(Token.Matrice)
+        |   '=', '=', _     ->  Some(Token.Equal)
+        |   '=', _ , _      ->  Some(Token.Assign)
+        |   '!', '=', _     ->  Some(Token.NotEqual)
+        |   '(', _ , _      ->  Some(Token.LeftParen)
+        |   '[', _ , _      ->  Some(Token.LeftBracket)
+        |   '{', _ , _      ->  Some(Token.LeftCurly)
+        |   ')', _ , _      ->  Some(Token.RightParen)
+        |   ']', _ , _      ->  Some(Token.RightBracket)
+        |   '}', _ , _      ->  Some(Token.RightCurly)
+        |   ':', '=', _     ->  Some(Token.ColonAssign)
+        |   ':', _ , _      ->  Some(Token.Colon)
+        |   ';', _ , _      ->  Some(Token.SemiColon)
+        |   ',', _ , _      ->  Some(Token.Comma)
+        |   '~', _ , _      ->  Some(Token.BitInvert)
+        |   _ , _ , _       ->  option.None
     
 
 
