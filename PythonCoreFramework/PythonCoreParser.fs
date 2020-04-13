@@ -2678,7 +2678,7 @@ type Parser(lexer : ITokenizer) =
                 |   Token.Name _    ->
                         let op2 = this.Lexer.Symbol
                         this.Lexer.Advance()
-                        ASTNode.DotName(startPos, this.Lexer.Position, op, ASTNode.Name(startPos, this.Lexer.Position, op2))
+                        ASTNode.DotName(startPos, this.Lexer.Position, op, ASTNode.Name(startPos + 1, this.Lexer.Position, op2))
                 |   _   ->  raise ( SyntaxError(this.Lexer.Symbol, "Expecting name literal after '.'") )
         |   _   ->  raise ( SyntaxError(this.Lexer.Symbol, "Expected '(', '[' or '.' in trailer expression!") )
     
