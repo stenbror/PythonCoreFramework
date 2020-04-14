@@ -357,11 +357,25 @@ let ``and test operator test`` () =
     Assert.Equal( ASTNode.AndTest(0, 13, ASTNode.Name(0, 8, Token.Name(0, 4, "Test", [| |])), Token.And(5, 8, [| |]), ASTNode.Name(9, 13, Token.Name(9, 13, "Fest", [| |])) ) , parser.ParseAndTest())
 
 [<Fact>]
+let ``recursive and test operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.And(5, 8, [| |]), 8 ); ( Token.Name(9, 13, "Fest", [| |]), 9 ); ( Token.And(14, 17, [| |]), 14 ); ( Token.Name(18, 22, "Tall", [| |]), 18 );   ( Token.EOF([| |]), 22 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.AndTest(0, 22, ASTNode.AndTest(0, 14, ASTNode.Name(0, 8, Token.Name(0, 4, "Test", [| |])), Token.And(5, 8, [| |]), ASTNode.Name(9, 14, Token.Name(9, 13, "Fest", [| |])) ) , Token.And(14, 17, [| |]), ASTNode.Name(18, 22, Token.Name(18, 22, "Tall", [| |])) ) , parser.ParseAndTest())
+
+[<Fact>]
 let ``or test operator test`` () =
     let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.Or(5, 7, [| |]), 7 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
     lex.Next()
     let parser = new Parser(lex)
     Assert.Equal( ASTNode.OrTest(0, 12, ASTNode.Name(0, 7, Token.Name(0, 4, "Test", [| |])), Token.Or(5, 7, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseOrTest())
+
+[<Fact>]
+let ``recursive or test operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.Or(5, 7, [| |]), 7 ); ( Token.Name(8, 12, "Fest", [| |]), 8 ); ( Token.Or(13, 15, [| |]), 13 ); ( Token.Name(16, 20, "Tall", [| |]), 16 );  ( Token.EOF([| |]), 20 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.OrTest( 0, 20, ASTNode.OrTest(0, 13, ASTNode.Name(0, 7, Token.Name(0, 4, "Test", [| |])), Token.Or(5, 7, [| |]), ASTNode.Name(8, 13, Token.Name(8, 12, "Fest", [| |])) ) , Token.Or(13, 15, [| |]), ASTNode.Name(16, 20, Token.Name(16, 20, "Tall", [| |])) ) , parser.ParseOrTest())
 
 [<Fact>]
 let ``lambda nocond expression test`` () =
