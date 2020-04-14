@@ -343,6 +343,13 @@ let ``not test operator test`` () =
     Assert.Equal( ASTNode.NotTest(0, 8, Token.Not(0, 3, [| |]),   ASTNode.Name(4, 8, Token.Name(4, 8, "Test", [| |]))  ) , parser.ParseNotTest())
 
 [<Fact>]
+let ``not not test operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Not(0, 3, [| |]), 0 ); ( Token.Not(4, 7, [| |]), 4 ); ( Token.Name(9, 13, "Test", [| |]), 9 );  ( Token.EOF([| |]), 13 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.NotTest(0, 13, Token.Not(0, 3, [| |]), ASTNode.NotTest(4, 13, Token.Not(4, 7, [| |]),   ASTNode.Name(9, 13, Token.Name(9, 13, "Test", [| |]))  ) ) , parser.ParseNotTest())
+
+[<Fact>]
 let ``and test operator test`` () =
     let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.And(5, 8, [| |]), 8 ); ( Token.Name(9, 13, "Fest", [| |]), 9 );  ( Token.EOF([| |]), 13 ); ] )
     lex.Next()
