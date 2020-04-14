@@ -257,3 +257,66 @@ let ``| operator test`` () =
     lex.Next()
     let parser = new Parser(lex)
     Assert.Equal( ASTNode.OrExpr(0, 12, ASTNode.Name(0, 6, Token.Name(0, 4, "Test", [| |])), Token.BitOr(5, 6, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseExpr())
+
+[<Fact>]
+let ``* expr operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Mul(0, 1, [| |]), 0 ); ( Token.Name(2, 6, "Test", [| |]), 2 );  ( Token.EOF([| |]), 6 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.StarExpr(0, 6, Token.Mul(0, 1, [| |]),   ASTNode.Name(2, 6, Token.Name(2, 6, "Test", [| |]))  ) , parser.ParseStarExpr())
+
+[<Fact>]
+let ``< operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.Less(5, 6, [| |]), 6 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.Less(0, 12, ASTNode.Name(0, 6, Token.Name(0, 4, "Test", [| |])), Token.Less(5, 6, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseComparison())
+
+[<Fact>]
+let ``> operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.Greater(5, 6, [| |]), 6 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.Greater(0, 12, ASTNode.Name(0, 6, Token.Name(0, 4, "Test", [| |])), Token.Greater(5, 6, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseComparison())
+
+[<Fact>]
+let ``<= operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.LessEqual(5, 7, [| |]), 7 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.LessEqual(0, 12, ASTNode.Name(0, 7, Token.Name(0, 4, "Test", [| |])), Token.LessEqual(5, 7, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseComparison())
+
+[<Fact>]
+let ``>= operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.GreaterEqual(5, 7, [| |]), 7 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.GreaterEqual(0, 12, ASTNode.Name(0, 7, Token.Name(0, 4, "Test", [| |])), Token.GreaterEqual(5, 7, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseComparison())
+
+[<Fact>]
+let ``<> or != operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.NotEqual(5, 7, [| |]), 7 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.NotEqual(0, 12, ASTNode.Name(0, 7, Token.Name(0, 4, "Test", [| |])), Token.NotEqual(5, 7, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseComparison())
+
+[<Fact>]
+let ``== operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.Equal(5, 7, [| |]), 7 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.Equal(0, 12, ASTNode.Name(0, 7, Token.Name(0, 4, "Test", [| |])), Token.Equal(5, 7, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseComparison())
+
+[<Fact>]
+let ``in operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.In(5, 7, [| |]), 7 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.In(0, 12, ASTNode.Name(0, 7, Token.Name(0, 4, "Test", [| |])), Token.In(5, 7, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseComparison())
+
+[<Fact>]
+let ``is operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.Is(5, 7, [| |]), 7 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.Is(0, 12, ASTNode.Name(0, 7, Token.Name(0, 4, "Test", [| |])), Token.Is(5, 7, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseComparison())
