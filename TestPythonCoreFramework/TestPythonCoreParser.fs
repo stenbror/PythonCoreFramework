@@ -334,3 +334,59 @@ let ``not in operator test`` () =
     lex.Next()
     let parser = new Parser(lex)
     Assert.Equal( ASTNode.NotIn(0, 16, ASTNode.Name(0, 8, Token.Name(0, 4, "Test", [| |])), Token.Not(5, 8, [| |]), Token.In(9, 11, [| |]), ASTNode.Name(12, 16, Token.Name(12, 16, "Fest", [| |])) ) , parser.ParseComparison())
+
+[<Fact>]
+let ``not test operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Not(0, 3, [| |]), 0 ); ( Token.Name(4, 8, "Test", [| |]), 4 );  ( Token.EOF([| |]), 8 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.NotTest(0, 8, Token.Not(0, 3, [| |]),   ASTNode.Name(4, 8, Token.Name(4, 8, "Test", [| |]))  ) , parser.ParseNotTest())
+
+[<Fact>]
+let ``and test operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.And(5, 8, [| |]), 8 ); ( Token.Name(9, 13, "Fest", [| |]), 9 );  ( Token.EOF([| |]), 13 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.AndTest(0, 13, ASTNode.Name(0, 8, Token.Name(0, 4, "Test", [| |])), Token.And(5, 8, [| |]), ASTNode.Name(9, 13, Token.Name(9, 13, "Fest", [| |])) ) , parser.ParseAndTest())
+
+[<Fact>]
+let ``or test operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.Or(5, 7, [| |]), 7 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.OrTest(0, 12, ASTNode.Name(0, 7, Token.Name(0, 4, "Test", [| |])), Token.Or(5, 7, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseOrTest())
+
+[<Fact>]
+let ``lambda nocond expression test`` () =
+    let lex = new MockTokenizer( [ ( Token.Lambda(0, 6, [| |]), 0 ); ( Token.Colon(6, 7, [| |]), 6 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.Lambda(0, 12, Token.Lambda(0, 6, [| |]), ASTNode.Empty, Token.Colon(6, 7, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])))  , parser.ParseTestNoCond())
+
+[<Fact>]
+let ``lambda expression test`` () =
+    let lex = new MockTokenizer( [ ( Token.Lambda(0, 6, [| |]), 0 ); ( Token.Colon(6, 7, [| |]), 6 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.Lambda(0, 12, Token.Lambda(0, 6, [| |]), ASTNode.Empty, Token.Colon(6, 7, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])))  , parser.ParseTest())
+
+[<Fact>]
+let ``Single Test rule test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test", [| |]), 0 ); ( Token.EOF([| |]), 5 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.Name(0, 5, Token.Name(0, 5, "Test", [| |])), parser.ParseTest())
+
+[<Fact>]
+let ``Complex Test rule test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test", [| |]), 0 ); ( Token.If(6, 8, [| |]), 6 ); ( Token.Name(9, 12, "Tut", [| |]), 9 ); ( Token.Else(13, 17, [| |]), 13 ); ( Token.Name(14, 18, "Fest", [| |]), 14 ); ( Token.EOF([| |]), 18 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.Test(0, 18, ASTNode.Name(0, 6, Token.Name(0, 5, "Test", [| |])), Token.If(6, 8, [| |]), ASTNode.Name(9, 13, Token.Name(9, 12, "Tut", [| |])), Token.Else(13, 17, [| |]), ASTNode.Name(14, 18, Token.Name(14, 18, "Fest", [| |])) ), parser.ParseTest())
+
+[<Fact>]
+let ``NamedExpr operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.ColonAssign(5, 7, [| |]), 7 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.NamedExpr(0, 12, ASTNode.Name(0, 7, Token.Name(0, 4, "Test", [| |])), Token.ColonAssign(5, 7, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseNamedExpr())
