@@ -280,6 +280,13 @@ let ``> operator test`` () =
     Assert.Equal( ASTNode.Greater(0, 12, ASTNode.Name(0, 6, Token.Name(0, 4, "Test", [| |])), Token.Greater(5, 6, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseComparison())
 
 [<Fact>]
+let ``recursive > <  operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.Greater(5, 6, [| |]), 6 ); ( Token.Name(8, 12, "Fest", [| |]), 8 ); ( Token.Less(9, 10, [| |]), 9 ); ( Token.Name(11, 15, "Lest", [| |]), 11 ); ( Token.EOF([| |]), 15 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.Less(0, 15, ASTNode.Greater(0, 9, ASTNode.Name(0, 6, Token.Name(0, 4, "Test", [| |])), Token.Greater(5, 6, [| |]), ASTNode.Name(8, 9, Token.Name(8, 12, "Fest", [| |])) ) ,Token.Less(9, 10, [| |]), ASTNode.Name(11, 15, Token.Name(11, 15, "Lest", [| |]))    ) , parser.ParseComparison())
+
+[<Fact>]
 let ``<= operator test`` () =
     let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.LessEqual(5, 7, [| |]), 7 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
     lex.Next()
