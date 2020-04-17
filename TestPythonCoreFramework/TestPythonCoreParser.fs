@@ -237,6 +237,13 @@ let ``>> operator test`` () =
     let parser = new Parser(lex)
     Assert.Equal( ASTNode.ShiftRight(0, 12, ASTNode.Name(0, 7, Token.Name(0, 4, "Test", [| |])), Token.ShiftRight(5, 7, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseShiftExpr())
 
+[<Fact>] // HERE!
+let ``recursive >> operator test`` () =
+    let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.ShiftRight(5, 7, [| |]), 7 ); ( Token.Name(8, 12, "Fest", [| |]), 8 ); ( Token.ShiftRight(14, 16, [| |]), 14 ); ( Token.Name(18, 22, "Fest", [| |]), 18 );  ( Token.EOF([| |]), 23 ); ] )
+    lex.Next()
+    let parser = new Parser(lex)
+    Assert.Equal( ASTNode.ShiftRight(0, 23, ASTNode.ShiftRight(0, 14, ASTNode.Name(0, 7, Token.Name(0, 4, "Test", [| |])), Token.ShiftRight(5, 7, [| |]), ASTNode.Name(8, 14, Token.Name(8, 12, "Fest", [| |])) ), Token.ShiftRight(14, 16, [| |]), ASTNode.Name(18, 23, Token.Name(18, 22, "Fest", [| |])) ) , parser.ParseShiftExpr())
+
 [<Fact>]
 let ``& operator test`` () =
     let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.BitAnd(5, 6, [| |]), 6 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
@@ -245,7 +252,7 @@ let ``& operator test`` () =
     Assert.Equal( ASTNode.AndExpr(0, 12, ASTNode.Name(0, 6, Token.Name(0, 4, "Test", [| |])), Token.BitAnd(5, 6, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseAndExpr())
 
 [<Fact>]
-let ``recursive & operator test`` () = // HERE!
+let ``recursive & operator test`` () =
     let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.BitAnd(5, 6, [| |]), 6 ); ( Token.Name(8, 12, "Fest", [| |]), 8 ); ( Token.BitAnd(14, 15, [| |]), 14 ); ( Token.Name(17, 21, "Fest", [| |]), 17 ); ( Token.EOF([| |]), 22 ); ] )
     lex.Next()
     let parser = new Parser(lex)
