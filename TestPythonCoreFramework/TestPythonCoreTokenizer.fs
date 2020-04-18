@@ -287,7 +287,7 @@ module TestPythonCoreTokenizer =
             )
 
     [<Fact>]
-    let ``Operator or delimiter '@'`` () =
+    let ``Operator or delimiter Matrice`` () =
         let lex = new Tokenizer()
         Assert.True(
             match lex.IsOperatorOrDelimiter('@', ' ', ' ') with
@@ -391,6 +391,512 @@ module TestPythonCoreTokenizer =
                     false 
             )
 
+    [<Fact>]
+    let ``Operator or delimiter '<'`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('<', ' ', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.Less( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
 
+    [<Fact>]
+    let ``Operator or delimiter '>'`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('>', ' ', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.Greater( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
 
+    [<Fact>]
+    let ``Operator or delimiter '<='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('<', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.LessEqual( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
 
+    [<Fact>]
+    let ``Operator or delimiter '>='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('>', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.GreaterEqual( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '=='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('=', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.Equal( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '<>'`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('<', '>', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.NotEqual( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '!='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('!', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.NotEqual( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '('`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('(', ' ', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.LeftParen( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter ')'`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter(')', ' ', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.RightParen( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '['`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('[', ' ', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.LeftBracket( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter ']'`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter(']', ' ', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.RightBracket( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '{'`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('{', ' ', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.LeftCurly( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '}'`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('}', ' ', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.RightCurly( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter ','`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter(',', ' ', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.Comma( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter ':'`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter(':', ' ', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.Colon( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter ':='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter(':', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.ColonAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter dot`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('.', ' ', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.Dot( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '...'`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('.', '.', '.') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.Elipsis( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter ';'`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter(';', ' ', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.SemiColon( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('=', ' ', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.Assign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '->'`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('-', '>', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.Ptr( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '+='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('+', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.PlusAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '-='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('-', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.MinusAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '*='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('*', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.MulAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '/='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('/', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.DivAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '//='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('/', '/', '=') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.FloorDivAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '%='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('%', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.ModuloAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter Matrice Assign`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('@', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.MatriceAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '&='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('&', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.BitAndAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '|='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('|', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.BitOrAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '^='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('^', '=', ' ') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.BitXorAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '<<='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('<', '<', '=') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.ShiftLeftAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '>>='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('>', '>', '=') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.ShiftRightAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
+
+    [<Fact>]
+    let ``Operator or delimiter '**='`` () =
+        let lex = new Tokenizer()
+        Assert.True(
+            match lex.IsOperatorOrDelimiter('*', '*', '=') with
+            |   Option.Some(x) ->
+                    match x(0, 0, [||]) with
+                    |   Token.PowerAssign( _ , _ , [| |]) ->
+                            true
+                    |   _ ->
+                            false
+            |   Option.None ->
+                    false 
+            )
