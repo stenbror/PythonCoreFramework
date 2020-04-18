@@ -362,7 +362,7 @@ type Tokenizer() =
         |   '%', '=', _     ->  Some(Token.ModuloAssign)
         |   '%', _ , _      ->  Some(Token.Modulo)
         |   '&', '=', _     ->  Some(Token.BitAndAssign)
-        |   '&', _ , _      ->  Some(Token.BitOrAssign)
+        |   '&', _ , _      ->  Some(Token.BitAnd)
         |   '|', '=', _     ->  Some(Token.BitOrAssign)
         |   '|', _ , _      ->  Some(Token.BitOr)
         |   '^', '=', _     ->  Some(Token.BitXorAssign)
