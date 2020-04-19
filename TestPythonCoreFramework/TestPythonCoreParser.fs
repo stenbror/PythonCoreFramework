@@ -550,3 +550,30 @@ module TestsPythonCoreParser =
                                               [| 
                                                     Token.Comma(6, 7, [| |]) 
                                               |]), parser.ParseExprList())
+
+    [<Fact>]
+    let ``Single entry testlist with trailing comma test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Comma(6, 7, [| |]), 6 ); ( Token.SemiColon(8, 9, [| |]), 8 ); ( Token.EOF([| |]), 10 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.TestList(0, 8, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])) |], [| Token.Comma(6, 7, [| |]) |]), parser.ParseTestList())
+
+    [<Fact>]
+    let ``Single entry testlist test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.EOF([| |]), 6 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.TestList(0, 6, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])) |], [| |]), parser.ParseTestList())
+
+    [<Fact>]
+    let ``Double entry testlist test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Comma(6, 7, [| |]), 6 ); ( Token.Name(10, 15, "Test2", [||]), 10); ( Token.EOF([| |]), 17 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.TestList(0, 17, [| 
+                                                    ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])); 
+                                                    ASTNode.Name(10, 17, Token.Name(10, 15, "Test2", [| |]))
+                                              |], 
+                                              [| 
+                                                    Token.Comma(6, 7, [| |]) 
+                                              |]), parser.ParseTestList())
