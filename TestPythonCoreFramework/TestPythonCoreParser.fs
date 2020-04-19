@@ -577,3 +577,38 @@ module TestsPythonCoreParser =
                                               [| 
                                                     Token.Comma(6, 7, [| |]) 
                                               |]), parser.ParseTestList())
+
+    [<Fact>]
+    let ``Argument ( test ) test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.EOF([| |]), 6 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Argument(0, 6 , ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |]) ), Token.Empty, ASTNode.Empty )  , parser.ParseArgument())
+
+    [<Fact>]
+    let ``Argument ( test = test ) test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Assign(7, 8, [| |]), 7 ); ( Token.Name(10, 15, "Test2", [| |]), 10 ); ( Token.EOF([| |]), 16 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Argument(0, 16 , ASTNode.Name(0, 7, Token.Name(0, 5, "Test1", [| |]) ), Token.Assign(7, 8, [| |]), ASTNode.Name(10, 16, Token.Name(10, 15, "Test2", [| |])) )  , parser.ParseArgument())
+
+    [<Fact>]
+    let ``Argument ( test := test ) test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.ColonAssign(7, 9, [| |]), 7 ); ( Token.Name(10, 15, "Test2", [| |]), 10 ); ( Token.EOF([| |]), 16 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Argument(0, 16 , ASTNode.Name(0, 7, Token.Name(0, 5, "Test1", [| |]) ), Token.ColonAssign(7, 9, [| |]), ASTNode.Name(10, 16, Token.Name(10, 15, "Test2", [| |])) )  , parser.ParseArgument())
+
+    [<Fact>]
+    let ``Argument ( *test ) test`` () =
+        let lex = new MockTokenizer( [ ( Token.Mul(0, 1, [| |]), 0 ); ( Token.Name(1, 6, "Test1", [| |]), 1 ); ( Token.EOF([| |]), 7 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Argument(0, 7 , ASTNode.Empty, Token.Mul(0, 1, [| |]), ASTNode.Name(0, 7, Token.Name(1, 6, "Test1", [| |]) ) )  , parser.ParseArgument())
+
+    [<Fact>]
+    let ``Argument ( **test ) test`` () =
+        let lex = new MockTokenizer( [ ( Token.Power(0, 2, [| |]), 0 ); ( Token.Name(2, 7, "Test1", [| |]), 2 ); ( Token.EOF([| |]), 8 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Argument(0, 8 , ASTNode.Empty, Token.Power(0, 2, [| |]), ASTNode.Name(0, 8, Token.Name(2, 7, "Test1", [| |]) ) )  , parser.ParseArgument())
