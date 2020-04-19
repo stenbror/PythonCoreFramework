@@ -468,3 +468,38 @@ module TestsPythonCoreParser =
         lex.Next()
         let parser = new Parser(lex)
         Assert.Equal( ASTNode.NamedExpr(0, 12, ASTNode.Name(0, 7, Token.Name(0, 4, "Test", [| |])), Token.ColonAssign(5, 7, [| |]), ASTNode.Name(8, 12, Token.Name(8, 12, "Fest", [| |])) ) , parser.ParseNamedExpr())
+
+    [<Fact>]
+    let ``Subscript single test`` () =
+        let lex = new MockTokenizer( [ ( Token.Number(0, 1, "0", [||]), 0 );  ( Token.EOF([| |]), 2 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Subscript(0, 2, ASTNode.Number(0, 2, Token.Number(0, 1, "0", [| |]) ), Token.Empty, ASTNode.Empty, Token.Empty, ASTNode.Empty) , parser.ParseSubscript())
+
+    [<Fact>]
+    let ``Subscript double test`` () =
+        let lex = new MockTokenizer( [ ( Token.Number(0, 1, "0", [||]), 0 ); ( Token.Colon(2, 3, [| |]), 2 ); ( Token.Number(3, 4, "8", [||]), 3);  ( Token.EOF([| |]), 5 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Subscript(0, 5, ASTNode.Number(0, 2, Token.Number(0, 1, "0", [| |]) ), Token.Colon(2, 3, [| |]), ASTNode.Number(3, 5, Token.Number(3, 4, "8", [| |])), Token.Empty, ASTNode.Empty) , parser.ParseSubscript())
+
+    [<Fact>]
+    let ``Subscript tripple test`` () =
+        let lex = new MockTokenizer( [ ( Token.Number(0, 1, "0", [||]), 0 ); ( Token.Colon(2, 3, [| |]), 2 ); ( Token.Number(3, 4, "8", [||]), 3); ( Token.Colon(5, 6, [| |]), 5 ); ( Token.Number(7, 8, "2", [||]), 7);  ( Token.EOF([| |]), 9 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Subscript(0, 9, ASTNode.Number(0, 2, Token.Number(0, 1, "0", [| |]) ), Token.Colon(2, 3, [| |]), ASTNode.Number(3, 5, Token.Number(3, 4, "8", [| |])), Token.Colon(5, 6, [| |]), ASTNode.Number(7, 9, Token.Number(7, 8, "2", [| |]))) , parser.ParseSubscript())
+
+    [<Fact>]
+    let ``Subscript single empty test`` () =
+        let lex = new MockTokenizer( [ ( Token.Colon(0, 1, [||]), 0 ); ( Token.Comma(2, 3, [| |]), 2 );  ( Token.EOF([| |]), 3 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Subscript(0, 2, ASTNode.Empty, Token.Colon(0, 1, [| |]), ASTNode.Empty, Token.Empty, ASTNode.Empty) , parser.ParseSubscript())
+
+    [<Fact>]
+    let ``Subscript double empty test`` () =
+        let lex = new MockTokenizer( [ ( Token.Colon(0, 1, [||]), 0 ); ( Token.Colon(2, 3, [| |]), 2 ); ( Token.RightBracket(4, 5, [| |]), 4);  ( Token.EOF([| |]), 6 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Subscript(0, 4, ASTNode.Empty, Token.Colon(0, 1, [| |]), ASTNode.Empty, Token.Colon(2, 3, [| |]), ASTNode.Empty) , parser.ParseSubscript())
