@@ -503,3 +503,26 @@ module TestsPythonCoreParser =
         lex.Next()
         let parser = new Parser(lex)
         Assert.Equal( ASTNode.Subscript(0, 4, ASTNode.Empty, Token.Colon(0, 1, [| |]), ASTNode.Empty, Token.Colon(2, 3, [| |]), ASTNode.Empty) , parser.ParseSubscript())
+
+    [<Fact>]
+    let ``Subscript list double empty test`` () =
+        let lex = new MockTokenizer( [ ( Token.Colon(0, 1, [||]), 0 ); ( Token.Colon(2, 3, [| |]), 2 ); ( Token.Comma(4, 5, [| |]), 4); ( Token.Colon(6, 7, [||]), 6 ); ( Token.RightBracket(8, 9, [| |]), 8);  ( Token.EOF([| |]), 10 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SubscriptList(0, 8, [|
+                                                        ASTNode.Subscript(0, 4, ASTNode.Empty, Token.Colon(0, 1, [| |]), ASTNode.Empty, Token.Colon(2, 3, [| |]), ASTNode.Empty);
+                                                        ASTNode.Subscript(6, 8, ASTNode.Empty, Token.Colon(6, 7, [| |]), ASTNode.Empty, Token.Empty, ASTNode.Empty);
+                                                        |], [| Token.Comma(4, 5, [| |]) |]) , parser.ParseSubscriptList())
+
+    [<Fact>]
+    let ``Subscript list double empty with trailing comma test`` () =
+        let lex = new MockTokenizer( [ ( Token.Colon(0, 1, [||]), 0 ); ( Token.Colon(2, 3, [| |]), 2 ); ( Token.Comma(4, 5, [| |]), 4); ( Token.Colon(6, 7, [||]), 6 ); ( Token.Comma(8, 9, [| |]), 8); ( Token.RightBracket(9, 10, [| |]), 9);  ( Token.EOF([| |]), 11 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SubscriptList(0, 9, [|
+                                                        ASTNode.Subscript(0, 4, ASTNode.Empty, Token.Colon(0, 1, [| |]), ASTNode.Empty, Token.Colon(2, 3, [| |]), ASTNode.Empty);
+                                                        ASTNode.Subscript(6, 8, ASTNode.Empty, Token.Colon(6, 7, [| |]), ASTNode.Empty, Token.Empty, ASTNode.Empty);
+                                                        |], [| Token.Comma(4, 5, [| |]); Token.Comma(8, 9, [| |]) |]) , parser.ParseSubscriptList())
+
+    
+    

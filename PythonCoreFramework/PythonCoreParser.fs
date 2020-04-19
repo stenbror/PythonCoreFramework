@@ -2712,7 +2712,7 @@ type Parser(lexer : ITokenizer) =
                 let op1 = this.Lexer.Symbol
                 this.Lexer.Advance()
                 let right = match this.Lexer.Symbol with
-                            |   Token.RightParen _
+                            |   Token.RightBracket _
                             |   Token.Comma _
                             |   Token.Colon _   ->  ASTNode.Empty
                             |   _   ->  this.ParseTest()
