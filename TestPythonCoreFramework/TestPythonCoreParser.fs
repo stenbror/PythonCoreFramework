@@ -176,6 +176,13 @@ module TestsPythonCoreParser =
         Assert.Equal( ASTNode.UnaryInvert(0, 6, Token.BitInvert(0, 1, [| |]),   ASTNode.Name(2, 6, Token.Name(2, 6, "Test", [| |]))  ) , parser.ParseFactor())
 
     [<Fact>]
+    let ``recursive unary - operator test`` () =
+        let lex = new MockTokenizer( [ ( Token.Minus(0, 1, [| |]), 0 ); ( Token.Minus(1, 2, [| |]), 1 );  ( Token.Name(3, 7, "Test", [| |]), 3 );  ( Token.EOF([| |]), 8 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.UnaryMinus(0, 8, Token.Minus(0, 1, [| |]),  ASTNode.UnaryMinus(1, 8, Token.Minus(1, 2, [| |]), ASTNode.Name(3, 8, Token.Name(3, 7, "Test", [| |]))  ) ) , parser.ParseFactor())
+
+    [<Fact>]
     let ``* operator test`` () =
         let lex = new MockTokenizer( [ ( Token.Name(0, 4, "Test", [| |]), 0 ); ( Token.Mul(5, 6, [| |]), 6 ); ( Token.Name(8, 12, "Fest", [| |]), 8 );  ( Token.EOF([| |]), 12 ); ] )
         lex.Next()
