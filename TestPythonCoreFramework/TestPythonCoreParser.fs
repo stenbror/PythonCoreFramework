@@ -642,3 +642,43 @@ module TestsPythonCoreParser =
                                                                                             )    
                                                                     )                      
                     )  , parser.ParseArgument())
+
+    [<Fact>]
+    let ``Argumentlist with single entry test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.EOF([| |]), 6 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.ArgumentList(0, 6, [| 
+                                                    ASTNode.Argument(0, 6, 
+                                                            ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])),
+                                                            Token.Empty,
+                                                            ASTNode.Empty)
+                                                |], [| |]), parser.ParseArgsList())
+
+    [<Fact>]
+    let ``Argumentlist with single entry with trailing comma test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Comma(6, 7, [| |]), 6); ( Token.RightParen(7, 8, [| |]), 7); ( Token.EOF([| |]), 8 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.ArgumentList(0, 7, [| 
+                                                    ASTNode.Argument(0, 6, 
+                                                            ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])),
+                                                            Token.Empty,
+                                                            ASTNode.Empty)
+                                                |], [| Token.Comma(6, 7, [| |]) |]), parser.ParseArgsList())
+
+    [<Fact>]
+    let ``Argumentlist with multiple entries test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Comma(6, 7, [| |]), 6); ( Token.Name(7, 8, "a", [| |]), 7); ( Token.EOF([| |]), 8 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.ArgumentList(0, 8, [| 
+                                                    ASTNode.Argument(0, 6, 
+                                                            ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])),
+                                                            Token.Empty,
+                                                            ASTNode.Empty);
+                                                    ASTNode.Argument(7, 8, 
+                                                            ASTNode.Name(7, 8, Token.Name(7, 8, "a", [| |])),
+                                                            Token.Empty,
+                                                            ASTNode.Empty)
+                                                |], [| Token.Comma(6, 7, [| |]) |]), parser.ParseArgsList())

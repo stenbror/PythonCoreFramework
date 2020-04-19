@@ -2857,6 +2857,7 @@ type Parser(lexer : ITokenizer) =
         while   match this.Lexer.Symbol with
                 |   Token.Comma _   ->
                         ops <- this.Lexer.Symbol :: ops
+                        this.Lexer.Advance()
                         match this.Lexer.Symbol with
                         |   Token.RightParen _ ->   false
                         |   _   ->
