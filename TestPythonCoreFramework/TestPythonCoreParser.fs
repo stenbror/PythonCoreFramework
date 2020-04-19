@@ -524,5 +524,29 @@ module TestsPythonCoreParser =
                                                         ASTNode.Subscript(6, 8, ASTNode.Empty, Token.Colon(6, 7, [| |]), ASTNode.Empty, Token.Empty, ASTNode.Empty);
                                                         |], [| Token.Comma(4, 5, [| |]); Token.Comma(8, 9, [| |]) |]) , parser.ParseSubscriptList())
 
-    
-    
+    [<Fact>]
+    let ``Single entry exprlist with trailing comma test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Comma(6, 7, [| |]), 6 ); ( Token.In(8, 10, [| |]), 8 ); ( Token.EOF([| |]), 11 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.ExprList(0, 8, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])) |], [| Token.Comma(6, 7, [| |]) |]), parser.ParseExprList())
+
+    [<Fact>]
+    let ``Single entry exprlist test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.EOF([| |]), 6 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.ExprList(0, 6, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])) |], [| |]), parser.ParseExprList())
+
+    [<Fact>]
+    let ``Double entry exprlist with star expr entry as number two test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Comma(6, 7, [| |]), 6 ); (Token.Mul(9, 10, [| |]), 9); ( Token.Name(10, 15, "Test2", [||]), 10); ( Token.In(12, 14, [| |]), 16 ); ( Token.EOF([| |]), 17 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.ExprList(0, 16, [| 
+                                                    ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])); 
+                                                    ASTNode.StarExpr(9, 16, Token.Mul(9, 10, [| |]), ASTNode.Name(10, 16, Token.Name(10, 15, "Test2", [| |])) )
+                                              |], 
+                                              [| 
+                                                    Token.Comma(6, 7, [| |]) 
+                                              |]), parser.ParseExprList())
