@@ -2620,7 +2620,7 @@ type Parser(lexer : ITokenizer) =
         let startPos = this.Lexer.Position
         let mutable nodes : ASTNode list = []
         let mutable ops : Token list = []
-        nodes <- ( match this.Lexer.Symbol with | Token.Mul _ -> this.ParseStarExpr() | _ -> this.ParseTest() ) :: nodes
+        nodes <- ( match this.Lexer.Symbol with | Token.Mul _ -> this.ParseStarExpr() | _ -> this.ParseNamedExpr() ) :: nodes
         match this.Lexer.Symbol with
         |   Token.Async _ 
         |   Token.For _ ->
@@ -2634,7 +2634,7 @@ type Parser(lexer : ITokenizer) =
                                 |   Token.RightParen _
                                 |   Token.RightBracket _ -> ()
                                 |   _   ->
-                                        nodes <- ( match this.Lexer.Symbol with | Token.Mul _ -> this.ParseStarExpr() | _ -> this.ParseTest() ) :: nodes
+                                        nodes <- ( match this.Lexer.Symbol with | Token.Mul _ -> this.ParseStarExpr() | _ -> this.ParseNamedExpr() ) :: nodes
                                 true
                         |   _   -> false
                     do ()

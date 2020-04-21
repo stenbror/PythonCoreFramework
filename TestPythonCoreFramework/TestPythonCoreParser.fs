@@ -725,3 +725,28 @@ module TestsPythonCoreParser =
                                                                     )
                                                           )              
                                                 |], [|  |]), parser.ParseTestListComp())
+
+    [<Fact>]
+    let ``Double entry in TestListComp with star expr entry as number two test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Comma(6, 7, [| |]), 6 ); (Token.Mul(9, 10, [| |]), 9); ( Token.Name(10, 15, "Test2", [||]), 10); ( Token.In(12, 14, [| |]), 16 ); ( Token.EOF([| |]), 17 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.TestList(0, 16, [| 
+                                                    ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])); 
+                                                    ASTNode.StarExpr(9, 16, Token.Mul(9, 10, [| |]), ASTNode.Name(10, 16, Token.Name(10, 15, "Test2", [| |])) )
+                                              |], 
+                                              [| 
+                                                    Token.Comma(6, 7, [| |]) 
+                                              |]), parser.ParseTestListComp())
+
+    [<Fact>]
+    let ``Testlist compfor single entry with NamedExpr test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.ColonAssign(6, 8, [| |]), 6);  ( Token.Name(10, 15, "Test2", [| |]), 10 );  ( Token.Comma(16, 17, [| |]), 16); ( Token.RightBracket(18, 19, [| |]), 18); ( Token.EOF([| |]), 20 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.TestList(0, 18, [| 
+                                                    ASTNode.NamedExpr(0, 16, 
+                                                        ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])),
+                                                        Token.ColonAssign(6, 8, [||]),
+                                                        ASTNode.Name(10, 16, Token.Name(10, 15, "Test2", [| |])) )
+                                                |], [| Token.Comma(16, 17, [| |]) |]), parser.ParseTestListComp())
