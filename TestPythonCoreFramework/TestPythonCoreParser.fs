@@ -682,3 +682,12 @@ module TestsPythonCoreParser =
                                                             Token.Empty,
                                                             ASTNode.Empty)
                                                 |], [| Token.Comma(6, 7, [| |]) |]), parser.ParseArgsList())
+
+    [<Fact>]
+    let ``Testlist compfor single entry test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Comma(6, 7, [| |]), 6); ( Token.RightBracket(8, 9, [| |]), 8); ( Token.EOF([| |]), 10 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.TestList(0, 8, [| 
+                                                    ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |]))
+                                                |], [| Token.Comma(6, 7, [| |]) |]), parser.ParseTestListComp())
