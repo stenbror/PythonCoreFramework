@@ -763,3 +763,11 @@ module TestsPythonCoreParser =
                                                         Token.ColonAssign(12, 14, [||]),
                                                         ASTNode.Name(16, 22, Token.Name(16, 21, "Test2", [| |])) )
                                                 |], [| Token.Comma(22, 23, [| |]) |]) ), parser.ParseYieldExpr())
+
+    [<Fact>]
+    let ``yield from expr test`` () =
+        let lex = new MockTokenizer( [ ( Token.Yield(0, 5, [| |]), 0 ); ( Token.From(7, 11, [| |]), 7 ); ( Token.Name(12, 17, "Test1", [| |]), 12 ); ( Token.EOF([| |]), 13 ) ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.YieldFromExpr(0, 13,  Token.Yield(0, 5, [| |]), Token.From(7, 11, [| |]),
+                                                        ASTNode.Name(12, 13, Token.Name(12, 17, "Test1", [| |]) ) ), parser.ParseYieldExpr())
