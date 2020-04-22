@@ -771,3 +771,25 @@ module TestsPythonCoreParser =
         let parser = new Parser(lex)
         Assert.Equal( ASTNode.YieldFromExpr(0, 13,  Token.Yield(0, 5, [| |]), Token.From(7, 11, [| |]),
                                                         ASTNode.Name(12, 13, Token.Name(12, 17, "Test1", [| |]) ) ), parser.ParseYieldExpr())
+
+    [<Fact>]
+    let ``Testlist compfor with async for entry with if expr test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Async(7, 12, [| |]) , 7 ); ( Token.For(14, 17, [| |]), 14 ); ( Token.Name(18, 19, "a", [| |]), 18 ); ( Token.In(21, 22, [| |]), 21 ); ( Token.Name(23, 24, "b", [| |]), 23 ); ( Token.If( 26, 28, [| |]), 26 ); ( Token.Name(30, 35, "Test2", [| |]), 30 ); ( Token.EOF([| |]), 36 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.TestList(0, 36, [| 
+                                                    ASTNode.Name(0, 7, Token.Name(0, 5, "Test1", [| |]));
+
+                                                    ASTNode.CompFor(7, 36, Token.Async(7, 12, [||]),
+                                                                        ASTNode.SyncCompFor(14, 36,  
+                                                                            Token.For(14, 17, [| |]), 
+                                                                            ASTNode.ExprList( 18, 21, [| ASTNode.Name(18, 21, Token.Name(18, 19, "a", [| |])) |], [| |] ),
+                                                                            Token.In(21, 22, [| |]), 
+                                                                            ASTNode.Name(23, 26, Token.Name(23, 24, "b", [| |])),
+                                                                            ASTNode.CompIf( 26, 36, Token.If(26, 28, [| |]),
+                                                                                                ASTNode.Name(30, 36, Token.Name(30, 35, "Test2", [| |])),
+                                                                                                ASTNode.Empty 
+                                                                                           )
+                                                                    )
+                                                          )              
+                                                |], [|  |]), parser.ParseTestListComp())
