@@ -2631,6 +2631,8 @@ type Parser(lexer : ITokenizer) =
                                 ops <- this.Lexer.Symbol :: ops
                                 this.Lexer.Advance()
                                 match this.Lexer.Symbol with
+                                |   Token.SemiColon _
+                                |   Token.Newline _
                                 |   Token.RightParen _
                                 |   Token.RightBracket _ -> ()
                                 |   _   ->
