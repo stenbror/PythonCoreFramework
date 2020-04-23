@@ -821,3 +821,28 @@ module TestsPythonCoreParser =
                                                                     )
                                                           )              
                                                 |], [|  |]), parser.ParseTestListComp())
+
+    [<Fact>]
+    let ``Testlist compfor with async for entry with additional for expr test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Async(7, 12, [| |]) , 7 ); ( Token.For(14, 17, [| |]), 14 ); ( Token.Name(18, 19, "a", [| |]), 18 ); ( Token.In(21, 22, [| |]), 21 ); ( Token.Name(23, 24, "b", [| |]), 23 ); ( Token.For(33, 35, [| |]), 30 ); ( Token.Name(36, 41, "tall1", [| |]), 36 ); ( Token.In(42, 44, [| |]), 42); ( Token.Name(45, 50, "tall2", [| |]), 45 ); ( Token.EOF([| |]), 51 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.TestList(0, 51, [| 
+                                                    ASTNode.Name(0, 7, Token.Name(0, 5, "Test1", [| |]));
+
+                                                    ASTNode.CompFor(7, 51, Token.Async(7, 12, [||]),
+                                                                        ASTNode.SyncCompFor(14, 51,  
+                                                                            Token.For(14, 17, [| |]), 
+                                                                            ASTNode.ExprList( 18, 21, [| ASTNode.Name(18, 21, Token.Name(18, 19, "a", [| |])) |], [| |] ),
+                                                                            Token.In(21, 22, [| |]), 
+                                                                            ASTNode.Name(23, 30, Token.Name(23, 24, "b", [| |])),
+                                                                            
+                                                                                    ASTNode.SyncCompFor(30, 51,  
+                                                                                        Token.For(33, 35, [| |]), 
+                                                                                        ASTNode.ExprList( 36, 42, [| ASTNode.Name(36, 42, Token.Name(36, 41, "tall1", [| |])) |], [| |] ),
+                                                                                        Token.In(42, 44, [| |]), 
+                                                                                        ASTNode.Name(45, 51, Token.Name(45, 50, "tall2", [| |])),
+                                                                                        ASTNode.Empty)
+                                                                    )
+                                                          )              
+                                                |], [|  |]), parser.ParseTestListComp())
