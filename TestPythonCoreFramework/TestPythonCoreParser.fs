@@ -846,3 +846,16 @@ module TestsPythonCoreParser =
                                                                     )
                                                           )              
                                                 |], [|  |]), parser.ParseTestListComp())
+
+    [<Fact>]
+    let ``Dictionary single entry test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Name(2, 7, "Test1", [| |]), 2 ); ( Token.Colon(8, 9, [| |]) , 8 ); ( Token.Name(10, 11, "a", [| |]), 10 ); ( Token.RightCurly(12, 13, [| |]), 12 ); ( Token.EOF( [| |] ), 14 )  ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Dictionary(0, 14, 
+                                            Token.LeftCurly(0, 1, [| |]), 
+                                            [|
+                                                ASTNode.DictionaryEntry(2, 12, ASTNode.Name(2, 8, Token.Name(2, 7, "Test1", [| |])), Token.Colon(8, 9, [| |]), ASTNode.Name(10, 12, Token.Name(10, 11,"a", [| |]) ) )
+                                            |], 
+                                            [| |],
+                                            Token.RightCurly(12, 13, [||]) ), parser.ParseAtom())
