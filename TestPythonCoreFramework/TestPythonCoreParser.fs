@@ -861,6 +861,19 @@ module TestsPythonCoreParser =
                                             Token.RightCurly(12, 13, [||]) ), parser.ParseAtom())
 
     [<Fact>]
+    let ``Dictionary single entry with trailing comma test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Name(2, 7, "Test1", [| |]), 2 ); ( Token.Colon(8, 9, [| |]) , 8 ); ( Token.Name(10, 11, "a", [| |]), 10 ); ( Token.Comma(12, 13, [| |]), 12 ); ( Token.RightCurly(13, 14, [| |]), 13 ); ( Token.EOF( [| |] ), 15 )  ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Dictionary(0, 15, 
+                                            Token.LeftCurly(0, 1, [| |]), 
+                                            [|
+                                                ASTNode.DictionaryEntry(2, 12, ASTNode.Name(2, 8, Token.Name(2, 7, "Test1", [| |])), Token.Colon(8, 9, [| |]), ASTNode.Name(10, 12, Token.Name(10, 11,"a", [| |]) ) )
+                                            |], 
+                                            [| Token.Comma(12, 13, [| |]) |],
+                                            Token.RightCurly(13, 14, [| |]) ), parser.ParseAtom())
+
+    [<Fact>]
     let ``Set single entry test`` () =
         let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Name(2, 7, "Test1", [| |]), 2 ); ( Token.RightCurly(9, 10, [| |]), 9 ); ( Token.EOF( [| |] ), 11 )  ] )
         lex.Next()
