@@ -885,3 +885,16 @@ module TestsPythonCoreParser =
                                             |], 
                                             [| |],
                                             Token.RightCurly(9, 10, [||]) ), parser.ParseAtom())
+
+    [<Fact>]
+    let ``Set single entry with trailing comma test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Name(2, 7, "Test1", [| |]), 2 ); ( Token.Comma(8, 9, [| |]), 8 ); ( Token.RightCurly(9, 10, [| |]), 9 ); ( Token.EOF( [| |] ), 11 )  ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Set(0, 11, 
+                                            Token.LeftCurly(0, 1, [| |]), 
+                                            [|
+                                                ASTNode.SetEntry(2, 8, ASTNode.Name(2, 8, Token.Name(2, 7, "Test1", [| |])) )
+                                            |], 
+                                            [| Token.Comma(8, 9, [| |]) |],
+                                            Token.RightCurly(9, 10, [||]) ), parser.ParseAtom())
