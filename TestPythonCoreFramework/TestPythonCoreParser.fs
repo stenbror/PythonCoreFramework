@@ -859,3 +859,16 @@ module TestsPythonCoreParser =
                                             |], 
                                             [| |],
                                             Token.RightCurly(12, 13, [||]) ), parser.ParseAtom())
+
+    [<Fact>]
+    let ``Set single entry test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Name(2, 7, "Test1", [| |]), 2 ); ( Token.RightCurly(9, 10, [| |]), 9 ); ( Token.EOF( [| |] ), 11 )  ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Set(0, 11, 
+                                            Token.LeftCurly(0, 1, [| |]), 
+                                            [|
+                                                ASTNode.SetEntry(2, 9, ASTNode.Name(2, 9, Token.Name(2, 7, "Test1", [| |])) )
+                                            |], 
+                                            [| |],
+                                            Token.RightCurly(9, 10, [||]) ), parser.ParseAtom())
