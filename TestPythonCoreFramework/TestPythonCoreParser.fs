@@ -1020,3 +1020,17 @@ module TestsPythonCoreParser =
                                             |], 
                                             [| |],
                                             Token.RightCurly(9, 10, [||]) ), parser.ParseAtom())
+
+    [<Fact>]
+    let ``Set single entry followed by star exor entry test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Name(2, 7, "Test1", [| |]), 2 ); ( Token.Comma(8, 9, [| |]), 8 ); ( Token.Mul(10, 11, [| |] ), 10 ); ( Token.Name(12, 17, "Test1", [| |]), 12 ); ( Token.RightCurly(18, 19, [| |]), 18 ); ( Token.EOF( [| |] ), 19 )  ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Set(0, 19, 
+                                            Token.LeftCurly(0, 1, [| |]), 
+                                            [|
+                                                ASTNode.SetEntry(2, 8, ASTNode.Name(2, 8, Token.Name(2, 7, "Test1", [| |])) );
+                                                ASTNode.SetEntry(2, 18, ASTNode.StarExpr(10, 18, Token.Mul(10, 11, [| |]), ASTNode.Name(12, 18, Token.Name(12, 17, "Test1", [| |])) ) )
+                                            |], 
+                                            [| Token.Comma(8, 9, [| |]) |],
+                                            Token.RightCurly(18, 19, [||]) ), parser.ParseAtom())
