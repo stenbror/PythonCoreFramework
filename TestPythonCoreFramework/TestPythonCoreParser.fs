@@ -915,7 +915,18 @@ module TestsPythonCoreParser =
                                             Token.RightCurly(29, 30, [||]) ), parser.ParseAtom())
 
 
-
+    [<Fact>]
+    let ``Dictionary single power entry test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Power(2, 4, [| |]), 2 ); ( Token.Name(5, 6, "a", [| |]), 5 ); ( Token.RightCurly(7, 8, [| |]), 7 ); ( Token.EOF( [| |] ), 9 )  ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Dictionary(0, 9, 
+                                            Token.LeftCurly(0, 1, [| |]), 
+                                            [|
+                                                ASTNode.DictionaryEntry(2, 7, ASTNode.Empty, Token.Power(2, 4, [| |]), ASTNode.Name(5, 7, Token.Name(5, 6,"a", [| |]) ) )
+                                            |], 
+                                            [| |],
+                                            Token.RightCurly(7, 8, [||]) ), parser.ParseAtom())
 
 
 
