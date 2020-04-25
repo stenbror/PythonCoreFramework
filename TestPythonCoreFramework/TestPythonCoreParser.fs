@@ -1007,3 +1007,16 @@ module TestsPythonCoreParser =
                                             |], 
                                             [| |],
                                             Token.RightCurly(25, 26, [||]) ), parser.ParseAtom())
+
+    [<Fact>]
+    let ``Set single entry *name test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Mul(2, 3, [| |] ), 2 ); ( Token.Name(3, 8, "Test1", [| |]), 3 ); ( Token.RightCurly(9, 10, [| |]), 9 ); ( Token.EOF( [| |] ), 11 )  ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Set(0, 11, 
+                                            Token.LeftCurly(0, 1, [| |]), 
+                                            [|
+                                                ASTNode.SetEntry(2, 9, ASTNode.StarExpr(2, 9, Token.Mul(2, 3, [| |]), ASTNode.Name(3, 9, Token.Name(3, 8, "Test1", [| |])) ) )
+                                            |], 
+                                            [| |],
+                                            Token.RightCurly(9, 10, [||]) ), parser.ParseAtom())
