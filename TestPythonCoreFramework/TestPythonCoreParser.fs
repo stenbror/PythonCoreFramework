@@ -874,6 +874,60 @@ module TestsPythonCoreParser =
                                             Token.RightCurly(13, 14, [| |]) ), parser.ParseAtom())
 
     [<Fact>]
+    let ``Dictionary single entry with comp for test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Name(2, 7, "Test1", [| |]), 2 ); ( Token.Colon(8, 9, [| |]) , 8 ); ( Token.Name(10, 11, "a", [| |]), 10 ); ( Token.For(12, 15, [| |]), 12 ); ( Token.Name(16, 17, "a", [||]), 16 ); ( Token.In(18, 20, [||]), 18 ); ( Token.Name(21, 22, "b", [||]), 21 ); ( Token.RightCurly(22, 23, [| |]), 22 ); ( Token.EOF( [| |] ), 24 )  ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Dictionary(0, 24, 
+                                            Token.LeftCurly(0, 1, [| |]), 
+                                            [|
+                                                ASTNode.DictionaryEntry(2, 12, ASTNode.Name(2, 8, Token.Name(2, 7, "Test1", [| |])), Token.Colon(8, 9, [| |]), ASTNode.Name(10, 12, Token.Name(10, 11,"a", [| |]) ) );
+                                                ASTNode.DictionaryEntry(2, 22, ASTNode.Empty, Token.Empty, ASTNode.SyncCompFor( 12, 22,
+                                                                                                                                Token.For(12, 15, [| |]),
+                                                                                                                                ASTNode.ExprList (16, 18, [| ASTNode.Name(16, 18, Token.Name(16, 17, "a", [||])) |], [| |]),
+                                                                                                                                Token.In(18, 20, [| |]),
+                                                                                                                                ASTNode.Name(21, 22, Token.Name(21, 22, "b", [| |])),
+                                                                                                                                ASTNode.Empty
+                                                                                                                                ))
+                                            |], 
+                                            [| |],
+                                            Token.RightCurly(22, 23, [||]) ), parser.ParseAtom())
+
+    [<Fact>]
+    let ``Dictionary single entry with comp async for test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Name(2, 7, "Test1", [| |]), 2 ); ( Token.Colon(8, 9, [| |]) , 8 ); ( Token.Name(10, 11, "a", [| |]), 10 ); ( Token.Async(12, 17, [| |]), 12 ); ( Token.For(18, 21, [| |]), 18 ); ( Token.Name(22, 23, "a", [||]), 22 ); ( Token.In(24, 26, [||]), 24 ); ( Token.Name(27, 28, "b", [||]), 27 ); ( Token.RightCurly(29, 30, [| |]), 29 ); ( Token.EOF( [| |] ), 31 )  ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Dictionary(0, 31, 
+                                            Token.LeftCurly(0, 1, [| |]), 
+                                            [|
+                                                ASTNode.DictionaryEntry(2, 12, ASTNode.Name(2, 8, Token.Name(2, 7, "Test1", [| |])), Token.Colon(8, 9, [| |]), ASTNode.Name(10, 12, Token.Name(10, 11,"a", [| |]) ) );
+                                                ASTNode.DictionaryEntry(2, 29, ASTNode.Empty, Token.Empty, ASTNode.CompFor(12, 29, Token.Async(12, 17, [| |]),
+                                                                                                                                        ASTNode.SyncCompFor( 18, 29,
+                                                                                                                                                Token.For(18, 21, [| |]),
+                                                                                                                                                ASTNode.ExprList (22, 24, [| ASTNode.Name(22, 24, Token.Name(22, 23, "a", [||])) |], [| |]),
+                                                                                                                                                Token.In(24, 26, [| |]),
+                                                                                                                                                ASTNode.Name(27, 29, Token.Name(27, 28, "b", [| |])),
+                                                                                                                                                ASTNode.Empty
+                                                                                                                                                )) )
+                                            |], 
+                                            [| |],
+                                            Token.RightCurly(29, 30, [||]) ), parser.ParseAtom())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    [<Fact>]
     let ``Set single entry test`` () =
         let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Name(2, 7, "Test1", [| |]), 2 ); ( Token.RightCurly(9, 10, [| |]), 9 ); ( Token.EOF( [| |] ), 11 )  ] )
         lex.Next()
