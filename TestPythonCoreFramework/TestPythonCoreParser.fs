@@ -972,3 +972,27 @@ module TestsPythonCoreParser =
                                             |], 
                                             [| |],
                                             Token.RightCurly(19, 20, [||]) ), parser.ParseAtom())
+
+    [<Fact>]
+    let ``Set single entry with comp async for test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Name(2, 7, "Test1", [| |]), 2 ); ( Token.Async(8, 13, [| |]), 8 ); ( Token.For(14, 17, [| |]), 14 ); ( Token.Name(18, 19, "a", [||]), 18 ); ( Token.In(20, 22, [||]), 20 ); ( Token.Name(23, 24, "b", [||]), 23 ); ( Token.RightCurly(25, 26, [| |]), 25 ); ( Token.EOF( [| |] ), 27 )  ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Set(0, 27, 
+                                            Token.LeftCurly(0, 1, [| |]), 
+                                            [|
+                                                ASTNode.SetEntry(2, 8, ASTNode.Name(2, 8, Token.Name(2, 7, "Test1", [| |])) );
+                                                ASTNode.SetEntry(2, 25,
+                                                                    ASTNode.CompFor(8, 25,
+                                                                                        Token.Async(8, 13, [| |]), 
+                                                                                            ASTNode.SyncCompFor( 14, 25,
+                                                                                                                    Token.For(14, 17, [| |]),
+                                                                                                                    ASTNode.ExprList (18, 20, [| ASTNode.Name(18, 20, Token.Name(18, 19, "a", [||])) |], [| |]),
+                                                                                                                    Token.In(20, 22, [| |]),
+                                                                                                                    ASTNode.Name(23, 25, Token.Name(23, 24, "b", [| |])),
+                                                                                                                    ASTNode.Empty
+                                                                                            )
+                                                                    ))                        
+                                            |], 
+                                            [| |],
+                                            Token.RightCurly(25, 26, [||]) ), parser.ParseAtom())
