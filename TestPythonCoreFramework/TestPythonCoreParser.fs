@@ -952,3 +952,23 @@ module TestsPythonCoreParser =
                                             |], 
                                             [| Token.Comma(8, 9, [| |]) |],
                                             Token.RightCurly(9, 10, [||]) ), parser.ParseAtom())
+
+    [<Fact>]
+    let ``Set single entry with comp for test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Name(2, 7, "Test1", [| |]), 2 ); ( Token.For(8, 11, [| |]), 8 ); ( Token.Name(12, 13, "a", [||]), 12 ); ( Token.In(14, 16, [||]), 14 ); ( Token.Name(17, 18, "b", [||]), 17 ); ( Token.RightCurly(19, 20, [| |]), 19 ); ( Token.EOF( [| |] ), 21 )  ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Set(0, 21, 
+                                            Token.LeftCurly(0, 1, [| |]), 
+                                            [|
+                                                ASTNode.SetEntry(2, 8, ASTNode.Name(2, 8, Token.Name(2, 7, "Test1", [| |])) );
+                                                ASTNode.SetEntry(2, 19, ASTNode.SyncCompFor( 8, 19,
+                                                                            Token.For(8, 11, [| |]),
+                                                                            ASTNode.ExprList (12, 14, [| ASTNode.Name(12, 14, Token.Name(12, 13, "a", [||])) |], [| |]),
+                                                                            Token.In(14, 16, [| |]),
+                                                                            ASTNode.Name(17, 19, Token.Name(17, 18, "b", [| |])),
+                                                                            ASTNode.Empty
+                                                                            ))
+                                            |], 
+                                            [| |],
+                                            Token.RightCurly(19, 20, [||]) ), parser.ParseAtom())
