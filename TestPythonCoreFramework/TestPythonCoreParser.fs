@@ -928,15 +928,19 @@ module TestsPythonCoreParser =
                                             [| |],
                                             Token.RightCurly(7, 8, [||]) ), parser.ParseAtom())
 
-
-
-
-
-
-
-
-
-
+    [<Fact>]
+    let ``Dictionary single entry with following power entry test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftCurly(0, 1, [| |]), 0 ); ( Token.Name(2, 7, "Test1", [| |]), 2 ); ( Token.Colon(8, 9, [| |]) , 8 ); ( Token.Name(10, 11, "a", [| |]), 10 ); ( Token.Comma(12, 13, [| |]), 12 ); ( Token.Power(14, 15, [| |]), 14 ); ( Token.Name(16, 17, "a", [| |]), 16 ); ( Token.RightCurly(18, 19, [| |]), 18 ); ( Token.EOF( [| |] ), 20 )  ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Dictionary(0, 20, 
+                                            Token.LeftCurly(0, 1, [| |]), 
+                                            [|
+                                                ASTNode.DictionaryEntry(2, 12, ASTNode.Name(2, 8, Token.Name(2, 7, "Test1", [| |])), Token.Colon(8, 9, [| |]), ASTNode.Name(10, 12, Token.Name(10, 11,"a", [| |]) ) );
+                                                ASTNode.DictionaryEntry(2, 18, ASTNode.Empty, Token.Power(14, 15, [| |]), ASTNode.Name(16, 18, Token.Name(16, 17,"a", [| |]) ) )
+                                            |], 
+                                            [| Token.Comma(12, 13, [| |]) |],
+                                            Token.RightCurly(18, 19, [| |]) ), parser.ParseAtom())
 
     [<Fact>]
     let ``Set single entry test`` () =
