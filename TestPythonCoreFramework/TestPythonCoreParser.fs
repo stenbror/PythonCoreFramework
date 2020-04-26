@@ -1233,3 +1233,30 @@ module TestsPythonCoreParser =
                                                                                 |], [| Token.Comma(12, 13, [| |]) |] )
                                                     |], 
                                                     [| |], Token.Newline(19, 21, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``Nonlocal Statement with one argument test`` () =
+        let lex = new MockTokenizer( [ ( Token.Nonlocal(0, 8, [| |]), 0 ); ( Token.Name(9, 13, "Test", [| |]), 9 ); ( Token.Newline(14, 16, [| |]), 14 ); ( Token.EOF([| |]), 17 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 17, [|
+                                                            ASTNode.Nonlocal(0, 14, Token.Nonlocal(0, 8, [| |]), 
+                                                                                [|
+                                                                                    ASTNode.Name(9, 14, Token.Name(9, 13, "Test", [| |]))
+                                                                                |], [| |] )
+                                                    |], 
+                                                    [| |], Token.Newline(14, 16, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``Nonlocal Statement with two argument test`` () =
+        let lex = new MockTokenizer( [ ( Token.Nonlocal(0, 8, [| |]), 0 ); ( Token.Name(9, 13, "Test", [| |]), 9 ); ( Token.Comma(14, 15, [| |]), 14 ); ( Token.Name(16, 20, "Tall", [| |]), 16 ); ( Token.Newline(21, 23, [| |]), 21 ); ( Token.EOF([| |]), 24 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 24, [|
+                                                            ASTNode.Nonlocal(0, 21, Token.Nonlocal(0, 8, [| |]), 
+                                                                                [|
+                                                                                    ASTNode.Name(9, 14, Token.Name(9, 13, "Test", [| |]))
+                                                                                    ASTNode.Name(16, 21, Token.Name(16, 20, "Tall", [| |]))
+                                                                                |], [| Token.Comma(14, 15, [| |]) |] )
+                                                    |], 
+                                                    [| |], Token.Newline(21, 23, [| |])), parser.ParseStmt())
