@@ -1140,3 +1140,25 @@ module TestsPythonCoreParser =
                                                             ASTNode.Continue(0, 9, Token.Continue(0, 8, [| |]))
                                                     |], 
                                                     [| |], Token.Newline(9, 11, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``Return Statement test`` () =
+        let lex = new MockTokenizer( [ ( Token.Return(0, 6, [| |]), 0 ); ( Token.Newline(7, 9, [| |]), 7 ); ( Token.EOF([| |]), 10 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        parser.FuncFlowLevel <- 1
+        Assert.Equal( ASTNode.SimpleStmtList(0, 10, [|
+                                                            ASTNode.Return(0, 7, Token.Return(0, 6, [| |]), ASTNode.Empty)
+                                                    |], 
+                                                    [| |], Token.Newline(7, 9, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``Return expression Statement test`` () =
+        let lex = new MockTokenizer( [ ( Token.Return(0, 6, [| |]), 0 ); ( Token.Name(7, 11, "Test", [| |]), 7 ); ( Token.Newline(12, 13, [| |]), 12 ); ( Token.EOF([| |]), 14 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        parser.FuncFlowLevel <- 1
+        Assert.Equal( ASTNode.SimpleStmtList(0, 14, [|
+                                                            ASTNode.Return(0, 12, Token.Return(0, 6, [| |]), ASTNode.TestList(7, 12, [| ASTNode.Name(7, 12, Token.Name(7, 11, "Test", [| |])) |], [| |]))
+                                                    |], 
+                                                    [| |], Token.Newline(12, 13, [| |])), parser.ParseStmt())
