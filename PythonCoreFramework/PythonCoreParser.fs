@@ -1450,19 +1450,19 @@ type Parser(lexer : ITokenizer) =
                 raise ( SyntaxError(this.Lexer.Symbol, "Found 'return' outside of function!") )
         |   Token.Return _ , _ , _ ->
                 this.ParseReturnStmt()
-        |   Token.Break _ , _ , _ when this.FuncFlowLevel <= 0 ->
+        |   Token.Break _ , _ , _ when this.FlowLevel <= 0 ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Found 'break' outside of loop statement!") )
         |   Token.Break _ , _ , _ ->
                 this.ParseBreakStmt()
-        |   Token.Continue _ , _ , _ when this.FuncFlowLevel <= 0 ->
+        |   Token.Continue _ , _ , _ when this.FlowLevel <= 0 ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Found 'continue' outside of loop statement!") )
         |   Token.Continue _ , _ , _ ->
                 this.ParseContinueStmt()
-        |   Token.Raise _ , _ , _ when this.FuncFlowLevel <= 0 ->
+        |   Token.Raise _ , _ , _ when this.FlowLevel <= 0 ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Found 'raise' outside of loop statement!") )
         |   Token.Raise _ , _ , _ ->
                 this.ParseRaiseStmt()
-        |   Token.Yield _ , _ , _ when this.FuncFlowLevel <= 0 ->
+        |   Token.Yield _ , _ , _ when this.FlowLevel <= 0 ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Found 'yield' outside of loop statement!") )
         |   Token.Yield _ , _ , _ ->
                 this.ParseYieldStmt()

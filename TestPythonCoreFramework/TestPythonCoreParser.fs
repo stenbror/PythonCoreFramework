@@ -1110,7 +1110,7 @@ module TestsPythonCoreParser =
                                                     [| |], Token.Newline(9, 11, [| |])), parser.ParseStmt())
 
     [<Fact>]
-    let `` test template `` () =
+    let ``Pass Statement test`` () =
         let lex = new MockTokenizer( [ ( Token.Pass(0, 4, [| |]), 0 ); ( Token.Newline(5, 7, [| |]), 5 ); ( Token.EOF([| |]), 8 ); ] )
         lex.Next()
         let parser = new Parser(lex)
@@ -1118,3 +1118,25 @@ module TestsPythonCoreParser =
                                                             ASTNode.Pass(0, 5, Token.Pass(0, 4, [| |]))
                                                     |], 
                                                     [| |], Token.Newline(5, 7, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``Break Statement test`` () =
+        let lex = new MockTokenizer( [ ( Token.Break(0, 4, [| |]), 0 ); ( Token.Newline(5, 7, [| |]), 5 ); ( Token.EOF([| |]), 8 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        parser.FlowLevel <- 1
+        Assert.Equal( ASTNode.SimpleStmtList(0, 8, [|
+                                                            ASTNode.Break(0, 5, Token.Break(0, 4, [| |]))
+                                                    |], 
+                                                    [| |], Token.Newline(5, 7, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``Continue Statement test`` () =
+        let lex = new MockTokenizer( [ ( Token.Continue(0, 8, [| |]), 0 ); ( Token.Newline(9, 11, [| |]), 9 ); ( Token.EOF([| |]), 12 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        parser.FlowLevel <- 1
+        Assert.Equal( ASTNode.SimpleStmtList(0, 12, [|
+                                                            ASTNode.Continue(0, 9, Token.Continue(0, 8, [| |]))
+                                                    |], 
+                                                    [| |], Token.Newline(9, 11, [| |])), parser.ParseStmt())
