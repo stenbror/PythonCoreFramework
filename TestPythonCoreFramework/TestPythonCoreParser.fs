@@ -1098,3 +1098,23 @@ module TestsPythonCoreParser =
                                                                         Token.RightBracket(18, 19, [| |]) );      |]), parser.ParseAtomExpr())
 
 // Statement unittests ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    [<Fact>]
+    let `` Del Statement test`` () =
+        let lex = new MockTokenizer( [ ( Token.Del(0, 3, [| |]), 0 ); ( Token.Name(4, 8, "Test", [| |]), 4 ); ( Token.Newline(9, 11, [| |]), 9 ); ( Token.EOF([| |]), 12 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 12, [|
+                                                            ASTNode.Del(0, 9, Token.Del(0, 3, [| |]), ASTNode.ExprList(4, 9, [| ASTNode.Name(4, 9, Token.Name(4, 8, "Test", [| |])) |], [| |]) )
+                                                    |], 
+                                                    [| |], Token.Newline(9, 11, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let `` test template `` () =
+        let lex = new MockTokenizer( [ ( Token.Pass(0, 4, [| |]), 0 ); ( Token.Newline(5, 7, [| |]), 5 ); ( Token.EOF([| |]), 8 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 8, [|
+                                                            ASTNode.Pass(0, 5, Token.Pass(0, 4, [| |]))
+                                                    |], 
+                                                    [| |], Token.Newline(5, 7, [| |])), parser.ParseStmt())
