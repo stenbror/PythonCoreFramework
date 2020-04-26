@@ -1195,3 +1195,14 @@ module TestsPythonCoreParser =
                                                             ASTNode.Raise(0, 11, Token.Raise(0, 5, [| |]), ASTNode.Name(6, 11, Token.Name(6, 10, "Test", [| |])), Token.Empty, ASTNode.Empty)
                                                     |], 
                                                     [| |], Token.Newline(11, 13, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``Raise Statement with two argument test`` () =
+        let lex = new MockTokenizer( [ ( Token.Raise(0, 5, [| |]), 0 ); ( Token.Name(6, 10, "Test", [| |]), 6 ); ( Token.From(11, 15, [| |]), 11 ); ( Token.Name(16, 20, "Tall", [| |]), 16 ); ( Token.Newline(21, 23, [| |]), 21 ); ( Token.EOF([| |]), 24 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        parser.FlowLevel <- 1
+        Assert.Equal( ASTNode.SimpleStmtList(0, 24, [|
+                                                            ASTNode.Raise(0, 21, Token.Raise(0, 5, [| |]), ASTNode.Name(6, 11, Token.Name(6, 10, "Test", [| |])), Token.From(11, 15, [| |]), ASTNode.Name(16, 21, Token.Name(16, 20, "Tall", [| |])))
+                                                    |], 
+                                                    [| |], Token.Newline(21, 23, [| |])), parser.ParseStmt())
