@@ -1184,3 +1184,14 @@ module TestsPythonCoreParser =
                                                             ASTNode.Raise(0, 6, Token.Raise(0, 5, [| |]), ASTNode.Empty, Token.Empty, ASTNode.Empty)
                                                     |], 
                                                     [| |], Token.Newline(6, 8, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``Raise Statement with one argument test`` () =
+        let lex = new MockTokenizer( [ ( Token.Raise(0, 5, [| |]), 0 ); ( Token.Name(6, 10, "Test", [| |]), 6 ); ( Token.Newline(11, 13, [| |]), 11 ); ( Token.EOF([| |]), 14 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        parser.FlowLevel <- 1
+        Assert.Equal( ASTNode.SimpleStmtList(0, 14, [|
+                                                            ASTNode.Raise(0, 11, Token.Raise(0, 5, [| |]), ASTNode.Name(6, 11, Token.Name(6, 10, "Test", [| |])), Token.Empty, ASTNode.Empty)
+                                                    |], 
+                                                    [| |], Token.Newline(11, 13, [| |])), parser.ParseStmt())
