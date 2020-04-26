@@ -1219,3 +1219,17 @@ module TestsPythonCoreParser =
                                                                                 |], [| |] )
                                                     |], 
                                                     [| |], Token.Newline(12, 14, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``Global Statement with two argument test`` () =
+        let lex = new MockTokenizer( [ ( Token.Global(0, 6, [| |]), 0 ); ( Token.Name(7, 11, "Test", [| |]), 7 ); ( Token.Comma(12, 13, [| |]), 12 ); ( Token.Name(14, 18, "Tall", [| |]), 14 ); ( Token.Newline(19, 21, [| |]), 19 ); ( Token.EOF([| |]), 22 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 22, [|
+                                                            ASTNode.Global(0, 19, Token.Global(0, 6, [| |]), 
+                                                                                [|
+                                                                                    ASTNode.Name(7, 12, Token.Name(7, 11, "Test", [| |]))
+                                                                                    ASTNode.Name(14, 19, Token.Name(14, 18, "Tall", [| |]))
+                                                                                |], [| Token.Comma(12, 13, [| |]) |] )
+                                                    |], 
+                                                    [| |], Token.Newline(19, 21, [| |])), parser.ParseStmt())
