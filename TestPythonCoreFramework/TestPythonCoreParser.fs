@@ -1173,3 +1173,14 @@ module TestsPythonCoreParser =
                                                             ASTNode.YieldExpr(0, 11, Token.Yield(0, 5, [| |]), ASTNode.TestList(6, 11, [| ASTNode.Name(6, 11, Token.Name(6, 10, "Test", [| |])) |], [||]))
                                                     |], 
                                                     [| |], Token.Newline(11, 13, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``Raise Statement test`` () =
+        let lex = new MockTokenizer( [ ( Token.Raise(0, 5, [| |]), 0 ); ( Token.Newline(6, 8, [| |]), 6 ); ( Token.EOF([| |]), 9 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        parser.FlowLevel <- 1
+        Assert.Equal( ASTNode.SimpleStmtList(0, 9, [|
+                                                            ASTNode.Raise(0, 6, Token.Raise(0, 5, [| |]), ASTNode.Empty, Token.Empty, ASTNode.Empty)
+                                                    |], 
+                                                    [| |], Token.Newline(6, 8, [| |])), parser.ParseStmt())
