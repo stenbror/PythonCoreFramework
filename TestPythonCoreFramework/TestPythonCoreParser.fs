@@ -1260,3 +1260,13 @@ module TestsPythonCoreParser =
                                                                                 |], [| Token.Comma(14, 15, [| |]) |] )
                                                     |], 
                                                     [| |], Token.Newline(21, 23, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``Assert Statement with one argument test`` () =
+        let lex = new MockTokenizer( [ ( Token.Assert(0, 6, [| |]), 0 ); ( Token.Name(7, 11, "Test", [| |]), 7 ); ( Token.Newline(12, 14, [| |]), 12 ); ( Token.EOF([| |]), 15 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 15, [|
+                                                            ASTNode.Assert(0, 12, Token.Assert(0, 6, [| |]), ASTNode.Name(7, 12, Token.Name(7, 11, "Test", [| |])), Token.Empty, ASTNode.Empty)
+                                                    |], 
+                                                    [| |], Token.Newline(12, 14, [| |])), parser.ParseStmt())
