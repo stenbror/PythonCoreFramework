@@ -1038,3 +1038,33 @@ module TestsPythonCoreParser =
                                             |], 
                                             [| Token.Comma(8, 9, [| |]) |],
                                             Token.RightCurly(18, 19, [||]) ), parser.ParseAtom())
+
+    [<Fact>]
+    let ``( single entry) literal test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftParen(0, 1, [| |]), 0 ); ( Token.Name(2, 3, "a", [| |]), 2 ); ( Token.RightParen(4, 5, [| |]), 4 ); ( Token.EOF([| |]), 6 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Tuple(0, 6, 
+                                        Token.LeftParen(0, 1, [| |]), 
+                                        ASTNode.TestList(2, 4, [| ASTNode.Name(2, 4, Token.Name(2, 3, "a", [| |])) |], [| |]), 
+                                        Token.RightParen(4, 5, [| |]) ), parser.ParseAtom())
+
+    [<Fact>]
+    let ``( single entry yield ) literal test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftParen(0, 1, [| |]), 0 ); ( Token.Yield(2, 7, [| |]), 2 ); ( Token.Name(8, 9, "a", [| |]), 8 );  ( Token.RightParen(10, 11, [| |]), 10 ); ( Token.EOF([| |]), 12 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.Tuple(0, 12, 
+                                        Token.LeftParen(0, 1, [| |]), 
+                                        ASTNode.YieldExpr(2, 10, Token.Yield(2, 7, [| |]), ASTNode.TestList(8, 10, [| ASTNode.Name(8, 10, Token.Name(8, 9, "a", [| |])) |], [| |]) ), 
+                                        Token.RightParen(10, 11, [| |]) ), parser.ParseAtom())
+
+    [<Fact>]
+    let ``[ single entry ] literal test`` () =
+        let lex = new MockTokenizer( [ ( Token.LeftBracket(0, 1, [| |]), 0 ); ( Token.Name(2, 3, "a", [| |]), 2 ); ( Token.RightBracket(4, 5, [| |]), 4 ); ( Token.EOF([| |]), 6 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.List(0, 6, 
+                        Token.LeftBracket(0, 1, [| |]), 
+                        ASTNode.TestList(2, 4, [| ASTNode.Name(2, 4, Token.Name(2, 3, "a", [| |])) |], [| |]), 
+                        Token.RightBracket(4, 5, [| |]) ), parser.ParseAtom())
