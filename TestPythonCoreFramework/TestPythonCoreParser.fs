@@ -1206,3 +1206,16 @@ module TestsPythonCoreParser =
                                                             ASTNode.Raise(0, 21, Token.Raise(0, 5, [| |]), ASTNode.Name(6, 11, Token.Name(6, 10, "Test", [| |])), Token.From(11, 15, [| |]), ASTNode.Name(16, 21, Token.Name(16, 20, "Tall", [| |])))
                                                     |], 
                                                     [| |], Token.Newline(21, 23, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``Global Statement with one argument test`` () =
+        let lex = new MockTokenizer( [ ( Token.Global(0, 6, [| |]), 0 ); ( Token.Name(7, 11, "Test", [| |]), 7 ); ( Token.Newline(12, 14, [| |]), 12 ); ( Token.EOF([| |]), 15 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 15, [|
+                                                            ASTNode.Global(0, 12, Token.Global(0, 6, [| |]), 
+                                                                                [|
+                                                                                    ASTNode.Name(7, 12, Token.Name(7, 11, "Test", [| |]))
+                                                                                |], [| |] )
+                                                    |], 
+                                                    [| |], Token.Newline(12, 14, [| |])), parser.ParseStmt())

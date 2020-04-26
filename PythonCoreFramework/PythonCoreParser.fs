@@ -1710,8 +1710,10 @@ type Parser(lexer : ITokenizer) =
                 this.Lexer.Advance()
                 match this.Lexer.Symbol with
                 |   Token.Name _ ->
-                        let name1 = ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol)
+                        let start1 = this.Lexer.Position
+                        let pName = this.Lexer.Symbol
                         this.Lexer.Advance()
+                        let name1 = ASTNode.Name(start1, this.Lexer.Position, pName)
                         nodes <- name1 :: nodes
                         while   match this.Lexer.Symbol with
                                 |   Token.Comma _ ->
@@ -1719,8 +1721,10 @@ type Parser(lexer : ITokenizer) =
                                         this.Lexer.Advance()
                                         match this.Lexer.Symbol with
                                         |   Token.Name _ ->
-                                                let name2 = ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol)
+                                                let start2 = this.Lexer.Position
+                                                let pName = this.Lexer.Symbol
                                                 this.Lexer.Advance()
+                                                let name2 = ASTNode.Name(start2, this.Lexer.Position, pName)
                                                 nodes <- name2 :: nodes
                                                 true
                                         |   _ ->
@@ -1744,8 +1748,10 @@ type Parser(lexer : ITokenizer) =
                 this.Lexer.Advance()
                 match this.Lexer.Symbol with
                 |   Token.Name _ ->
-                        let name1 = ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol)
+                        let start1 = this.Lexer.Position
+                        let pName = this.Lexer.Symbol
                         this.Lexer.Advance()
+                        let name1 = ASTNode.Name(start1, this.Lexer.Position, pName)
                         nodes <- name1 :: nodes
                         while   match this.Lexer.Symbol with
                                 |   Token.Comma _ ->
@@ -1753,8 +1759,10 @@ type Parser(lexer : ITokenizer) =
                                         this.Lexer.Advance()
                                         match this.Lexer.Symbol with
                                         |   Token.Name _ ->
-                                                let name2 = ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol)
+                                                let start2 = this.Lexer.Position
+                                                let pName = this.Lexer.Symbol
                                                 this.Lexer.Advance()
+                                                let name2 = ASTNode.Name(start2, this.Lexer.Position, pName)
                                                 nodes <- name2 :: nodes
                                                 true
                                         |   _ ->
