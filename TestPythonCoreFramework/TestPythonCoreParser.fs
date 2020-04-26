@@ -34,6 +34,7 @@ module TestsPythonCoreParser =
 
     // UnitTests for Parser with Mock Tokenizer /////////////////////////////////////////////////////// 
 
+    // Expression /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     [<Fact>]
     let ``Name literal test`` () =
@@ -1068,3 +1069,32 @@ module TestsPythonCoreParser =
                         Token.LeftBracket(0, 1, [| |]), 
                         ASTNode.TestList(2, 4, [| ASTNode.Name(2, 4, Token.Name(2, 3, "a", [| |])) |], [| |]), 
                         Token.RightBracket(4, 5, [| |]) ), parser.ParseAtom())
+
+    [<Fact>]
+    let ``async name with ( single entry ) test`` () =
+        let lex = new MockTokenizer( [ ( Token.Async(0, 5, [| |]), 0 ); ( Token.Name(7, 11, "Test", [| |]), 7 ); ( Token.LeftParen(11, 12, [| |]), 11 ); ( Token.Name(13, 17, "Test", [| |]), 13 ); ( Token.RightParen(18, 19, [| |]), 18 );  ( Token.EOF([| |]), 20 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.AtomExpr(0, 20, Token.Async(0, 5, [| |]), ASTNode.Name(7, 11, Token.Name(7, 11, "Test", [| |])), 
+                                                                            [|    ASTNode.Call(11, 20,  
+                                                                                        Token.LeftParen(11, 12, [| |]), 
+                                                                                        ASTNode.ArgumentList(13, 18, 
+                                                                                            [|
+                                                                                                ASTNode.Argument(13, 18, ASTNode.Name(13, 18, Token.Name(13, 17, "Test", [| |])), Token.Empty, ASTNode.Empty )
+                                                                                            |], [| |]), 
+                                                                                        Token.RightParen(18, 19, [| |]) );      |]), parser.ParseAtomExpr())
+
+    [<Fact>]
+    let ``async name with [ single entry ] test`` () =
+        let lex = new MockTokenizer( [ ( Token.Async(0, 5, [| |]), 0 ); ( Token.Name(7, 11, "Test", [| |]), 7 ); ( Token.LeftBracket(11, 12, [| |]), 11 ); ( Token.Name(13, 17, "Test", [| |]), 13 );  ( Token.RightBracket(18, 19, [| |]), 18 );  ( Token.EOF([| |]), 20 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.AtomExpr(0, 20, Token.Async(0, 5, [| |]), ASTNode.Name(7, 11, Token.Name(7, 11, "Test", [| |])), 
+                                                                [|    ASTNode.Index(11, 20,  
+                                                                        Token.LeftBracket(11, 12, [| |]), 
+                                                                        ASTNode.SubscriptList(13, 18, [|
+                                                                                                        ASTNode.Subscript(13, 18, ASTNode.Name(13, 18, Token.Name(13, 17, "Test", [| |])), Token.Empty, ASTNode.Empty, Token.Empty, ASTNode.Empty)  
+                                                                                                    |], [| |]), 
+                                                                        Token.RightBracket(18, 19, [| |]) );      |]), parser.ParseAtomExpr())
+
+// Statement unittests ////////////////////////////////////////////////////////////////////////////////////////////////
