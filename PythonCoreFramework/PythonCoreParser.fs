@@ -1634,8 +1634,10 @@ type Parser(lexer : ITokenizer) =
                 this.Lexer.Advance()
                 match this.Lexer.Symbol with
                 |   Token.Name _ ->
-                        let name = ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol)
+                        let start1 = this.Lexer.Position
+                        let pName = this.Lexer.Symbol
                         this.Lexer.Advance()
+                        let name = ASTNode.Name(start1, this.Lexer.Position, pName)
                         ASTNode.DottedAsName(startPos, this.Lexer.Position, left, op, name)
                 |   _ ->
                         raise ( SyntaxError(this.Lexer.Symbol, "Expecting name literal after 'as'") )
@@ -1680,16 +1682,20 @@ type Parser(lexer : ITokenizer) =
         let mutable ops : Token list = []
         match this.Lexer.Symbol with
         |   Token.Name _ ->
-                nodes <- ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol) :: nodes
+                let start1 = this.Lexer.Position
+                let pName = this.Lexer.Symbol
                 this.Lexer.Advance()
+                nodes <- ASTNode.Name(start1, this.Lexer.Position, pName) :: nodes
                 while   match this.Lexer.Symbol with
                         |   Token.Dot _ ->
                                 ops <- this.Lexer.Symbol :: ops
                                 this.Lexer.Advance()
                                 match this.Lexer.Symbol with
                                 |   Token.Name _ ->
-                                        nodes <- ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol) :: nodes
+                                        let start2 = this.Lexer.Position
+                                        let pName2 = this.Lexer.Symbol
                                         this.Lexer.Advance()
+                                        nodes <- ASTNode.Name(start2, this.Lexer.Position, pName2) :: nodes
                                 |   _ ->
                                         raise ( SyntaxError(this.Lexer.Symbol, "Expecting name literal after '.'") )
                                 true
