@@ -1365,3 +1365,13 @@ module TestsPythonCoreParser =
                                                                                                                             |], [| Token.Comma(22, 23, [| |]) |])
                                                                                                 )
                                                     |], [| |], Token.Newline(38, 40, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``import from first test`` () =
+        let lex = new MockTokenizer( [ ( Token.From(0, 4, [| |]), 0 ); ( Token.Dot(5, 6, [| |]), 5 ); ( Token.Import(7, 13, [| |]), 7 ); ( Token.Mul(14, 15, [| |]), 14 ); ( Token.Newline(16, 18, [| |]), 16 ); ( Token.EOF([| |]), 19 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 19, [|
+                                                          ASTNode.ImportFrom(0, 16, Token.From(0, 4, [||]), [| Token.Dot(5, 6, [||]) |], ASTNode.Empty, Token.Import(7, 13, [| |]), Token.Mul(14, 15, [||]), ASTNode.Empty, Token.Empty )  
+                                                    |], 
+                                                    [| |], Token.Newline(16, 18, [| |])), parser.ParseStmt())
