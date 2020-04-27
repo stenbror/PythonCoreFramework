@@ -1296,3 +1296,20 @@ module TestsPythonCoreParser =
                                                                                                                             ), Token.Empty, ASTNode.Empty)
                                                                                                 )
                                                     |], [| |], Token.Newline(12, 14, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``Import single name name test`` () =
+        let lex = new MockTokenizer( [ ( Token.Import(0, 6, [| |]), 0 ); ( Token.Name(7, 11, "Test", [| |]), 7 ); ( Token.Dot(11, 12, [| |]), 11 ); ( Token.Name(12, 16, "Tell", [| |]), 12 ); ( Token.Newline(17, 19, [| |]), 17 ); ( Token.EOF([| |]), 20 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 20, [| 
+                                                        ASTNode.Import(0, 17, Token.Import(0, 6, [| |]), 
+                                                                                                    ASTNode.DottedAsName(7, 17, ASTNode.DottedName(7, 17,   [|
+                                                                                                                                                                ASTNode.Name(7, 11, Token.Name(7, 11, "Test", [| |]));
+                                                                                                                                                                ASTNode.Name(12, 17, Token.Name(12, 16, "Tell", [| |]))
+                                                                                                                                                            |], 
+                                                                                                        
+                                                                                                                                [| Token.Dot(11, 12, [| |]) |]
+                                                                                                                            ), Token.Empty, ASTNode.Empty)
+                                                                                                )
+                                                    |], [| |], Token.Newline(17, 19, [| |])), parser.ParseStmt())
