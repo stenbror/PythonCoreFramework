@@ -1546,7 +1546,7 @@ type Parser(lexer : ITokenizer) =
         |   Token.Import _ ->
                 let op = this.Lexer.Symbol
                 this.Lexer.Advance()
-                let right = this.ParseDottedAsNameStmt()
+                let right = this.ParseDottedAsNamesStmt()
                 ASTNode.Import(startPos, this.Lexer.Position, op, right)
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'import' in import statement!") )
