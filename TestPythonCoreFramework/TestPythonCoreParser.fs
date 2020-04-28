@@ -1665,3 +1665,31 @@ module TestsPythonCoreParser =
                                                                                         ASTNode.TestList(15, 16, [| ASTNode.Name(15, 16, Token.Name(15, 16, "a", [| |]))   |], [| |]) )
                                                                             )
                                                     |], [| |], Token.Newline(16, 18, [| |])), parser.ParseStmt() )
+
+    [<Fact>]
+    let ``a : b = yield expr test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Colon(6, 7, [| |]), 6 ); ( Token.Name(8, 9, "a", [| |]), 0 ); ( Token.Assign(10, 11, [| |]), 10 ); ( Token.Yield(12, 17, [| |]), 12 ); ( Token.Name(18, 19, "a", [| |]), 18 ); ( Token.Newline(19, 21, [| |]), 19 ); ( Token.EOF([| |]), 22 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 22, [|
+                                                        ASTNode.AnnAssign(0, 19,   ASTNode.TestList(0, 6, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])) |], [| |]), 
+                                                                                    Token.Colon(6, 7, [| |]),
+                                                                                    ASTNode.Name(0, 10, Token.Name(8, 9, "a", [| |])),
+                                                                                    Token.Assign(10, 11, [| |]), 
+                                                                                    ASTNode.YieldExpr(12, 19, Token.Yield(12, 17, [| |]),
+                                                                                        ASTNode.TestList(18, 19, [| ASTNode.Name(18, 19, Token.Name(18, 19, "a", [| |]))   |], [| |]) )
+                                                                            )
+                                                    |], [| |], Token.Newline(19, 21, [| |])), parser.ParseStmt() )
+
+    [<Fact>]
+    let ``a : b = c test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Colon(6, 7, [| |]), 6 ); ( Token.Name(8, 9, "a", [| |]), 0 ); ( Token.Assign(10, 11, [| |]), 10 ); ( Token.Name(12, 13, "a", [| |]), 12 ); ( Token.Newline(13, 15, [| |]), 13 ); ( Token.EOF([| |]), 16 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 16, [|
+                                                        ASTNode.AnnAssign(0, 13,   ASTNode.TestList(0, 6, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])) |], [| |]), 
+                                                                                    Token.Colon(6, 7, [| |]),
+                                                                                    ASTNode.Name(0, 10, Token.Name(8, 9, "a", [| |])),
+                                                                                    Token.Assign(10, 11, [| |]), 
+                                                                                    ASTNode.TestList(12, 13, [| ASTNode.Name(12, 13, Token.Name(12, 13, "a", [| |]))   |], [| |]) )
+                                                    |], [| |], Token.Newline(13, 15, [| |])), parser.ParseStmt() )
