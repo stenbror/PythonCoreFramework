@@ -1412,3 +1412,23 @@ module TestsPythonCoreParser =
                                                                             Token.Import(19, 25, [| |]), Token.Mul(26, 27, [||]), ASTNode.Empty, Token.Empty )  
                                                     |], 
                                                     [| |], Token.Newline(27, 28, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``import from fifth test`` () =
+        let lex = new MockTokenizer( [ ( Token.From(0, 4, [| |]), 0 ); ( Token.Dot(5, 6, [| |]), 5 ); ( Token.Elipsis(6, 9, [| |]), 6 ); ( Token.Name(9, 13, "test", [| |]), 9 ); ( Token.Dot(13, 14, [| |]), 13 ); ( Token.Name(14, 18, "tell", [| |]), 14 ); ( Token.Import(19, 25, [| |]), 19 ); ( Token.LeftParen(26, 27, [| |]), 26 ); ( Token.Name(28, 29, "a", [| |]), 28 ); ( Token.RightParen(30, 31, [| |]), 30 ); ( Token.Newline(31, 32, [| |]), 33 ); ( Token.EOF([| |]), 29 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 29, [|
+                                                          ASTNode.ImportFrom(0, 33, Token.From(0, 4, [||]), [| Token.Dot(5, 6, [||]); Token.Elipsis(6, 9, [| |]) |], 
+                                                                            ASTNode.DottedName(9, 19, [| 
+                                                                                                            ASTNode.Name(9, 13, Token.Name(9, 13, "test", [| |])); 
+                                                                                                            ASTNode.Name(14, 19, Token.Name(14, 18, "tell", [| |]))      
+                                                                                                      |], [| Token.Dot(13, 14, [| |]) |]), 
+                                                                            Token.Import(19, 25, [| |]), 
+                                                                                Token.LeftParen(26, 27, [||]), 
+                                                                                ASTNode.ImportAsNames(28, 30,   [| 
+                                                                                                                    ASTNode.ImportAsName(28, 30, ASTNode.Name(28, 30, Token.Name(28, 29, "a", [| |])), Token.Empty, ASTNode.Empty)
+                                                                                                                |], [| |]), 
+                                                                                Token.RightParen(30, 31, [| |] )  )
+                                                    |], 
+                                                    [| |], Token.Newline(31, 32, [| |])), parser.ParseStmt())

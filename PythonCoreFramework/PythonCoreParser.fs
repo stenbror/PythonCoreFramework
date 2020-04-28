@@ -1607,23 +1607,26 @@ type Parser(lexer : ITokenizer) =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
         |   Token.Name _ ->
-                let name1 = ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol)
+                let pName = this.Lexer.Symbol
                 this.Lexer.Advance()
+                let name1 = ASTNode.Name(startPos, this.Lexer.Position, pName)
                 match this.Lexer.Symbol with
                 |   Token.As _ ->
                         let op = this.Lexer.Symbol
                         this.Lexer.Advance()
                         match this.Lexer.Symbol with
                         |   Token.Name _ ->
-                                let name2 = ASTNode.Name(startPos, this.Lexer.Position, this.Lexer.Symbol)
+                                let start1 = this.Lexer.Position
+                                let pName2 = this.Lexer.Symbol
                                 this.Lexer.Advance()
+                                let name2 = ASTNode.Name(start1, this.Lexer.Position, pName2)
                                 ASTNode.ImportAsName(startPos, this.Lexer.Position, name1, op, name2)
                         |   _ ->
                                 raise ( SyntaxError(this.Lexer.Symbol, "") )
                 |   _ ->
-                        raise ( SyntaxError(this.Lexer.Symbol, "") )
+                        ASTNode.ImportAsName(startPos, this.Lexer.Position, name1, Token.Empty, ASTNode.Empty)
         |   _ ->
-                raise ( SyntaxError(this.Lexer.Symbol, "") )
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting name of import statement entry.") )
 
     member this.ParseDottedAsNameStmt() =
         let startPos = this.Lexer.Position
