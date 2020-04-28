@@ -1652,3 +1652,16 @@ module TestsPythonCoreParser =
                                                                                     ASTNode.TestList(9, 11, [| ASTNode.Number(9, 11, Token.Number(9, 10, "1", [| |]))   |], [| |])
                                                                             )
                                                     |], [| |], Token.Newline(11, 13, [| |])), parser.ParseStmt() )
+
+    [<Fact>]
+    let ``>>= yield expr test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.ShiftRightAssign(6, 8, [| |]), 6 ); ( Token.Yield(9, 14, [| |]), 9 ); ( Token.Name(15, 16, "a", [| |]), 15 ); ( Token.Newline(16, 18, [| |]), 16 ); ( Token.EOF([| |]), 19 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 19, [|
+                                                        ASTNode.ShiftRightAssign(0, 16,   ASTNode.TestList(0, 6, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])) |], [| |]), 
+                                                                                    Token.ShiftRightAssign(6, 8, [| |]), 
+                                                                                    ASTNode.YieldExpr(9, 16, Token.Yield(9, 14, [| |]),
+                                                                                        ASTNode.TestList(15, 16, [| ASTNode.Name(15, 16, Token.Name(15, 16, "a", [| |]))   |], [| |]) )
+                                                                            )
+                                                    |], [| |], Token.Newline(16, 18, [| |])), parser.ParseStmt() )
