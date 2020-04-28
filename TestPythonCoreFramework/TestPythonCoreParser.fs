@@ -1604,3 +1604,51 @@ module TestsPythonCoreParser =
                                                                                     ASTNode.TestList(9, 11, [| ASTNode.Number(9, 11, Token.Number(9, 10, "1", [| |]))   |], [| |])
                                                                             )
                                                     |], [| |], Token.Newline(11, 13, [| |])), parser.ParseStmt() )
+
+    [<Fact>]
+    let ``**= test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.PowerAssign(6, 8, [| |]), 6 ); ( Token.Number(9, 10, "1", [| |]), 9 ); ( Token.Newline(11, 13, [| |]), 11 ); ( Token.EOF([| |]), 14 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 14, [|
+                                                        ASTNode.PowerAssign(0, 11,   ASTNode.TestList(0, 6, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])) |], [| |]), 
+                                                                                    Token.PowerAssign(6, 8, [| |]), 
+                                                                                    ASTNode.TestList(9, 11, [| ASTNode.Number(9, 11, Token.Number(9, 10, "1", [| |]))   |], [| |])
+                                                                            )
+                                                    |], [| |], Token.Newline(11, 13, [| |])), parser.ParseStmt() )
+
+    [<Fact>]
+    let ``//= test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.FloorDivAssign(6, 8, [| |]), 6 ); ( Token.Number(9, 10, "1", [| |]), 9 ); ( Token.Newline(11, 13, [| |]), 11 ); ( Token.EOF([| |]), 14 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 14, [|
+                                                        ASTNode.FloorDivAssign(0, 11,   ASTNode.TestList(0, 6, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])) |], [| |]), 
+                                                                                    Token.FloorDivAssign(6, 8, [| |]), 
+                                                                                    ASTNode.TestList(9, 11, [| ASTNode.Number(9, 11, Token.Number(9, 10, "1", [| |]))   |], [| |])
+                                                                            )
+                                                    |], [| |], Token.Newline(11, 13, [| |])), parser.ParseStmt() )
+
+    [<Fact>]
+    let ``<<= test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.ShiftLeftAssign(6, 8, [| |]), 6 ); ( Token.Number(9, 10, "1", [| |]), 9 ); ( Token.Newline(11, 13, [| |]), 11 ); ( Token.EOF([| |]), 14 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 14, [|
+                                                        ASTNode.ShiftLeftAssign(0, 11,   ASTNode.TestList(0, 6, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])) |], [| |]), 
+                                                                                    Token.ShiftLeftAssign(6, 8, [| |]), 
+                                                                                    ASTNode.TestList(9, 11, [| ASTNode.Number(9, 11, Token.Number(9, 10, "1", [| |]))   |], [| |])
+                                                                            )
+                                                    |], [| |], Token.Newline(11, 13, [| |])), parser.ParseStmt() )
+
+    [<Fact>]
+    let ``>>= test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.ShiftRightAssign(6, 8, [| |]), 6 ); ( Token.Number(9, 10, "1", [| |]), 9 ); ( Token.Newline(11, 13, [| |]), 11 ); ( Token.EOF([| |]), 14 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 14, [|
+                                                        ASTNode.ShiftRightAssign(0, 11,   ASTNode.TestList(0, 6, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])) |], [| |]), 
+                                                                                    Token.ShiftRightAssign(6, 8, [| |]), 
+                                                                                    ASTNode.TestList(9, 11, [| ASTNode.Number(9, 11, Token.Number(9, 10, "1", [| |]))   |], [| |])
+                                                                            )
+                                                    |], [| |], Token.Newline(11, 13, [| |])), parser.ParseStmt() )
