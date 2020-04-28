@@ -1496,3 +1496,15 @@ module TestsPythonCoreParser =
                                                                                 Token.Empty )
                                                     |], 
                                                     [| |], Token.Newline(39, 41, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``+= test`` () =
+        let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.PlusAssign(6, 8, [| |]), 6 ); ( Token.Number(9, 10, "1", [| |]), 9 ); ( Token.Newline(11, 13, [| |]), 11 ); ( Token.EOF([| |]), 14 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 14, [|
+                                                        ASTNode.PlusAssign(0, 11,   ASTNode.TestList(0, 6, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])) |], [| |]), 
+                                                                                    Token.PlusAssign(6, 8, [| |]), 
+                                                                                    ASTNode.TestList(9, 11, [| ASTNode.Number(9, 11, Token.Number(9, 10, "1", [| |]))   |], [| |])
+                                                                            )
+                                                    |], [| |], Token.Newline(11, 13, [| |])), parser.ParseStmt() )
