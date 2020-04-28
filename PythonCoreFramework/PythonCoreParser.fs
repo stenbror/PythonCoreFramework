@@ -1375,6 +1375,11 @@ type Parser(lexer : ITokenizer) =
                                             |   Token.TypeComment _ ->
                                                     let tmpOp = this.Lexer.Symbol
                                                     this.Lexer.Advance()
+                                                    match this.Lexer.Symbol with
+                                                    |   Token.Assign _ ->
+                                                            raise ( SyntaxError( this.Lexer.Symbol, "Type comment only after last '=' expression." ) )
+                                                    |   _ ->
+                                                            ()
                                                     tmpOp
                                             |   _ ->
                                                     Token.Empty
