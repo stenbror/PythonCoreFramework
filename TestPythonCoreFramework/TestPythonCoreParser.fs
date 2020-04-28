@@ -1385,3 +1385,15 @@ module TestsPythonCoreParser =
                                                           ASTNode.ImportFrom(0, 19, Token.From(0, 4, [||]), [| Token.Dot(5, 6, [||]); Token.Elipsis(6, 9, [| |]) |], ASTNode.Empty, Token.Import(10, 16, [| |]), Token.Mul(17, 18, [||]), ASTNode.Empty, Token.Empty )  
                                                     |], 
                                                     [| |], Token.Newline(19, 21, [| |])), parser.ParseStmt())
+
+    [<Fact>]
+    let ``import from third test`` () =
+        let lex = new MockTokenizer( [ ( Token.From(0, 4, [| |]), 0 ); ( Token.Dot(5, 6, [| |]), 5 ); ( Token.Elipsis(6, 9, [| |]), 6 ); ( Token.Name(9, 13, "test", [| |]), 9 ); ( Token.Import(14, 20, [| |]), 14 ); ( Token.Mul(21, 22, [| |]), 21 ); ( Token.Newline(22, 23, [| |]), 22 ); ( Token.EOF([| |]), 24 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 24, [|
+                                                          ASTNode.ImportFrom(0, 22, Token.From(0, 4, [||]), [| Token.Dot(5, 6, [||]); Token.Elipsis(6, 9, [| |]) |], 
+                                                                            ASTNode.DottedName(9, 14, [| ASTNode.Name(9, 14, Token.Name(9, 13, "test", [| |])) |], [| |]), 
+                                                                            Token.Import(14, 20, [| |]), Token.Mul(21, 22, [||]), ASTNode.Empty, Token.Empty )  
+                                                    |], 
+                                                    [| |], Token.Newline(22, 23, [| |])), parser.ParseStmt())
