@@ -1841,3 +1841,42 @@ module TestsPythonCoreParser =
                                                                                         |], [| |], Token.Newline(47, 49, [| |]))
                                                         )
                                         ), parser.ParseStmt() )
+
+    [<Fact>]
+    let ``if with double elif and with else test`` () =
+        let lex = new MockTokenizer( [ ( Token.If(0, 2, [| |]), 0 ); ( Token.True(3, 7, [| |]), 3 ); ( Token.Colon(7, 8, [| |]), 7 ); ( Token.Pass(9, 13, [| |]), 9 ); ( Token.Newline(14, 16, [| |]), 14 ); 
+                                       ( Token.Elif(17, 21, [| |]), 17 ); ( Token.True(22, 26, [| |]), 22 ); ( Token.Colon(27, 28, [| |]), 27 ); ( Token.Pass(28, 32, [| |]), 28 ); ( Token.Newline(32, 34, [| |]), 32 );
+                                       ( Token.Elif(35, 39, [| |]), 35 ); ( Token.True(40, 44, [| |]), 40 ); ( Token.Colon(45, 46, [| |]), 45 ); ( Token.Pass(46, 50, [| |]), 46 ); ( Token.Newline(50, 52, [| |]), 50 );
+                                       ( Token.Else(53, 57, [| |]), 53); ( Token.Colon(58, 59, [| |]), 58 ); ( Token.Pass(60, 64, [| |]), 60 ); ( Token.Newline(65, 67, [| |]), 65 ); ( Token.EOF([| |]), 68 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.If(0, 68, Token.If(0, 2, [| |]), 
+                                        ASTNode.True(3, 7, Token.True(3, 7, [| |])), 
+                                        Token.Colon(7, 8, [| |]), 
+                                        ASTNode.SimpleStmtList(9, 17, [| ASTNode.Pass(9, 14, Token.Pass(9, 13, [| |])) |], [| |], Token.Newline(14, 16, [| |])), 
+                                        [| 
+                                            ASTNode.Elif(17, 35, 
+                                                                    Token.Elif(17, 21, [| |]),
+                                                                    ASTNode.True(22, 27, Token.True(22, 26, [| |])),
+                                                                    Token.Colon(27, 28, [| |]),
+                                                                    ASTNode.SimpleStmtList(28, 35, [| 
+                                                                                                        ASTNode.Pass(28, 32, Token.Pass(28, 32, [| |]))
+                                                                                                    |], [| |], Token.Newline(32, 34, [| |]))
+                                                                );
+                                            ASTNode.Elif(35, 53, 
+                                                                    Token.Elif(35, 39, [| |]),
+                                                                    ASTNode.True(40, 45, Token.True(40, 44, [| |])),
+                                                                    Token.Colon(45, 46, [| |]),
+                                                                    ASTNode.SimpleStmtList(46, 53, [| 
+                                                                                                        ASTNode.Pass(46, 50, Token.Pass(46, 50, [| |]))
+                                                                                                    |], [| |], Token.Newline(50, 52, [| |]))
+                                                                )
+                                        |], 
+                                        ASTNode.Else(53, 68, 
+                                                        Token.Else(53, 57, [||]), 
+                                                        Token.Colon(58, 59, [| |]), 
+                                                        ASTNode.SimpleStmtList(60, 68, [| 
+                                                                                            ASTNode.Pass(60, 65, Token.Pass(60, 64, [| |]))
+                                                                                        |], [| |], Token.Newline(65, 67, [| |]))
+                                                        )
+                                        ), parser.ParseStmt() )
