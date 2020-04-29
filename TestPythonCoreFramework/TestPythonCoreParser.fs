@@ -1779,3 +1779,15 @@ module TestsPythonCoreParser =
                                                         ASTNode.Pass(0, 4, Token.Pass(0, 4, [| |]));
                                                         ASTNode.Pass(6, 12, Token.Pass(6, 10, [| |]))
                                                     |], [| Token.SemiColon(4, 5, [| |]) |], Token.Newline(12, 14, [| |])), parser.ParseStmt() )
+
+    [<Fact>]
+    let ``if single test`` () =
+        let lex = new MockTokenizer( [ ( Token.If(0, 2, [| |]), 0 ); ( Token.True(3, 7, [| |]), 3 ); ( Token.Colon(7, 8, [| |]), 7 ); ( Token.Pass(9, 13, [| |]), 9 ); ( Token.Newline(14, 16, [| |]), 14 ); ( Token.EOF([| |]), 17 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.If(0, 17, Token.If(0, 2, [| |]), 
+                                        ASTNode.True(3, 7, Token.True(3, 7, [| |])), 
+                                        Token.Colon(7, 8, [| |]), 
+                                        ASTNode.SimpleStmtList(9, 17, [| ASTNode.Pass(9, 14, Token.Pass(9, 13, [| |])) |], [| |], Token.Newline(14, 16, [| |])), 
+                                        [| |], 
+                                        ASTNode.Empty), parser.ParseStmt() )
