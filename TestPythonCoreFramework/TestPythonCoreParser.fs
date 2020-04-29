@@ -1791,3 +1791,23 @@ module TestsPythonCoreParser =
                                         ASTNode.SimpleStmtList(9, 17, [| ASTNode.Pass(9, 14, Token.Pass(9, 13, [| |])) |], [| |], Token.Newline(14, 16, [| |])), 
                                         [| |], 
                                         ASTNode.Empty), parser.ParseStmt() )
+
+    [<Fact>]
+    let ``if single with else test`` () =
+        let lex = new MockTokenizer( [ ( Token.If(0, 2, [| |]), 0 ); ( Token.True(3, 7, [| |]), 3 ); ( Token.Colon(7, 8, [| |]), 7 ); ( Token.Pass(9, 13, [| |]), 9 ); ( Token.Newline(14, 16, [| |]), 14 ); 
+                                       ( Token.Else(17, 21, [| |]), 17); ( Token.Colon(21, 22, [| |]), 21 ); ( Token.Pass(23, 27, [| |]), 23 ); ( Token.Newline(28, 30, [| |]), 28 ); ( Token.EOF([| |]), 31 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.If(0, 31, Token.If(0, 2, [| |]), 
+                                        ASTNode.True(3, 7, Token.True(3, 7, [| |])), 
+                                        Token.Colon(7, 8, [| |]), 
+                                        ASTNode.SimpleStmtList(9, 17, [| ASTNode.Pass(9, 14, Token.Pass(9, 13, [| |])) |], [| |], Token.Newline(14, 16, [| |])), 
+                                        [| |], 
+                                        ASTNode.Else(17, 31, 
+                                                        Token.Else(17, 21, [||]), 
+                                                        Token.Colon(21, 22, [| |]), 
+                                                        ASTNode.SimpleStmtList(23, 31, [| 
+                                                                                            ASTNode.Pass(23, 28, Token.Pass(23, 27, [| |]))
+                                                                                        |], [| |], Token.Newline(28, 30, [| |]))
+                                                        )
+                                        ), parser.ParseStmt() )
