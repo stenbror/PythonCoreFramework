@@ -1913,3 +1913,14 @@ module TestsPythonCoreParser =
                                         |], 
                                         ASTNode.Empty
                                         ), parser.ParseStmt() )
+
+    [<Fact>]
+       let ``while statement test`` () =
+           let lex = new MockTokenizer( [ ( Token.While(0, 5, [| |]), 0 ); ( Token.Name(6, 10, "Test", [| |]), 6 ); ( Token.ColonAssign(11, 13, [| |]), 11 ); ( Token.Name(14, 18, "Tell", [| |]), 14 ); ( Token.Colon(19, 20, [| |]), 19 ); ( Token.Pass(21, 25, [| |]), 21 ); ( Token.Newline(26, 28, [| |]), 26 ); ( Token.EOF([| |]), 29 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.While(0, 29,   Token.While(0, 5, [| |]), 
+                                                ASTNode.NamedExpr(6, 19, ASTNode.Name(6, 11, Token.Name(6, 10, "Test", [| |])), Token.ColonAssign(11, 13, [| |]), ASTNode.Name(14, 19, Token.Name(14, 18, "Tell", [| |]))), 
+                                                Token.Colon(19, 20, [| |]), 
+                                                ASTNode.SimpleStmtList(21, 29, [| ASTNode.Pass(21, 26, Token.Pass(21, 25, [| |])) |], [| |], Token.Newline(26, 28, [| |])), 
+                                                ASTNode.Empty), parser.ParseStmt())
