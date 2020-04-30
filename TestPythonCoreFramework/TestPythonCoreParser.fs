@@ -1915,7 +1915,7 @@ module TestsPythonCoreParser =
                                         ), parser.ParseStmt() )
 
     [<Fact>]
-       let ``while statement test`` () =
+    let ``while statement test`` () =
            let lex = new MockTokenizer( [ ( Token.While(0, 5, [| |]), 0 ); ( Token.Name(6, 10, "Test", [| |]), 6 ); ( Token.ColonAssign(11, 13, [| |]), 11 ); ( Token.Name(14, 18, "Tell", [| |]), 14 ); ( Token.Colon(19, 20, [| |]), 19 ); ( Token.Pass(21, 25, [| |]), 21 ); ( Token.Newline(26, 28, [| |]), 26 ); ( Token.EOF([| |]), 29 ); ] )
            lex.Next()
            let parser = new Parser(lex)
@@ -1924,3 +1924,17 @@ module TestsPythonCoreParser =
                                                 Token.Colon(19, 20, [| |]), 
                                                 ASTNode.SimpleStmtList(21, 29, [| ASTNode.Pass(21, 26, Token.Pass(21, 25, [| |])) |], [| |], Token.Newline(26, 28, [| |])), 
                                                 ASTNode.Empty), parser.ParseStmt())
+
+    [<Fact>]
+    let ``while statement with else statement test`` () =
+        let lex = new MockTokenizer( [ ( Token.While(0, 5, [| |]), 0 ); ( Token.Name(6, 10, "Test", [| |]), 6 ); ( Token.ColonAssign(11, 13, [| |]), 11 ); ( Token.Name(14, 18, "Tell", [| |]), 14 ); ( Token.Colon(19, 20, [| |]), 19 ); ( Token.Pass(21, 25, [| |]), 21 ); ( Token.Newline(26, 28, [| |]), 26 ); ( Token.Else(28, 32, [| |]), 28 ); ( Token.Colon(32, 33, [| |]), 32 ); ( Token.Pass(34, 38, [| |]), 34 ); ( Token.Newline(39, 41, [| |]), 39 ); ( Token.EOF([| |]), 42 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.While(0, 42,   Token.While(0, 5, [| |]), 
+                                             ASTNode.NamedExpr(6, 19, ASTNode.Name(6, 11, Token.Name(6, 10, "Test", [| |])), Token.ColonAssign(11, 13, [| |]), ASTNode.Name(14, 19, Token.Name(14, 18, "Tell", [| |]))), 
+                                             Token.Colon(19, 20, [| |]), 
+                                             ASTNode.SimpleStmtList(21, 28, [| ASTNode.Pass(21, 26, Token.Pass(21, 25, [| |])) |], [| |], Token.Newline(26, 28, [| |])), 
+                                             ASTNode.Else(28, 42, 
+                                                                    Token.Else(28, 32, [| |]), 
+                                                                    Token.Colon(32, 33, [| |]), 
+                                                                    ASTNode.SimpleStmtList(34, 42, [| ASTNode.Pass(34, 39, Token.Pass(34, 38, [| |]))  |], [| |], Token.Newline(39, 41, [| |])))), parser.ParseStmt())
