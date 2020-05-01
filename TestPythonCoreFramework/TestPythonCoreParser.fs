@@ -2020,3 +2020,15 @@ module TestsPythonCoreParser =
                                                             ASTNode.SimpleStmtList(42, 50, [| ASTNode.Pass(42, 47, Token.Pass(42, 46, [| |])) |], [| |], Token.Newline(47, 49, [| |]))
                                             )
                                             ), parser.ParseStmt())
+
+    [<Fact>]
+       let ``try statement with finally part test`` () =
+              let lex = new MockTokenizer( [ ( Token.Try(0, 3, [| |]), 0 ); ( Token.Colon(3, 4, [| |]), 3 ); ( Token.Pass(5, 9, [| |]), 5 ); ( Token.Newline(10, 12, [| |]), 10 );   
+                                             ( Token.Finally(13, 20, [| |]), 13 ); ( Token.Colon(21, 22, [| |]), 21 ); ( Token.Pass(23, 27, [| |]), 23 ); ( Token.Newline(28, 30, [| |]), 28 ); ( Token.EOF([| |]), 31 ); ] )
+              lex.Next()
+              let parser = new Parser(lex)
+              Assert.Equal( ASTNode.Try(0, 31, Token.Try(0, 3, [| |]), Token.Colon(3, 4, [| |]), 
+                                                                            ASTNode.SimpleStmtList(5, 13, [| ASTNode.Pass(5, 10, Token.Pass(5, 9, [| |])) |], [| |], Token.Newline(10, 12, [| |])), 
+                                                                            [| |], 
+                                                                            ASTNode.Empty, 
+                                                                            ASTNode.Finally(21, 31, Token.Finally(13, 20, [| |]), Token.Colon(21, 22, [| |]), ASTNode.SimpleStmtList(23, 31, [| ASTNode.Pass(23, 28, Token.Pass(23, 27, [| |])) |], [| |], Token.Newline(28, 30, [| |])))), parser.ParseStmt())
