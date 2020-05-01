@@ -1793,6 +1793,18 @@ module TestsPythonCoreParser =
                                         ASTNode.Empty), parser.ParseStmt() )
 
     [<Fact>]
+    let ``if single with namedexpr test`` () =
+        let lex = new MockTokenizer( [ ( Token.If(0, 2, [| |]), 0 ); ( Token.Name(3, 8, "Test1", [| |]), 3 ); ( Token.ColonAssign(9, 11, [| |]), 9 ); ( Token.Name(12, 13, "b", [| |]), 12 ); ( Token.Colon(14, 15, [| |]), 14 ); ( Token.Pass(16, 20, [| |]), 16 ); ( Token.Newline(21, 23, [| |]), 21 ); ( Token.EOF([| |]), 24 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.If(0, 24, Token.If(0, 2, [| |]), 
+                                        ASTNode.NamedExpr(3, 14, ASTNode.Name(3, 9, Token.Name(3, 8, "Test1", [| |])), Token.ColonAssign(9, 11, [| |]), ASTNode.Name(12, 14, Token.Name(12, 13, "b", [| |]))),
+                                        Token.Colon(14, 15, [| |]), 
+                                        ASTNode.SimpleStmtList(16, 24, [| ASTNode.Pass(16, 21, Token.Pass(16, 20, [| |])) |], [| |], Token.Newline(21, 23, [| |])), 
+                                        [| |], 
+                                        ASTNode.Empty), parser.ParseStmt() )
+
+    [<Fact>]
     let ``if single with else test`` () =
         let lex = new MockTokenizer( [ ( Token.If(0, 2, [| |]), 0 ); ( Token.True(3, 7, [| |]), 3 ); ( Token.Colon(7, 8, [| |]), 7 ); ( Token.Pass(9, 13, [| |]), 9 ); ( Token.Newline(14, 16, [| |]), 14 ); 
                                        ( Token.Else(17, 21, [| |]), 17); ( Token.Colon(21, 22, [| |]), 21 ); ( Token.Pass(23, 27, [| |]), 23 ); ( Token.Newline(28, 30, [| |]), 28 ); ( Token.EOF([| |]), 31 ); ] )
