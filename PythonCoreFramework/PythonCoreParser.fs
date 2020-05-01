@@ -1997,11 +1997,11 @@ type Parser(lexer : ITokenizer) =
                         let left = this.ParseSuite()
                         match this.Lexer.Symbol with
                         |   Token.Finally _ ->
+                                let start2 = this.Lexer.Position
                                 let op3 = this.Lexer.Symbol
                                 this.Lexer.Advance()
                                 match this.Lexer.Symbol with
                                 |   Token.Colon _ ->
-                                        let start2 = this.Lexer.Position
                                         let op4 = this.Lexer.Symbol
                                         this.Lexer.Advance()
                                         let right3 = this.ParseSuite()
@@ -2038,11 +2038,11 @@ type Parser(lexer : ITokenizer) =
                                                             ASTNode.Empty
                                         let fin =   match this.Lexer.Symbol with
                                                     |   Token.Finally _ ->
+                                                            let start3 = this.Lexer.Position
                                                             let op5 = this.Lexer.Symbol
                                                             this.Lexer.Advance()
                                                             match this.Lexer.Symbol with
                                                             |   Token.Colon _ ->
-                                                                    let start3 = this.Lexer.Position
                                                                     let op6 = this.Lexer.Symbol
                                                                     this.Lexer.Advance()
                                                                     let right4 = this.ParseSuite()

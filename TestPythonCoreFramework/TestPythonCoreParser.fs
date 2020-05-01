@@ -2031,7 +2031,7 @@ module TestsPythonCoreParser =
                                                                         ASTNode.SimpleStmtList(5, 13, [| ASTNode.Pass(5, 10, Token.Pass(5, 9, [| |])) |], [| |], Token.Newline(10, 12, [| |])), 
                                                                         [| |], 
                                                                         ASTNode.Empty, 
-                                                                        ASTNode.Finally(21, 31, Token.Finally(13, 20, [| |]), Token.Colon(21, 22, [| |]), ASTNode.SimpleStmtList(23, 31, [| ASTNode.Pass(23, 28, Token.Pass(23, 27, [| |])) |], [| |], Token.Newline(28, 30, [| |])))), parser.ParseStmt())
+                                                                        ASTNode.Finally(13, 31, Token.Finally(13, 20, [| |]), Token.Colon(21, 22, [| |]), ASTNode.SimpleStmtList(23, 31, [| ASTNode.Pass(23, 28, Token.Pass(23, 27, [| |])) |], [| |], Token.Newline(28, 30, [| |])))), parser.ParseStmt())
 
     [<Fact>]
     let ``try statement with one exception and finally part test`` () =
@@ -2052,4 +2052,33 @@ module TestsPythonCoreParser =
                                                                                                         ASTNode.SimpleStmtList(29, 37, [| ASTNode.Pass(29, 34, Token.Pass(29, 33, [| |])) |], [| |], Token.Newline(34, 36, [| |])) )
                                                                          |], 
                                                                          ASTNode.Empty, 
-                                                                         ASTNode.Finally(45, 55, Token.Finally(37, 44, [| |]), Token.Colon(45, 46, [| |]), ASTNode.SimpleStmtList(47, 55, [| ASTNode.Pass(47, 52, Token.Pass(47, 51, [| |])) |], [| |], Token.Newline(52, 54, [| |])))), parser.ParseStmt())
+                                                                         ASTNode.Finally(37, 55, Token.Finally(37, 44, [| |]), Token.Colon(45, 46, [| |]), ASTNode.SimpleStmtList(47, 55, [| ASTNode.Pass(47, 52, Token.Pass(47, 51, [| |])) |], [| |], Token.Newline(52, 54, [| |])))), parser.ParseStmt())
+
+    [<Fact>]
+    let ``try statement with two exception and finally part test`` () =
+           let lex = new MockTokenizer( [ ( Token.Try(0, 3, [| |]), 0 ); ( Token.Colon(3, 4, [| |]), 3 ); ( Token.Pass(5, 9, [| |]), 5 ); ( Token.Newline(10, 12, [| |]), 10 );   
+                                          ( Token.Except(13, 19, [| |]), 13 ); ( Token.Name(20, 21, "a", [| |]), 20 ); ( Token.As(22, 24, [| |]), 22); ( Token.Name(25, 26, "b", [| |]), 25 ); ( Token.Colon(27, 28, [| |]), 27 ); ( Token.Pass(29, 33, [| |]), 29 ); ( Token.Newline(34, 36, [||]), 34 );
+                                          ( Token.Except(37, 43, [| |]), 37 ); ( Token.Name(44, 45, "a", [| |]), 44 ); ( Token.Colon(46, 47, [| |]), 46 ); ( Token.Pass(49, 53, [| |]), 49 ); ( Token.Newline(54, 56, [||]), 54 );
+                                          ( Token.Finally(57, 64, [| |]), 57 ); ( Token.Colon(65, 66, [| |]), 65 ); ( Token.Pass(67, 71, [| |]), 67 ); ( Token.Newline(72, 74, [| |]), 72 ); ( Token.EOF([| |]), 75 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.Try(0, 75, Token.Try(0, 3, [| |]), Token.Colon(3, 4, [| |]), 
+                                                                         ASTNode.SimpleStmtList(5, 13, [| ASTNode.Pass(5, 10, Token.Pass(5, 9, [| |])) |], [| |], Token.Newline(10, 12, [| |])), 
+                                                                         [| 
+                                                                                ASTNode.Except(13, 37, 
+                                                                                                        Token.Except(13, 19, [| |]), 
+                                                                                                        ASTNode.Name(20, 22, Token.Name(20, 21, "a", [| |])), 
+                                                                                                        Token.As(22, 24, [| |]), 
+                                                                                                        ASTNode.Name(25, 27, Token.Name(25, 26, "b", [| |])), 
+                                                                                                        Token.Colon(27, 28, [| |]), 
+                                                                                                        ASTNode.SimpleStmtList(29, 37, [| ASTNode.Pass(29, 34, Token.Pass(29, 33, [| |])) |], [| |], Token.Newline(34, 36, [| |])) );
+                                                                                ASTNode.Except(37, 57, 
+                                                                                                        Token.Except(37, 43, [| |]), 
+                                                                                                        ASTNode.Name(44, 46, Token.Name(44, 45, "a", [| |])), 
+                                                                                                        Token.Empty, 
+                                                                                                        ASTNode.Empty, 
+                                                                                                        Token.Colon(46, 47, [| |]), 
+                                                                                                        ASTNode.SimpleStmtList(49, 57, [| ASTNode.Pass(49, 54, Token.Pass(49, 53, [| |])) |], [| |], Token.Newline(54, 56, [| |])) )
+                                                                         |], 
+                                                                         ASTNode.Empty, 
+                                                                         ASTNode.Finally(57, 75, Token.Finally(57, 64, [| |]), Token.Colon(65, 66, [| |]), ASTNode.SimpleStmtList(67, 75, [| ASTNode.Pass(67, 72, Token.Pass(67, 71, [| |])) |], [| |], Token.Newline(72, 74, [| |])))), parser.ParseStmt())
