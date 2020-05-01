@@ -2022,13 +2022,34 @@ module TestsPythonCoreParser =
                                             ), parser.ParseStmt())
 
     [<Fact>]
-       let ``try statement with finally part test`` () =
-              let lex = new MockTokenizer( [ ( Token.Try(0, 3, [| |]), 0 ); ( Token.Colon(3, 4, [| |]), 3 ); ( Token.Pass(5, 9, [| |]), 5 ); ( Token.Newline(10, 12, [| |]), 10 );   
-                                             ( Token.Finally(13, 20, [| |]), 13 ); ( Token.Colon(21, 22, [| |]), 21 ); ( Token.Pass(23, 27, [| |]), 23 ); ( Token.Newline(28, 30, [| |]), 28 ); ( Token.EOF([| |]), 31 ); ] )
-              lex.Next()
-              let parser = new Parser(lex)
-              Assert.Equal( ASTNode.Try(0, 31, Token.Try(0, 3, [| |]), Token.Colon(3, 4, [| |]), 
-                                                                            ASTNode.SimpleStmtList(5, 13, [| ASTNode.Pass(5, 10, Token.Pass(5, 9, [| |])) |], [| |], Token.Newline(10, 12, [| |])), 
-                                                                            [| |], 
-                                                                            ASTNode.Empty, 
-                                                                            ASTNode.Finally(21, 31, Token.Finally(13, 20, [| |]), Token.Colon(21, 22, [| |]), ASTNode.SimpleStmtList(23, 31, [| ASTNode.Pass(23, 28, Token.Pass(23, 27, [| |])) |], [| |], Token.Newline(28, 30, [| |])))), parser.ParseStmt())
+    let ``try statement with finally part test`` () =
+            let lex = new MockTokenizer( [ ( Token.Try(0, 3, [| |]), 0 ); ( Token.Colon(3, 4, [| |]), 3 ); ( Token.Pass(5, 9, [| |]), 5 ); ( Token.Newline(10, 12, [| |]), 10 );   
+                                            ( Token.Finally(13, 20, [| |]), 13 ); ( Token.Colon(21, 22, [| |]), 21 ); ( Token.Pass(23, 27, [| |]), 23 ); ( Token.Newline(28, 30, [| |]), 28 ); ( Token.EOF([| |]), 31 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.Try(0, 31, Token.Try(0, 3, [| |]), Token.Colon(3, 4, [| |]), 
+                                                                        ASTNode.SimpleStmtList(5, 13, [| ASTNode.Pass(5, 10, Token.Pass(5, 9, [| |])) |], [| |], Token.Newline(10, 12, [| |])), 
+                                                                        [| |], 
+                                                                        ASTNode.Empty, 
+                                                                        ASTNode.Finally(21, 31, Token.Finally(13, 20, [| |]), Token.Colon(21, 22, [| |]), ASTNode.SimpleStmtList(23, 31, [| ASTNode.Pass(23, 28, Token.Pass(23, 27, [| |])) |], [| |], Token.Newline(28, 30, [| |])))), parser.ParseStmt())
+
+    [<Fact>]
+    let ``try statement with one exception and finally part test`` () =
+           let lex = new MockTokenizer( [ ( Token.Try(0, 3, [| |]), 0 ); ( Token.Colon(3, 4, [| |]), 3 ); ( Token.Pass(5, 9, [| |]), 5 ); ( Token.Newline(10, 12, [| |]), 10 );   
+                                          ( Token.Except(13, 19, [| |]), 13 ); ( Token.Name(20, 21, "a", [| |]), 20 ); ( Token.As(22, 24, [| |]), 22); ( Token.Name(25, 26, "b", [| |]), 25 ); ( Token.Colon(27, 28, [| |]), 27 ); ( Token.Pass(29, 33, [| |]), 29 ); ( Token.Newline(34, 36, [||]), 34 );
+                                          ( Token.Finally(37, 44, [| |]), 37 ); ( Token.Colon(45, 46, [| |]), 45 ); ( Token.Pass(47, 51, [| |]), 47 ); ( Token.Newline(52, 54, [| |]), 52 ); ( Token.EOF([| |]), 55 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.Try(0, 55, Token.Try(0, 3, [| |]), Token.Colon(3, 4, [| |]), 
+                                                                         ASTNode.SimpleStmtList(5, 13, [| ASTNode.Pass(5, 10, Token.Pass(5, 9, [| |])) |], [| |], Token.Newline(10, 12, [| |])), 
+                                                                         [| 
+                                                                                ASTNode.Except(13, 37, 
+                                                                                                        Token.Except(13, 19, [| |]), 
+                                                                                                        ASTNode.Name(20, 22, Token.Name(20, 21, "a", [| |])), 
+                                                                                                        Token.As(22, 24, [| |]), 
+                                                                                                        ASTNode.Name(25, 27, Token.Name(25, 26, "b", [| |])), 
+                                                                                                        Token.Colon(27, 28, [| |]), 
+                                                                                                        ASTNode.SimpleStmtList(29, 37, [| ASTNode.Pass(29, 34, Token.Pass(29, 33, [| |])) |], [| |], Token.Newline(34, 36, [| |])) )
+                                                                         |], 
+                                                                         ASTNode.Empty, 
+                                                                         ASTNode.Finally(45, 55, Token.Finally(37, 44, [| |]), Token.Colon(45, 46, [| |]), ASTNode.SimpleStmtList(47, 55, [| ASTNode.Pass(47, 52, Token.Pass(47, 51, [| |])) |], [| |], Token.Newline(52, 54, [| |])))), parser.ParseStmt())
