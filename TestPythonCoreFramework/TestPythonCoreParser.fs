@@ -2435,3 +2435,43 @@ module TestsPythonCoreParser =
                                                         ASTNode.FuncType(0, 7, Token.LeftParen(0, 1, [| |]), ASTNode.Empty, Token.RightParen(1, 2, [| |]), Token.Ptr(2, 4, [| |]), ASTNode.Name(5, 7, Token.Name(5, 6, "a", [| |]))), 
                                                         [| Token.Newline(7, 9, [| |]) |], 
                                                         Token.EOF([| |]) ), parser.ParseFuncTypeInput())
+
+    [<Fact>]
+    let ``simple funct type input with mul argument test`` () =
+           let lex = new MockTokenizer( [   ( Token.LeftParen(0, 1, [| |]), 0); ( Token.Mul(2, 3, [| |]), 2 ); ( Token.Name(3, 4, "b", [| |]), 3 ); ( Token.RightParen(5, 6, [| |]), 5 ); ( Token.Ptr(6, 8, [| |]), 6 ); ( Token.Name(9, 10, "a", [| |]), 9 ); 
+                                            ( Token.Newline(11, 13, [| |]), 11 ); ( Token.EOF([| |]), 14 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.FuncTypeInput(0, 14, 
+                                                        ASTNode.FuncType(0, 11, 
+                                                                Token.LeftParen(0, 1, [| |]), 
+                                                                ASTNode.TypeList(2, 5, 
+                                                                                        [| 
+                                                                                            ASTNode.TypedMul(2, 5, Token.Mul(2, 3, [| |]), ASTNode.Name(3, 5, Token.Name(3, 4, "b", [| |])))
+                                                                                        |], [| |]), 
+                                                                Token.RightParen(5, 6, [| |]), 
+                                                                Token.Ptr(6, 8, [| |]), 
+                                                                ASTNode.Name(9, 11, Token.Name(9, 10, "a", [| |]))
+                                                        ), 
+                                                        [| Token.Newline(11, 13, [| |]) |], 
+                                                        Token.EOF([| |]) ), parser.ParseFuncTypeInput())
+
+    [<Fact>]
+    let ``simple funct type input with power argument test`` () =
+           let lex = new MockTokenizer( [   ( Token.LeftParen(0, 1, [| |]), 0); ( Token.Power(2, 4, [| |]), 2 ); ( Token.Name(4, 5, "b", [| |]), 4 ); ( Token.RightParen(6, 7, [| |]), 6 ); ( Token.Ptr(7, 9, [| |]), 7 ); ( Token.Name(10, 11, "a", [| |]), 10 ); 
+                                            ( Token.Newline(12, 14, [| |]), 12 ); ( Token.EOF([| |]), 15 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.FuncTypeInput(0, 15, 
+                                                        ASTNode.FuncType(0, 12, 
+                                                                Token.LeftParen(0, 1, [| |]), 
+                                                                ASTNode.TypeList(2, 6, 
+                                                                                        [| 
+                                                                                            ASTNode.TypedPower(2, 6, Token.Power(2, 4, [| |]), ASTNode.Name(4, 6, Token.Name(4, 5, "b", [| |])))
+                                                                                        |], [| |]), 
+                                                                Token.RightParen(6, 7, [| |]), 
+                                                                Token.Ptr(7, 9, [| |]), 
+                                                                ASTNode.Name(10, 12, Token.Name(10, 11, "a", [| |]))
+                                                        ), 
+                                                        [| Token.Newline(12, 14, [| |]) |], 
+                                                        Token.EOF([| |]) ), parser.ParseFuncTypeInput())
