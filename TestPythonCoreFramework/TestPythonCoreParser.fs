@@ -2271,3 +2271,18 @@ module TestsPythonCoreParser =
                                                 Token.TypeComment(10, 20, "type:   int"), 
                                                 ASTNode.SimpleStmtList(20, 28, [| ASTNode.Pass(20, 25, Token.Pass(20, 24, [| |])) |], [| |], Token.Newline(25, 27, [| |])) ), parser.ParseStmt()) 
 
+    [<Fact>]
+    let ``With statement with only one expression with as test`` () =
+           let lex = new MockTokenizer( [ ( Token.With(0, 4, [| |]), 0 ); 
+                                            ( Token.Name(5, 6, "a", [| |]), 5 ); ( Token.As(7, 9, [| |]), 7 ); ( Token.Name(10, 11, "b",  [| |]), 10 );
+                                            ( Token.Colon(11, 12, [| |]), 11 ); ( Token.Pass(14, 18, [| |]), 14 ); ( Token.Newline(19, 21, [| |]), 19 ); ( Token.EOF([| |]), 22 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.With(0, 22, 
+                                                Token.With(0, 4, [| |]), 
+                                                [| ASTNode.WithItem(5, 11, ASTNode.Name(5, 7, Token.Name(5, 6, "a", [| |])), Token.As(7, 9, [| |]), ASTNode.Name(10, 11, Token.Name(10, 11, "b", [| |]))) |], 
+                                                [| |], 
+                                                Token.Colon(11, 12, [| |]), 
+                                                Token.Empty, 
+                                                ASTNode.SimpleStmtList(14, 22, [| ASTNode.Pass(14, 19, Token.Pass(14, 18, [| |])) |], [| |], Token.Newline(19, 21, [| |])) ), parser.ParseStmt()) 
+
