@@ -2623,3 +2623,10 @@ module TestsPythonCoreParser =
                                                         ), 
                                                         [| |], 
                                                         Token.EOF([| |]) ), parser.ParseFuncTypeInput())
+
+    [<Fact>]
+    let ``Func def suite with simple statement  test`` () =
+           let lex = new MockTokenizer( [   ( Token.Pass(0, 4, [| |]), 0); ( Token.Newline(5, 7, [| |]), 5 ); ( Token.EOF([| |]), 7 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.SimpleStmtList(0, 7, [| ASTNode.Pass(0, 5, Token.Pass(0, 4, [| |])) |], [| |], Token.Newline(5, 7, [| |])), parser.ParseFuncBodySuite())
