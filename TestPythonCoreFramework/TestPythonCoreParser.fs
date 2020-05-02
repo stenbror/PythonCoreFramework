@@ -2644,3 +2644,20 @@ module TestsPythonCoreParser =
                                                             ASTNode.SimpleStmtList(2, 10, [| ASTNode.Pass(2, 7, Token.Pass(2, 6, [| |])) |], [| |], Token.Newline(7, 9, [| |]))
                                                         |],
                                                         Token.Dedent([| |]) ), parser.ParseFuncBodySuite())
+
+    [<Fact>]
+    let ``Func def suite with double statement test`` () =
+           let lex = new MockTokenizer( [   ( Token.Newline(0, 2, [| |]), 0 ); ( Token.Indent([| |]), 2 ); ( Token.Pass(2, 6, [| |]), 2); ( Token.Newline(7, 9, [| |]), 7 ); 
+                                            ( Token.If(10, 12, [| |]), 10 ); ( Token.True(13, 17, [| |]), 13 ); ( Token.Colon(17, 18, [| |]), 17 ); ( Token.Pass(19, 23, [| |]), 19 ); ( Token.Newline(24, 26, [| |]), 24 );
+                                            ( Token.Dedent([| |]), 27 );  ( Token.EOF([| |]), 27 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.FuncBodySuite(0, 27,   Token.Newline(0, 2, [| |]),
+                                                        Token.Indent([| |]),
+                                                        Token.Empty,
+                                                        Token.Empty,
+                                                        [|
+                                                            ASTNode.SimpleStmtList(2, 10, [| ASTNode.Pass(2, 7, Token.Pass(2, 6, [| |])) |], [| |], Token.Newline(7, 9, [| |]));
+                                                            ASTNode.If(10, 27, Token.If(10, 12, [| |]), ASTNode.True(13, 17, Token.True(13, 17, [| |]) ), Token.Colon(17, 18, [| |]), ASTNode.SimpleStmtList(19, 27, [| ASTNode.Pass(19, 24, Token.Pass(19, 23, [| |])) |], [| |], Token.Newline(24, 26, [| |])), [| |], ASTNode.Empty )
+                                                        |],
+                                                        Token.Dedent([| |]) ), parser.ParseFuncBodySuite())
