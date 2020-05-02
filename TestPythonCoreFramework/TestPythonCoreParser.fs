@@ -2203,3 +2203,41 @@ module TestsPythonCoreParser =
                                                                                                 ASTNode.SimpleStmtList(81, 89, [| ASTNode.Pass(81, 86, Token.Pass(81, 85, [| |])) |] , [| |], Token.Newline(86, 88, [| |]) ) 
                                                                                                 ), 
                                                                          ASTNode.Empty), parser.ParseStmt())
+
+    [<Fact>]
+    let ``try statement with three exception test`` () =
+           let lex = new MockTokenizer( [ ( Token.Try(0, 3, [| |]), 0 ); ( Token.Colon(3, 4, [| |]), 3 ); ( Token.Pass(5, 9, [| |]), 5 ); ( Token.Newline(10, 12, [| |]), 10 );   
+                                          ( Token.Except(13, 19, [| |]), 13 ); ( Token.Name(20, 21, "a", [| |]), 20 ); ( Token.As(22, 24, [| |]), 22); ( Token.Name(25, 26, "b", [| |]), 25 ); ( Token.Colon(27, 28, [| |]), 27 ); ( Token.Pass(29, 33, [| |]), 29 ); ( Token.Newline(34, 36, [||]), 34 );
+                                          ( Token.Except(37, 43, [| |]), 37 ); ( Token.Name(44, 45, "a", [| |]), 44 ); ( Token.Colon(46, 47, [| |]), 46 ); ( Token.Pass(49, 53, [| |]), 49 ); ( Token.Newline(54, 56, [||]), 54 );
+                                          ( Token.Except(57, 63, [| |]), 57 ); ( Token.Colon(66, 67, [| |]), 66 ); ( Token.Pass(69, 73, [| |]), 69 ); ( Token.Newline(74, 76, [||]), 74 );
+                                          ( Token.EOF([| |]), 77 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.Try(0, 77, Token.Try(0, 3, [| |]), Token.Colon(3, 4, [| |]), 
+                                                                         ASTNode.SimpleStmtList(5, 13, [| ASTNode.Pass(5, 10, Token.Pass(5, 9, [| |])) |], [| |], Token.Newline(10, 12, [| |])), 
+                                                                         [| 
+                                                                                ASTNode.Except(13, 37, 
+                                                                                                        Token.Except(13, 19, [| |]), 
+                                                                                                        ASTNode.Name(20, 22, Token.Name(20, 21, "a", [| |])), 
+                                                                                                        Token.As(22, 24, [| |]), 
+                                                                                                        ASTNode.Name(25, 27, Token.Name(25, 26, "b", [| |])), 
+                                                                                                        Token.Colon(27, 28, [| |]), 
+                                                                                                        ASTNode.SimpleStmtList(29, 37, [| ASTNode.Pass(29, 34, Token.Pass(29, 33, [| |])) |], [| |], Token.Newline(34, 36, [| |])) );
+                                                                                ASTNode.Except(37, 57, 
+                                                                                                        Token.Except(37, 43, [| |]), 
+                                                                                                        ASTNode.Name(44, 46, Token.Name(44, 45, "a", [| |])), 
+                                                                                                        Token.Empty, 
+                                                                                                        ASTNode.Empty, 
+                                                                                                        Token.Colon(46, 47, [| |]), 
+                                                                                                        ASTNode.SimpleStmtList(49, 57, [| ASTNode.Pass(49, 54, Token.Pass(49, 53, [| |])) |], [| |], Token.Newline(54, 56, [| |])) );
+                                                                                ASTNode.Except(57, 77, 
+                                                                                                        Token.Except(57, 63, [| |]), 
+                                                                                                        ASTNode.Empty, 
+                                                                                                        Token.Empty, 
+                                                                                                        ASTNode.Empty, 
+                                                                                                        Token.Colon(66, 67, [| |]), 
+                                                                                                        ASTNode.SimpleStmtList(69, 77, [| ASTNode.Pass(69, 74, Token.Pass(69, 73, [| |])) |], [| |], Token.Newline(74, 76, [| |])) )
+                                                                         |], 
+                                                                         ASTNode.Empty, 
+                                                                         ASTNode.Empty), parser.ParseStmt())
+
