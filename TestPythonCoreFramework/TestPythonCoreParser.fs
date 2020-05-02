@@ -2241,3 +2241,18 @@ module TestsPythonCoreParser =
                                                                          ASTNode.Empty, 
                                                                          ASTNode.Empty), parser.ParseStmt())
 
+    [<Fact>]
+    let ``With statement with only one expression test`` () =
+           let lex = new MockTokenizer( [ ( Token.With(0, 4, [| |]), 0 ); 
+                                            ( Token.Name(5, 6, "a", [| |]), 5 );
+                                            ( Token.Colon(7, 8, [| |]), 7 ); ( Token.Pass(10, 14, [| |]), 10 ); ( Token.Newline(15, 17, [| |]), 15 ); ( Token.EOF([| |]), 18 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.With(0, 18, 
+                                                Token.With(0, 4, [| |]), 
+                                                [| ASTNode.WithItem(5, 7, ASTNode.Name(5, 7, Token.Name(5, 6, "a", [| |])), Token.Empty, ASTNode.Empty) |], 
+                                                [| |], 
+                                                Token.Colon(7, 8, [| |]), 
+                                                Token.Empty, 
+                                                ASTNode.SimpleStmtList(10, 18, [| ASTNode.Pass(10, 15, Token.Pass(10, 14, [| |])) |], [| |], Token.Newline(15, 17, [| |])) ), parser.ParseStmt()) 
+
