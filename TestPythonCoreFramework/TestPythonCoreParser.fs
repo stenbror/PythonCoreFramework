@@ -2424,3 +2424,14 @@ module TestsPythonCoreParser =
                                                 Token.Colon(11, 12, [| |]),
                                                 ASTNode.SimpleStmtList(12, 20, [| ASTNode.Pass(12, 19, Token.Pass(12, 16, [| |])) |], [| |], Token.Newline(17, 19, [| |]))
                                                 ), parser.ParseStmt())
+
+    [<Fact>]
+    let ``simple funct type input test`` () =
+           let lex = new MockTokenizer( [   ( Token.LeftParen(0, 1, [| |]), 0); ( Token.RightParen(1, 2, [| |]), 1 ); ( Token.Ptr(2, 4, [| |]), 2 ); ( Token.Name(5, 6, "a", [| |]), 5 ); 
+                                            ( Token.Newline(7, 9, [| |]), 7 ); ( Token.EOF([| |]), 10 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.FuncTypeInput(0, 10, 
+                                                        ASTNode.FuncType(0, 7, Token.LeftParen(0, 1, [| |]), ASTNode.Empty, Token.RightParen(1, 2, [| |]), Token.Ptr(2, 4, [| |]), ASTNode.Name(5, 7, Token.Name(5, 6, "a", [| |]))), 
+                                                        [| Token.Newline(7, 9, [| |]) |], 
+                                                        Token.EOF([| |]) ), parser.ParseFuncTypeInput())
