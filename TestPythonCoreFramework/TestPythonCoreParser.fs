@@ -2354,3 +2354,17 @@ module TestsPythonCoreParser =
                                                                 ASTNode.Pass(3, 8, Token.Pass(3, 7, [| |]))
                                                             |], [| |], Token.Newline(8, 10, [| |]))
                                                 |], Token.Dedent([| |])), parser.ParseSuite() )
+
+    [<Fact>]
+    let ``suite with double entry test`` () =
+           let lex = new MockTokenizer( [ ( Token.Newline(0, 2, [| |]), 0 );  ( Token.Indent([| |]), 3 ); ( Token.Pass(3, 7, [| |]), 3 ); ( Token.SemiColon(8, 9, [| |]), 8 ); ( Token.Pass(10, 14, [| |]), 10 ); ( Token.Newline(15, 17, [| |]), 15 ); ( Token.Dedent([| |]), 18 ); ( Token.EOF([| |]), 18 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.Suite(0, 18, Token.Newline(0, 2, [| |]), Token.Indent([| |]), 
+                                                [| 
+                                                    ASTNode.SimpleStmtList(3, 18, 
+                                                            [| 
+                                                                ASTNode.Pass(3, 8, Token.Pass(3, 7, [| |]));
+                                                                ASTNode.Pass(10, 15, Token.Pass(10, 14, [| |]))
+                                                            |], [| Token.SemiColon(8, 9, [| |]) |], Token.Newline(15, 17, [| |]))
+                                                |], Token.Dedent([| |])), parser.ParseSuite() )
