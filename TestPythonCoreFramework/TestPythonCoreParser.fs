@@ -2341,3 +2341,16 @@ module TestsPythonCoreParser =
                                                                 ASTNode.SimpleStmtList(25, 33, [| ASTNode.Pass(25, 30, Token.Pass(25, 29, [| |])) |], [| |], Token.Newline(30, 32, [| |])),
                                                                 ASTNode.Empty
                                                                 ) ), parser.ParseStmt())
+
+    [<Fact>]
+    let ``suite with single entry test`` () =
+           let lex = new MockTokenizer( [ ( Token.Newline(0, 2, [| |]), 0 );  ( Token.Indent([| |]), 3 ); ( Token.Pass(3, 7, [| |]), 3 ); ( Token.Newline(8, 10, [| |]), 8 ); ( Token.Dedent([| |]), 11 ); ( Token.EOF([| |]), 11 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.Suite(0, 11, Token.Newline(0, 2, [| |]), Token.Indent([| |]), 
+                                                [| 
+                                                    ASTNode.SimpleStmtList(3, 11, 
+                                                            [| 
+                                                                ASTNode.Pass(3, 8, Token.Pass(3, 7, [| |]))
+                                                            |], [| |], Token.Newline(8, 10, [| |]))
+                                                |], Token.Dedent([| |])), parser.ParseSuite() )
