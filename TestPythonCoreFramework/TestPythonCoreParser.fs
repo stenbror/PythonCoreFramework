@@ -2630,3 +2630,17 @@ module TestsPythonCoreParser =
            lex.Next()
            let parser = new Parser(lex)
            Assert.Equal( ASTNode.SimpleStmtList(0, 7, [| ASTNode.Pass(0, 5, Token.Pass(0, 4, [| |])) |], [| |], Token.Newline(5, 7, [| |])), parser.ParseFuncBodySuite())
+
+    [<Fact>]
+    let ``Func def suite with single statement test`` () =
+           let lex = new MockTokenizer( [ ( Token.Newline(0, 2, [| |]), 0 ); ( Token.Indent([| |]), 2 ); ( Token.Pass(2, 6, [| |]), 2); ( Token.Newline(7, 9, [| |]), 7 ); ( Token.Dedent([| |]), 10 );  ( Token.EOF([| |]), 10 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.FuncBodySuite(0, 10,   Token.Newline(0, 2, [| |]),
+                                                        Token.Indent([| |]),
+                                                        Token.Empty,
+                                                        Token.Empty,
+                                                        [|
+                                                            ASTNode.SimpleStmtList(2, 10, [| ASTNode.Pass(2, 7, Token.Pass(2, 6, [| |])) |], [| |], Token.Newline(7, 9, [| |]))
+                                                        |],
+                                                        Token.Dedent([| |]) ), parser.ParseFuncBodySuite())
