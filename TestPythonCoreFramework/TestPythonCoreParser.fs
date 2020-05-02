@@ -2325,3 +2325,19 @@ module TestsPythonCoreParser =
                                                                                         Token.Empty, 
                                                                                         ASTNode.SimpleStmtList(25, 33, [| ASTNode.Pass(25, 30, Token.Pass(25, 28, [| |])) |], [| |], Token.Newline(30, 32, [| |])) ) ), parser.ParseStmt())
 
+    [<Fact>]
+    let ``async for statement test`` () =
+           let lex = new MockTokenizer( [ ( Token.Async(0, 5, [| |]), 0 );  ( Token.For(6, 9, [| |]), 6 ); ( Token.Name(10, 14, "Test", [| |]), 10 ); ( Token.In(15, 16, [| |]), 15 ); ( Token.Name(18, 22, "Tell", [| |]), 18 ); ( Token.Colon(23, 24, [| |]), 23 ); ( Token.Pass(25, 29, [| |]), 25 ); ( Token.Newline(30, 32, [| |]), 30 ); ( Token.EOF([| |]), 33 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.AsyncStmt(0, 33, Token.Async(0, 5, [| |]),
+                                                        ASTNode.For(6, 33,    
+                                                                Token.For(6, 9, [| |]),
+                                                                ASTNode.ExprList(10, 15, [| ASTNode.Name(10, 15, Token.Name(10, 14, "Test", [| |])) |], [| |]),
+                                                                Token.In(15, 16, [| |]),
+                                                                ASTNode.TestList(18, 23, [| ASTNode.Name(18, 23, Token.Name(18, 22, "Tell", [| |])) |], [| |]),
+                                                                Token.Colon(23, 24, [| |]),
+                                                                Token.Empty,
+                                                                ASTNode.SimpleStmtList(25, 33, [| ASTNode.Pass(25, 30, Token.Pass(25, 29, [| |])) |], [| |], Token.Newline(30, 32, [| |])),
+                                                                ASTNode.Empty
+                                                                ) ), parser.ParseStmt())
