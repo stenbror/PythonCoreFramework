@@ -2286,3 +2286,22 @@ module TestsPythonCoreParser =
                                                 Token.Empty, 
                                                 ASTNode.SimpleStmtList(14, 22, [| ASTNode.Pass(14, 19, Token.Pass(14, 18, [| |])) |], [| |], Token.Newline(19, 21, [| |])) ), parser.ParseStmt()) 
 
+    [<Fact>]
+    let ``With statement with two expression with as test`` () =
+           let lex = new MockTokenizer( [ ( Token.With(0, 4, [| |]), 0 ); 
+                                            ( Token.Name(5, 6, "a", [| |]), 5 ); ( Token.As(7, 9, [| |]), 7 ); ( Token.Name(10, 11, "b",  [| |]), 10 );
+                                            ( Token.Comma(12, 13, [| |]), 12 ); ( Token.Name(14, 15, "c", [| |]), 14);
+                                            ( Token.Colon(16, 17, [| |]), 16 ); ( Token.Pass(19, 23, [| |]), 19 ); ( Token.Newline(24, 26, [| |]), 24 ); ( Token.EOF([| |]), 27 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.With(0, 27, 
+                                                Token.With(0, 4, [| |]), 
+                                                [| 
+                                                    ASTNode.WithItem(5, 12, ASTNode.Name(5, 7, Token.Name(5, 6, "a", [| |])), Token.As(7, 9, [| |]), ASTNode.Name(10, 12, Token.Name(10, 11, "b", [| |])));
+                                                    ASTNode.WithItem(14, 16, ASTNode.Name(14, 16, Token.Name(14, 15, "c", [| |])), Token.Empty, ASTNode.Empty)
+                                                |], 
+                                                [| Token.Comma(12, 13, [| |]) |], 
+                                                Token.Colon(16, 17, [| |]), 
+                                                Token.Empty, 
+                                                ASTNode.SimpleStmtList(19, 27, [| ASTNode.Pass(19, 24, Token.Pass(19, 23, [| |])) |], [| |], Token.Newline(24, 26, [| |])) ), parser.ParseStmt()) 
+
