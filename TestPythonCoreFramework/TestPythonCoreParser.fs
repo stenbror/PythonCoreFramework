@@ -2661,3 +2661,22 @@ module TestsPythonCoreParser =
                                                             ASTNode.If(10, 27, Token.If(10, 12, [| |]), ASTNode.True(13, 17, Token.True(13, 17, [| |]) ), Token.Colon(17, 18, [| |]), ASTNode.SimpleStmtList(19, 27, [| ASTNode.Pass(19, 24, Token.Pass(19, 23, [| |])) |], [| |], Token.Newline(24, 26, [| |])), [| |], ASTNode.Empty )
                                                         |],
                                                         Token.Dedent([| |]) ), parser.ParseFuncBodySuite())
+
+    [<Fact>]
+    let ``Func def suite with double statement and type comment test`` () =
+           let lex = new MockTokenizer( [   ( Token.Newline(0, 2, [| |]), 0 ); ( Token.Indent([| |]), 2 );
+                                            ( Token.TypeComment(3, 14, "# type: int"), 3 ); ( Token.Newline(15, 17, [| |]), 15 );
+                                            ( Token.Pass(18, 24, [| |]), 18); ( Token.Newline(23, 25, [| |]), 23 ); 
+                                            ( Token.If(26, 28, [| |]), 26 ); ( Token.True(29, 31, [| |]), 29 ); ( Token.Colon(33, 34, [| |]), 34 ); ( Token.Pass(35, 39, [| |]), 35 ); ( Token.Newline(40, 42, [| |]), 40 );
+                                            ( Token.Dedent([| |]), 41 );  ( Token.EOF([| |]), 41 ) ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.FuncBodySuite(0, 41,   Token.Newline(0, 2, [| |]),
+                                                        Token.Indent([| |]),
+                                                        Token.TypeComment(3, 14, "# type: int"),
+                                                        Token.Newline(15, 17, [| |]),
+                                                        [|
+                                                            ASTNode.SimpleStmtList(18, 26, [| ASTNode.Pass(18, 23, Token.Pass(18, 24, [| |])) |], [| |], Token.Newline(23, 25, [| |]));
+                                                            ASTNode.If(26, 41, Token.If(26, 28, [| |]), ASTNode.True(29, 34, Token.True(29, 31, [| |]) ), Token.Colon(33, 34, [| |]), ASTNode.SimpleStmtList(35, 41, [| ASTNode.Pass(35, 40, Token.Pass(35, 39, [| |])) |], [| |], Token.Newline(40, 42, [| |])), [| |], ASTNode.Empty )
+                                                        |],
+                                                        Token.Dedent([| |]) ), parser.ParseFuncBodySuite())
