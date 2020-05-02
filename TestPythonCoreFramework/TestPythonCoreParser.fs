@@ -2303,5 +2303,25 @@ module TestsPythonCoreParser =
                                                 [| Token.Comma(12, 13, [| |]) |], 
                                                 Token.Colon(16, 17, [| |]), 
                                                 Token.Empty, 
-                                                ASTNode.SimpleStmtList(19, 27, [| ASTNode.Pass(19, 24, Token.Pass(19, 23, [| |])) |], [| |], Token.Newline(24, 26, [| |])) ), parser.ParseStmt()) 
+                                                ASTNode.SimpleStmtList(19, 27, [| ASTNode.Pass(19, 24, Token.Pass(19, 23, [| |])) |], [| |], Token.Newline(24, 26, [| |])) ), parser.ParseStmt())
+                                                
+    [<Fact>]
+    let ``async With statement with two expression with as test`` () =
+           let lex = new MockTokenizer( [   ( Token.Async(0, 5, [| |]), 0 ); ( Token.With(6, 10, [| |]), 6 ); 
+                                            ( Token.Name(11, 12, "a", [| |]), 11 ); ( Token.As(13, 15, [| |]), 13 ); ( Token.Name(16, 17, "b",  [| |]), 16 );
+                                            ( Token.Comma(18, 19, [| |]), 18 ); ( Token.Name(20, 21, "c", [| |]), 20);
+                                            ( Token.Colon(22, 23, [| |]), 22 ); ( Token.Pass(25, 28, [| |]), 25 ); ( Token.Newline(30, 32, [| |]), 30 ); ( Token.EOF([| |]), 33 ); ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal(    ASTNode.AsyncStmt(0, 33, Token.Async(0, 5, [| |]),
+                                                                    ASTNode.With(6, 33,   
+                                                                                        Token.With(6, 10, [| |]), 
+                                                                                        [| 
+                                                                                            ASTNode.WithItem(11, 18, ASTNode.Name(11, 13, Token.Name(11, 12, "a", [| |])), Token.As(13, 15, [| |]), ASTNode.Name(16, 18, Token.Name(16, 17, "b", [| |])));
+                                                                                            ASTNode.WithItem(20, 22, ASTNode.Name(20, 22, Token.Name(20, 21, "c", [| |])), Token.Empty, ASTNode.Empty)
+                                                                                        |], 
+                                                                                        [| Token.Comma(18, 19, [| |]) |], 
+                                                                                        Token.Colon(22, 23, [| |]), 
+                                                                                        Token.Empty, 
+                                                                                        ASTNode.SimpleStmtList(25, 33, [| ASTNode.Pass(25, 30, Token.Pass(25, 28, [| |])) |], [| |], Token.Newline(30, 32, [| |])) ) ), parser.ParseStmt())
 
