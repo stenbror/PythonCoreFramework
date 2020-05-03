@@ -938,7 +938,7 @@ type Parser(lexer : ITokenizer) =
                                             Token.Empty
                         let suite = this.ParseFuncBodySuite()
                         this.FlowLevel <- this.FlowLevel - 1
-                        ASTNode.FuncDef(startPos, this.Lexer.Position, op1, left, right, op2, next, op3, op4, ASTNode.Empty)
+                        ASTNode.FuncDef(startPos, this.Lexer.Position, op1, left, right, op2, next, op3, op4, suite)
                 |   _ ->
                         raise ( SyntaxError(this.Lexer.Symbol, "Expecting name of function!") )
         |   _ ->
