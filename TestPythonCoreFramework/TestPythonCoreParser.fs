@@ -2794,3 +2794,27 @@ module TestsPythonCoreParser =
                                                     ASTNode.ArgumentList(5, 7, [| ASTNode.Argument(5, 7, ASTNode.Name(5, 7, Token.Name(5, 6, "c", [| |])), Token.Empty, ASTNode.Empty)  |], [| |]), 
                                                     Token.RightParen(7, 8, [| |]), Token.Newline(9, 11, [| |]) ), parser.ParseDecorator())
 
+    [<Fact>]
+    let ``decorators test`` () =
+           let lex = new MockTokenizer( [   ( Token.Matrice(0, 1, [| |]), 0 ); ( Token.Name(1, 2, "a", [| |]), 1 ); ( Token.Dot(2, 3, [| |]), 2 ); ( Token.Name(3, 4, "b", [| |]), 3); ( Token.Newline(5, 7, [| |]), 5 ); 
+                                            ( Token.Matrice(8, 9, [| |]), 8 ); ( Token.Name(10, 11, "c", [| |]), 10 ); ( Token.Newline(12, 14, [| |]), 12 ); ( Token.EOF([| |]), 15 ) ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.Decorators(0, 15,
+                                               [|
+                                                    ASTNode.Decorator(0, 8, 
+                                                                            Token.Matrice(0, 1, [| |]), 
+                                                                            ASTNode.DottedName(1, 5, [| ASTNode.Name(1, 2, Token.Name(1, 2, "a", [| |])); ASTNode.Name(3, 5, Token.Name(3, 4, "b", [| |])) |], [| Token.Dot(2, 3, [| |]) |]), 
+                                                                            Token.Empty, 
+                                                                            ASTNode.Empty, 
+                                                                            Token.Empty, 
+                                                                            Token.Newline(5, 7, [| |]) );
+                                                    ASTNode.Decorator(8, 15, 
+                                                                            Token.Matrice(8, 9, [| |]), 
+                                                                            ASTNode.DottedName(10, 12, [| ASTNode.Name(10, 12, Token.Name(10, 11, "c", [| |])); |], [| |]), 
+                                                                            Token.Empty, 
+                                                                            ASTNode.Empty, 
+                                                                            Token.Empty, 
+                                                                            Token.Newline(12, 14, [| |]) )
+                                               |]), parser.ParseDecorators())
+
