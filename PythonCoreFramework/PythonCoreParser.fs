@@ -819,7 +819,11 @@ type Parser(lexer : ITokenizer) =
                 |   Token.LeftParen _ ->
                         let op3 = this.Lexer.Symbol
                         this.Lexer.Advance()
-                        let right = this.ParseArgsList()
+                        let right = match this.Lexer.Symbol with
+                                    |   Token.RightParen _ ->
+                                            ASTNode.Empty
+                                    |   _ ->
+                                            this.ParseArgsList()
                         let op4 =   match this.Lexer.Symbol with
                                     |   Token.RightParen _ ->
                                             let tmpOp = this.Lexer.Symbol

@@ -2767,3 +2767,18 @@ module TestsPythonCoreParser =
                                                 Token.Empty,
                                                 ASTNode.SimpleStmtList(16, 24, [| ASTNode.Pass(16, 21, Token.Pass(16, 20, [| |])) |], [| |], Token.Newline(21, 23, [| |]))
                                                 ) ) , parser.ParseStmt())
+
+    [<Fact>]
+    let ``decorator 1 test`` () =
+           let lex = new MockTokenizer( [ ( Token.Matrice(0, 1, [| |]), 0 ); ( Token.Name(1, 2, "a", [| |]), 1 ); ( Token.Dot(2, 3, [| |]), 2 ); ( Token.Name(3, 4, "b", [| |]), 3); ( Token.Newline(5, 7, [| |]), 5 ); ( Token.EOF([| |]), 8 ) ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.Decorator(0, 8, Token.Matrice(0, 1, [| |]), ASTNode.DottedName(1, 5, [| ASTNode.Name(1, 2, Token.Name(1, 2, "a", [| |])); ASTNode.Name(3, 5, Token.Name(3, 4, "b", [| |])) |], [| Token.Dot(2, 3, [| |]) |]), Token.Empty, ASTNode.Empty, Token.Empty, Token.Newline(5, 7, [| |]) ), parser.ParseDecorator())
+
+    [<Fact>]
+    let ``decorator 2 test`` () =
+           let lex = new MockTokenizer( [ ( Token.Matrice(0, 1, [| |]), 0 ); ( Token.Name(1, 2, "a", [| |]), 1 ); ( Token.Dot(2, 3, [| |]), 2 ); ( Token.Name(3, 4, "b", [| |]), 3); ( Token.LeftParen(4, 5, [| |]), 4 ); ( Token.RightParen(5, 6, [| |]), 5 ); ( Token.Newline(7, 9, [| |]), 7 ); ( Token.EOF([| |]), 10 ) ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.Decorator(0, 10, Token.Matrice(0, 1, [| |]), ASTNode.DottedName(1, 4, [| ASTNode.Name(1, 2, Token.Name(1, 2, "a", [| |])); ASTNode.Name(3, 4, Token.Name(3, 4, "b", [| |])) |], [| Token.Dot(2, 3, [| |]) |]), Token.LeftParen(4, 5, [| |]), ASTNode.Empty, Token.RightParen(5, 6, [| |]), Token.Newline(7, 9, [| |]) ), parser.ParseDecorator())
+
