@@ -2934,3 +2934,44 @@ module TestsPythonCoreParser =
                                                         ASTNode.SimpleStmtList(3, 11, [| ASTNode.Pass(3, 8, Token.Pass(3, 7, [| |])) |], [| |], Token.Newline(8, 10, [| |]));
                                                         ASTNode.SimpleStmtList(14, 21, [| ASTNode.Pass(14, 19, Token.Pass(14, 18, [| |])) |], [| |], Token.Newline(19, 21, [| |])) 
                                                     |], [| Token.Newline(0, 2, [| |]); Token.Newline(11, 13, [| |]) |], Token.EOF([| |])), parser.ParseFileInput())
+
+    [<Fact>]
+    let ``Single input 1 test`` () =
+            let lex = new MockTokenizer( [ ( Token.Newline(0, 2, [| |]), 0 ); ( Token.EOF([| |]), 3 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.SingleInput(0, 3, ASTNode.Empty, Token.Newline(0, 2, [| |]) ), parser.ParseSingleInput())
+
+    [<Fact>]
+    let ``Single input 2 test`` () =
+            let lex = new MockTokenizer( [ ( Token.Pass(0, 4, [| |]), 0 ); ( Token.Newline(5, 7, [| |]), 5 ); ( Token.EOF([| |]), 8 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.SingleInput(0, 8, ASTNode.SimpleStmtList(0, 8, [| ASTNode.Pass(0, 5, Token.Pass(0, 4, [| |])) |], [| |], Token.Newline(5, 7, [| |])), Token.Empty ), parser.ParseSingleInput())
+
+    [<Fact>]
+    let ``Single input 3 test`` () =
+            let lex = new MockTokenizer( [ ( Token.Pass(0, 4, [| |]), 0 ); ( Token.SemiColon(5, 6, [| |]), 5 ); ( Token.Pass( 7, 11, [| |]), 7 ); ( Token.Newline(12, 14, [| |]), 12 ); ( Token.EOF([| |]), 15 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.SingleInput(0, 15, ASTNode.SimpleStmtList(0, 15, 
+                                                                                    [| 
+                                                                                        ASTNode.Pass(0, 5, Token.Pass(0, 4, [| |]));
+                                                                                        ASTNode.Pass(7, 12, Token.Pass(7, 11, [| |]))
+                                                                                    |], [| Token.SemiColon(5, 6, [| |]) |], Token.Newline(12, 14, [| |])), Token.Empty ), parser.ParseSingleInput())
+
+    [<Fact>]
+    let ``Single input 4 test`` () =
+            let lex = new MockTokenizer( [ ( Token.If(0, 2, [| |]), 0 ); ( Token.Name(3, 4, "a", [| |]), 3 ); ( Token.Colon(4, 5, [| |]), 4 ); ( Token.Pass(6, 10, [| |]), 6 ); ( Token.Newline(11, 13, [| |]), 11 ); ( Token.Newline(14, 16, [| |]), 14 ); ( Token.EOF([| |]), 17 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.SingleInput(0, 17, 
+                                                    ASTNode.If(0, 14, 
+                                                                    Token.If(0, 2, [| |]),
+                                                                    ASTNode.Name(3, 4, Token.Name(3, 4, "a", [| |])),
+                                                                    Token.Colon(4, 5, [| |]),
+                                                                    ASTNode.SimpleStmtList(6, 14, [| ASTNode.Pass(6, 11, Token.Pass(6, 10, [| |])) |], [| |], Token.Newline(11, 13, [| |])),
+                                                                    [| |],
+                                                                    ASTNode.Empty
+                                                    ), 
+                                                    Token.Newline(14, 16, [| |]) ), parser.ParseSingleInput())
