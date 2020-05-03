@@ -2696,3 +2696,21 @@ module TestsPythonCoreParser =
                                                 Token.Empty,
                                                 ASTNode.SimpleStmtList(10, 18, [| ASTNode.Pass(10, 15, Token.Pass(10, 14, [| |])) |], [| |], Token.Newline(15, 17, [| |]))
                                                 ) , parser.ParseStmt())
+
+    [<Fact>]
+    let ``def simple with typecomment test`` () =
+           let lex = new MockTokenizer( [   ( Token.Def(0, 3, [| |]), 0 ); ( Token.Name(4, 5, "a", [| |]), 4 ); ( Token.LeftParen(5, 6, [| |]), 5 ); ( Token.RightParen(6, 7, [| |]), 6 ); ( Token.Colon(8, 9, [| |]), 8 );
+                                            ( Token.TypeComment(10, 20, "#type: int"), 10 )
+                                            ( Token.Pass(20, 24, [| |]), 20 ); ( Token.Newline(25, 27, [| |]), 25 ); ( Token.EOF([| |]), 28 ) ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.FuncDef(0, 28, 
+                                                Token.Def(0, 3, [| |]),  
+                                                ASTNode.Name(4, 5, Token.Name(4, 5, "a", [| |])), 
+                                                ASTNode.Parameters(5, 8, Token.LeftParen(5, 6, [| |]), ASTNode.Empty, Token.RightParen(6, 7, [| |])),
+                                                Token.Empty,
+                                                ASTNode.Empty,
+                                                Token.Colon(8, 9, [| |]),
+                                                Token.TypeComment(10, 20, "#type: int"),
+                                                ASTNode.SimpleStmtList(20, 28, [| ASTNode.Pass(20, 25, Token.Pass(20, 24, [| |])) |], [| |], Token.Newline(25, 27, [| |]))
+                                                ) , parser.ParseStmt())
