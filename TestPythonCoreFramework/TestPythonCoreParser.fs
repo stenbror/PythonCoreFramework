@@ -2732,3 +2732,21 @@ module TestsPythonCoreParser =
                                                 Token.TypeComment(15, 25, "#type: int"),
                                                 ASTNode.SimpleStmtList(25, 33, [| ASTNode.Pass(25, 30, Token.Pass(25, 29, [| |])) |], [| |], Token.Newline(30, 32, [| |]))
                                                 ) , parser.ParseStmt())
+
+    [<Fact>]
+    let ``def simple with parameter test`` () =
+           let lex = new MockTokenizer( [ ( Token.Def(0, 3, [| |]), 0 ); ( Token.Name(4, 5, "a", [| |]), 4 ); ( Token.LeftParen(5, 6, [| |]), 5 ); ( Token.Name(7, 8, "b", [| |]), 7 ); ( Token.RightParen(9, 10, [| |]), 9 ); ( Token.Colon(11, 12, [| |]), 11 ); ( Token.Pass(13, 17, [| |]), 13 ); ( Token.Newline(18, 20, [| |]), 18 ); ( Token.EOF([| |]), 21 ) ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.FuncDef(0, 21, 
+                                                Token.Def(0, 3, [| |]),  
+                                                ASTNode.Name(4, 5, Token.Name(4, 5, "a", [| |])), 
+                                                ASTNode.Parameters(5, 11, Token.LeftParen(5, 6, [| |]), 
+                                                            ASTNode.TypedArgsList(7, 9, [| ASTNode.Name(7, 9, Token.Name(7, 8, "b", [| |])) |], [| |], [| |]), 
+                                                            Token.RightParen(9, 10, [| |])),
+                                                Token.Empty,
+                                                ASTNode.Empty,
+                                                Token.Colon(11, 12, [| |]),
+                                                Token.Empty,
+                                                ASTNode.SimpleStmtList(13, 21, [| ASTNode.Pass(13, 18, Token.Pass(13, 17, [| |])) |], [| |], Token.Newline(18, 20, [| |]))
+                                                ) , parser.ParseStmt())
