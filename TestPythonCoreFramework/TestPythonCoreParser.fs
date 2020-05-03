@@ -2818,3 +2818,63 @@ module TestsPythonCoreParser =
                                                                             Token.Newline(12, 14, [| |]) )
                                                |]), parser.ParseDecorators())
 
+    [<Fact>]
+    let ``decorated class test`` () =
+           let lex = new MockTokenizer( [   ( Token.Matrice(0, 1, [| |]), 0 ); ( Token.Name(1, 2, "a", [| |]), 1 ); ( Token.Dot(2, 3, [| |]), 2 ); ( Token.Name(3, 4, "b", [| |]), 3); ( Token.Newline(5, 7, [| |]), 5 ); 
+                                            ( Token.Class(8, 13, [| |]), 8 ); ( Token.Name(14, 15, "c", [| |]), 14 ); ( Token.Colon(15, 16, [| |]),15 ); ( Token.Pass(17, 21, [| |]), 17 ); ( Token.Newline(22, 24, [| |]), 22 ); ( Token.EOF([| |]), 25 ) ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.Decorated(0, 25, 
+                            ASTNode.Decorators(0, 8, 
+                                [|
+                                    ASTNode.Decorator(0, 8, Token.Matrice(0, 1, [| |]), ASTNode.DottedName(1, 5, [| ASTNode.Name(1, 2, Token.Name(1, 2, "a", [| |])); ASTNode.Name(3, 5, Token.Name(3, 4, "b", [| |])) |], [| Token.Dot(2, 3, [| |]) |]), Token.Empty, ASTNode.Empty, Token.Empty, Token.Newline(5, 7, [| |]) )
+                                |] ),
+                            ASTNode.Class(8, 25, Token.Class(8, 13, [| |]), ASTNode.Name(14, 15, Token.Name(14, 15, "c", [| |] )), Token.Empty, ASTNode.Empty, Token.Empty, Token.Colon(15, 16, [| |]), ASTNode.SimpleStmtList(17, 25, [| ASTNode.Pass(17, 22, Token.Pass(17, 21, [| |])) |], [| |], Token.Newline(22, 24, [| |])) )
+                            ), parser.ParseStmt())
+    [<Fact>]
+    let ``decorated def test`` () =
+           let lex = new MockTokenizer( [   ( Token.Matrice(0, 1, [| |]), 0 ); ( Token.Name(1, 2, "a", [| |]), 1 ); ( Token.Dot(2, 3, [| |]), 2 ); ( Token.Name(3, 4, "b", [| |]), 3); ( Token.Newline(5, 7, [| |]), 5 ); 
+                                            ( Token.Def(8, 11, [| |]), 8 ); ( Token.Name(12, 13, "c", [| |]), 12 ); ( Token.LeftParen(13, 14, [| |]), 13 ); ( Token.RightParen(14, 15, [| |]), 14 ); ( Token.Colon(16, 17, [| |]), 16 ); ( Token.Pass(18, 22, [| |]), 18 ); ( Token.Newline(23, 25, [| |]), 23 );
+                                            ( Token.EOF([| |]), 26 ) ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.Decorated(0, 26, 
+                           ASTNode.Decorators(0, 8, 
+                               [|
+                                   ASTNode.Decorator(0, 8, Token.Matrice(0, 1, [| |]), ASTNode.DottedName(1, 5, [| ASTNode.Name(1, 2, Token.Name(1, 2, "a", [| |])); ASTNode.Name(3, 5, Token.Name(3, 4, "b", [| |])) |], [| Token.Dot(2, 3, [| |]) |]), Token.Empty, ASTNode.Empty, Token.Empty, Token.Newline(5, 7, [| |]) )
+                               |] ),
+                           ASTNode.FuncDef(8, 26,
+                                                Token.Def(8, 11, [| |]),
+                                                ASTNode.Name(12, 13, Token.Name(12, 13, "c", [| |])),
+                                                ASTNode.Parameters(13, 16, Token.LeftParen(13, 14, [| |]), ASTNode.Empty, Token.RightParen(14, 15, [| |])),
+                                                Token.Empty,
+                                                ASTNode.Empty,
+                                                Token.Colon(16, 17, [| |]),
+                                                Token.Empty,
+                                                ASTNode.SimpleStmtList(18, 26, [| ASTNode.Pass(18, 23, Token.Pass(18, 22, [| |])) |], [| |], Token.Newline(23, 25, [| |])) )
+                           ), parser.ParseStmt())
+
+    [<Fact>]
+    let ``decorated async def test`` () =
+           let lex = new MockTokenizer( [   ( Token.Matrice(0, 1, [| |]), 0 ); ( Token.Name(1, 2, "a", [| |]), 1 ); ( Token.Dot(2, 3, [| |]), 2 ); ( Token.Name(3, 4, "b", [| |]), 3); ( Token.Newline(5, 7, [| |]), 5 ); 
+                                            ( Token.Async(8, 13, [| |]), 8 ); ( Token.Def(14, 17, [| |]), 14 ); ( Token.Name(18, 19, "c", [| |]), 18 ); ( Token.LeftParen(19, 20, [| |]), 19 ); ( Token.RightParen(20, 21, [| |]), 20 ); ( Token.Colon(22, 23, [| |]), 22 ); ( Token.Pass(24, 28, [| |]), 24 ); ( Token.Newline(29, 31, [| |]), 29 );
+                                            ( Token.EOF([| |]), 32 ) ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.Decorated(0, 32, 
+                               ASTNode.Decorators(0, 8, 
+                                   [|
+                                       ASTNode.Decorator(0, 8, Token.Matrice(0, 1, [| |]), ASTNode.DottedName(1, 5, [| ASTNode.Name(1, 2, Token.Name(1, 2, "a", [| |])); ASTNode.Name(3, 5, Token.Name(3, 4, "b", [| |])) |], [| Token.Dot(2, 3, [| |]) |]), Token.Empty, ASTNode.Empty, Token.Empty, Token.Newline(5, 7, [| |]) )
+                                   |] ),
+                               ASTNode.AsyncFuncDef(8, 32, Token.Async(8, 13, [| |]),
+                                            ASTNode.FuncDef(14, 32,
+                                                                Token.Def(14, 17, [| |]),
+                                                                ASTNode.Name(18, 19, Token.Name(18, 19, "c", [| |])),
+                                                                ASTNode.Parameters(19, 22, Token.LeftParen(19, 20, [| |]), ASTNode.Empty, Token.RightParen(20, 21, [| |])),
+                                                                Token.Empty,
+                                                                ASTNode.Empty,
+                                                                Token.Colon(22, 23, [| |]),
+                                                                Token.Empty,
+                                                                ASTNode.SimpleStmtList(24, 32, [| ASTNode.Pass(24, 29, Token.Pass(24, 28, [| |])) |], [| |], Token.Newline(29, 31, [| |])) )
+                                    )
+                               ), parser.ParseStmt())
