@@ -2750,3 +2750,20 @@ module TestsPythonCoreParser =
                                                 Token.Empty,
                                                 ASTNode.SimpleStmtList(13, 21, [| ASTNode.Pass(13, 18, Token.Pass(13, 17, [| |])) |], [| |], Token.Newline(18, 20, [| |]))
                                                 ) , parser.ParseStmt())
+
+    [<Fact>]
+    let ``async def simple test`` () =
+           let lex = new MockTokenizer( [ ( Token.Async(0, 5, [| |]), 0 ); ( Token.Def(6, 9, [| |]), 6 ); ( Token.Name(10, 11, "a", [| |]), 10 ); ( Token.LeftParen(11, 12, [| |]), 11 ); ( Token.RightParen(12, 13, [| |]), 12 ); ( Token.Colon(14, 15, [| |]), 14 ); ( Token.Pass(16, 20, [| |]), 16 ); ( Token.Newline(21, 23, [| |]), 21 ); ( Token.EOF([| |]), 24 ) ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.AsyncFuncDef(0, 24, Token.Async(0, 5, [| |]),
+                                        ASTNode.FuncDef(6, 24, 
+                                                Token.Def(6, 9, [| |]),  
+                                                ASTNode.Name(10, 11, Token.Name(10, 11, "a", [| |])), 
+                                                ASTNode.Parameters(11, 14, Token.LeftParen(11, 12, [| |]), ASTNode.Empty, Token.RightParen(12, 13, [| |])),
+                                                Token.Empty,
+                                                ASTNode.Empty,
+                                                Token.Colon(14, 15, [| |]),
+                                                Token.Empty,
+                                                ASTNode.SimpleStmtList(16, 24, [| ASTNode.Pass(16, 21, Token.Pass(16, 20, [| |])) |], [| |], Token.Newline(21, 23, [| |]))
+                                                ) ) , parser.ParseStmt())
