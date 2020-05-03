@@ -2899,3 +2899,38 @@ module TestsPythonCoreParser =
            lex.Next()
            let parser = new Parser(lex)
            Assert.Equal( ASTNode.EvalInput(0, 5, ASTNode.TestList(0, 2, [| ASTNode.Name(0, 2, Token.Name(0, 1, "a", [| |])) |], [| |]), [| Token.Newline(2, 4, [| |]); Token.Newline(5, 7, [| |]) |], Token.EOF([| |])), parser.ParseEvalInput())
+
+    [<Fact>]
+    let ``file input 1 test`` () =
+            let lex = new MockTokenizer( [ ( Token.Newline(0, 2, [| |]), 0 ); ( Token.EOF([| |]), 3 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.FileInput(0, 3, [| |], [| Token.Newline(0, 2, [| |]) |], Token.EOF([| |])), parser.ParseFileInput())
+
+    [<Fact>]
+    let ``file input 2 test`` () =
+            let lex = new MockTokenizer( [ ( Token.Newline(0, 2, [| |]), 0 ); ( Token.Pass(3, 7, [| |]), 3 ); ( Token.Newline(8, 10, [| |]), 8 ); ( Token.EOF([| |]), 11 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.FileInput(0, 11, [| 
+                                                        ASTNode.SimpleStmtList(3, 11, [| ASTNode.Pass(3, 8, Token.Pass(3, 7, [| |])) |], [| |], Token.Newline(8, 10, [| |])) 
+                                                    |], [| Token.Newline(0, 2, [| |]) |], Token.EOF([| |])), parser.ParseFileInput())
+
+    [<Fact>]
+    let ``file input 3 test`` () =
+            let lex = new MockTokenizer( [ ( Token.Newline(0, 2, [| |]), 0 ); ( Token.Pass(3, 7, [| |]), 3 ); ( Token.Newline(8, 10, [| |]), 8 ); ( Token.Newline(11, 13, [| |]), 11 ); ( Token.EOF([| |]), 14 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.FileInput(0, 14, [| 
+                                                        ASTNode.SimpleStmtList(3, 11, [| ASTNode.Pass(3, 8, Token.Pass(3, 7, [| |])) |], [| |], Token.Newline(8, 10, [| |])) 
+                                                    |], [| Token.Newline(0, 2, [| |]); Token.Newline(11, 13, [| |]) |], Token.EOF([| |])), parser.ParseFileInput())
+
+    [<Fact>]
+    let ``file input 4 test`` () =
+            let lex = new MockTokenizer( [ ( Token.Newline(0, 2, [| |]), 0 ); ( Token.Pass(3, 7, [| |]), 3 ); ( Token.Newline(8, 10, [| |]), 8 ); ( Token.Newline(11, 13, [| |]), 11 ); ( Token.Pass(14, 18, [| |]), 14 ); ( Token.Newline(19, 21, [| |]), 19 );  ( Token.EOF([| |]), 21 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.FileInput(0, 21, [| 
+                                                        ASTNode.SimpleStmtList(3, 11, [| ASTNode.Pass(3, 8, Token.Pass(3, 7, [| |])) |], [| |], Token.Newline(8, 10, [| |]));
+                                                        ASTNode.SimpleStmtList(14, 21, [| ASTNode.Pass(14, 19, Token.Pass(14, 18, [| |])) |], [| |], Token.Newline(19, 21, [| |])) 
+                                                    |], [| Token.Newline(0, 2, [| |]); Token.Newline(11, 13, [| |]) |], Token.EOF([| |])), parser.ParseFileInput())
