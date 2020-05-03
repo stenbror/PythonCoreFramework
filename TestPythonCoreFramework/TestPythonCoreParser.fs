@@ -2878,3 +2878,24 @@ module TestsPythonCoreParser =
                                                                 ASTNode.SimpleStmtList(24, 32, [| ASTNode.Pass(24, 29, Token.Pass(24, 28, [| |])) |], [| |], Token.Newline(29, 31, [| |])) )
                                     )
                                ), parser.ParseStmt())
+
+    [<Fact>]
+    let ``eval input 1 test`` () =
+            let lex = new MockTokenizer( [ ( Token.Name(0, 1, "a", [| |]), 0 ); ( Token.EOF([| |]), 2 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.EvalInput(0, 2, ASTNode.TestList(0, 2, [| ASTNode.Name(0, 2, Token.Name(0, 1, "a", [| |])) |], [| |]), [| |], Token.EOF([| |])), parser.ParseEvalInput())
+
+    [<Fact>]
+    let ``eval input 2 test`` () =
+           let lex = new MockTokenizer( [ ( Token.Name(0, 1, "a", [| |]), 0 ); ( Token.Newline(2, 4, [| |]), 2 ); ( Token.EOF([| |]), 5 ) ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.EvalInput(0, 5, ASTNode.TestList(0, 2, [| ASTNode.Name(0, 2, Token.Name(0, 1, "a", [| |])) |], [| |]), [| Token.Newline(2, 4, [| |]) |], Token.EOF([| |])), parser.ParseEvalInput())
+
+    [<Fact>]
+    let ``eval input 3 test`` () =
+           let lex = new MockTokenizer( [ ( Token.Name(0, 1, "a", [| |]), 0 ); ( Token.Newline(2, 4, [| |]), 2 ); ( Token.Newline(5, 7, [| |]), 5 ); ( Token.EOF([| |]), 5 ) ] )
+           lex.Next()
+           let parser = new Parser(lex)
+           Assert.Equal( ASTNode.EvalInput(0, 5, ASTNode.TestList(0, 2, [| ASTNode.Name(0, 2, Token.Name(0, 1, "a", [| |])) |], [| |]), [| Token.Newline(2, 4, [| |]); Token.Newline(5, 7, [| |]) |], Token.EOF([| |])), parser.ParseEvalInput())
