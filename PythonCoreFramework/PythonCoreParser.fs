@@ -1090,13 +1090,26 @@ type Parser(lexer : ITokenizer) =
                                                 seenDiv <- true
                                                 nodes <- ASTNode.ArgDiv(startDiv, this.Lexer.Position, di) :: nodes
                                         true
-                                |   Token.Colon _
-                                |   Token.RightParen _ ->
-                                        match seenDiv with
+                                |   Token.Colon _ ->
+                                        match typed with 
                                         |   true ->
-                                                false
-                                        |   _   ->
-                                                raise ( SyntaxError ( this.Lexer.Symbol, "Trailing ',' only accepted after '/'  and '*', '**' arguments." ) )
+                                                raise ( SyntaxError( this.Lexer.Symbol, "':' only allowed folowing ',' in varargslist." ) )
+                                        |   _ ->
+                                                match seenDiv with
+                                                |   true ->
+                                                        false
+                                                |   _   ->
+                                                        raise ( SyntaxError ( this.Lexer.Symbol, "Trailing ',' only accepted after '/'  and '*', '**' arguments." ) )
+                                |   Token.RightParen _ ->
+                                        match typed with
+                                        |   true ->
+                                                match seenDiv with
+                                                |   true ->
+                                                        false
+                                                |   _   ->
+                                                        raise ( SyntaxError ( this.Lexer.Symbol, "Trailing ',' only accepted after '/'  and '*', '**' arguments." ) )
+                                        |   _ ->
+                                                raise ( SyntaxError(this.Lexer.Symbol, "')' only allowed following trailing ',' in tyepd argument list.") )
                                 |   Token.Power _ ->
                                         let start2 = this.Lexer.Position
                                         let opPower = this.Lexer.Symbol

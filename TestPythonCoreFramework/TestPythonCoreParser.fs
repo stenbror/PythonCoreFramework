@@ -3310,7 +3310,7 @@ module TestsPythonCoreParser =
                                             ( Token.Comma(21, 22, [| |]), 21 ); ( Token.Name(22, 23, "e", [| |]), 22 ); ( Token.Assign(23, 24, [| |]), 23 ); ( Token.Name(25, 26, "f", [| |]), 25 );
                                             ( Token.Comma(27, 28, [| |]), 27 ); ( Token.Mul(29, 30, [| |]), 29 ); ( Token.Name(31, 32, "g", [| |]), 31 );
                                             ( Token.Comma(33, 34, [| |]), 33 ); ( Token.Name(35, 36, "h", [| |]), 35 );
-                                            ( Token.Comma(37, 38, [| |]), 37 ); ( Token.RightParen(39, 40, [| |]), 39 ); ( Token.EOF([| |]), 41 ) ] )
+                                            ( Token.Comma(37, 38, [| |]), 37 ); ( Token.Colon(39, 40, [| |]), 39 ); ( Token.EOF([| |]), 41 ) ] )
             lex.Next()
             let parser = new Parser(lex)
             Assert.Equal( ASTNode.VarArgsList(0, 39, [| 
@@ -3347,7 +3347,7 @@ module TestsPythonCoreParser =
                                             ( Token.Comma(17, 18, [| |]), 17 ); ( Token.Name(19, 20, "c", [| |]), 19 );
                                             ( Token.Comma(21, 22, [| |]), 21 ); ( Token.Name(22, 23, "e", [| |]), 22 ); ( Token.Assign(23, 24, [| |]), 23 ); ( Token.Name(25, 26, "f", [| |]), 25 );
                                             ( Token.Comma(27, 28, [| |]), 27 ); ( Token.Mul(29, 30, [| |]), 29 ); ( Token.Name(31, 32, "g", [| |]), 31 );
-                                            ( Token.Comma(37, 38, [| |]), 37 ); ( Token.RightParen(39, 40, [| |]), 39 ); ( Token.EOF([| |]), 41 ) ] )
+                                            ( Token.Comma(37, 38, [| |]), 37 ); ( Token.Colon(39, 40, [| |]), 39 ); ( Token.EOF([| |]), 41 ) ] )
             lex.Next()
             let parser = new Parser(lex)
             Assert.Equal( ASTNode.VarArgsList(0, 39, [| 
@@ -3380,7 +3380,7 @@ module TestsPythonCoreParser =
             let lex = new MockTokenizer( [  ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Assign(6, 7, [| |]), 6 ); ( Token.Name(8, 9, "b", [| |]), 8 ); 
                                             ( Token.Comma(10, 11, [| |]), 10 ); ( Token.Name(12, 13, "a", [| |]), 12 );
                                             ( Token.Comma(13, 14, [| |]), 13 ); ( Token.Div(15, 16, [| |]), 15 );
-                                            ( Token.Comma(17, 18, [| |]), 17 ); ( Token.RightParen(19, 20, [| |]), 19 ); ( Token.EOF([| |]), 21 ) ] )
+                                            ( Token.Comma(17, 18, [| |]), 17 ); ( Token.Colon(19, 20, [| |]), 19 ); ( Token.EOF([| |]), 21 ) ] )
             lex.Next()
             let parser = new Parser(lex)
             Assert.Equal( ASTNode.VarArgsList(0, 19, [| 
@@ -3428,7 +3428,7 @@ module TestsPythonCoreParser =
             let lex = new MockTokenizer( [  ( Token.Mul(0, 1, [| |]), 0 ); ( Token.Name(2, 3, "g", [| |]), 2 );
                                             ( Token.Comma(4, 5, [| |]), 4 ); ( Token.Name(6, 7, "h", [| |]), 6 );
                                             ( Token.Comma(8, 9, [| |]), 8 ); ( Token.Name(10, 11, "g", [| |]), 10 ); ( Token.Assign(12, 13, [| |]), 12 ); ( Token.Name(14, 15, "x", [| |]), 14 );
-                                            ( Token.Comma(16, 17, [| |]), 16 ); ( Token.RightParen(18, 19, [| |]), 18 ); ( Token.EOF([| |]), 20 ) ] )
+                                            ( Token.Comma(16, 17, [| |]), 16 ); ( Token.Colon(18, 19, [| |]), 18 ); ( Token.EOF([| |]), 20 ) ] )
             lex.Next()
             let parser = new Parser(lex)
             Assert.Equal( ASTNode.VarArgsList(0, 18, [| 
