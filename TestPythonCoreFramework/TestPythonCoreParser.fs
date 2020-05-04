@@ -3468,4 +3468,29 @@ module TestsPythonCoreParser =
                                                             Token.Comma(8, 9, [| |]);
                                                         |], [| |]), parser.ParseVarArgsList())
 
+    [<Fact>]
+    let ``varargslist 18 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Mul(0, 1, [| |]), 0 ); ( Token.Name(2, 3, "g", [| |]), 2 );
+                                            ( Token.Comma(4, 5, [| |]), 4 ); ( Token.Colon(6, 7, [| |]), 6 );
+                                            ( Token.EOF([| |]), 8 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.VarArgsList(0, 6, [| 
+                                                        ASTNode.VarMul(0, 4, Token.Mul(0, 1, [| |]), ASTNode.Name(2, 4, Token.Name(2, 3, "g", [| |])));
+                                                     |], [| 
+                                                            Token.Comma(4, 5, [| |])
+                                                        |], [| |]), parser.ParseVarArgsList())
+
+    [<Fact>]
+    let ``varargslist 19 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Mul(0, 1, [| |]), 0 ); ( Token.Name(2, 3, "g", [| |]), 2 );
+                                            ( Token.EOF([| |]), 4 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.VarArgsList(0, 4, [| 
+                                                        ASTNode.VarMul(0, 4, Token.Mul(0, 1, [| |]), ASTNode.Name(2, 4, Token.Name(2, 3, "g", [| |])));
+                                                     |], [| 
+                                                            
+                                                        |], [| |]), parser.ParseVarArgsList())
+
 
