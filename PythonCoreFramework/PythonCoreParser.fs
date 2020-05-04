@@ -997,14 +997,13 @@ type Parser(lexer : ITokenizer) =
                         |   Token.Comma _ ->
                                 ops <- this.Lexer.Symbol :: ops
                                 this.Lexer.Advance()
-                                let typeComm1 = match this.Lexer.Symbol with
-                                                |   Token.TypeComment _ ->
-                                                        let tmpOp = this.Lexer.Symbol
-                                                        this.Lexer.Advance()
-                                                        tmpOp
-                                                |   _ ->
-                                                        Token.Empty
-                                com <- typeComm1 :: com
+                                match this.Lexer.Symbol with
+                                |   Token.TypeComment _ ->
+                                        let tmpOp = this.Lexer.Symbol
+                                        this.Lexer.Advance()
+                                        com <- tmpOp :: com
+                                |   _ ->
+                                        ()
                                 match this.Lexer.Symbol with
                                 |   Token.Colon _
                                 |   Token.RightParen _ ->
@@ -1023,14 +1022,13 @@ type Parser(lexer : ITokenizer) =
                                         |   Token.Comma _ ->
                                                 ops <- this.Lexer.Symbol :: ops
                                                 this.Lexer.Advance()
-                                                let typeComm1 = match this.Lexer.Symbol with
-                                                                |   Token.TypeComment _ ->
-                                                                        let tmpOp = this.Lexer.Symbol
-                                                                        this.Lexer.Advance()
-                                                                        tmpOp
-                                                                |   _ ->
-                                                                        Token.Empty
-                                                com <- typeComm1 :: com
+                                                match this.Lexer.Symbol with
+                                                |   Token.TypeComment _ ->
+                                                        let tmpOp = this.Lexer.Symbol
+                                                        this.Lexer.Advance()
+                                                        com <- tmpOp :: com
+                                                |   _ ->
+                                                        ()
                                         |   _ ->
                                                 ()
                                         false
@@ -1054,14 +1052,13 @@ type Parser(lexer : ITokenizer) =
                 |   Token.Comma _ ->
                         ops <- this.Lexer.Symbol :: ops
                         this.Lexer.Advance()
-                        let typeComm1 = match this.Lexer.Symbol with
-                                        |   Token.TypeComment _ ->
-                                                let tmpOp = this.Lexer.Symbol
-                                                this.Lexer.Advance()
-                                                tmpOp
-                                        |   _ ->
-                                                Token.Empty
-                        com <- typeComm1 :: com
+                        match this.Lexer.Symbol with
+                        |   Token.TypeComment _ ->
+                                let tmpOp = this.Lexer.Symbol
+                                this.Lexer.Advance()
+                                com <- tmpOp :: com
+                        |   _ ->
+                                ()
                 |   _ ->
                         ()
         |   _ ->
@@ -1070,14 +1067,13 @@ type Parser(lexer : ITokenizer) =
                         |   Token.Comma _ ->
                                 ops <- this.Lexer.Symbol :: ops
                                 this.Lexer.Advance()
-                                let typeComm1 = match this.Lexer.Symbol with
-                                                |   Token.TypeComment _ ->
-                                                        let tmpOp = this.Lexer.Symbol
-                                                        this.Lexer.Advance()
-                                                        tmpOp
-                                                |   _ ->
-                                                        Token.Empty
-                                com <- typeComm1 :: com
+                                match this.Lexer.Symbol with
+                                |   Token.TypeComment _ ->
+                                        let tmpOp = this.Lexer.Symbol
+                                        this.Lexer.Advance()
+                                        com <- tmpOp :: com
+                                |   _ ->
+                                        ()
                                 match this.Lexer.Symbol with
                                 |   Token.Colon _
                                 |   Token.RightParen _ ->
@@ -1096,14 +1092,13 @@ type Parser(lexer : ITokenizer) =
                                         |   Token.Comma _ ->
                                                 ops <- this.Lexer.Symbol :: ops
                                                 this.Lexer.Advance()
-                                                let typeComm1 = match this.Lexer.Symbol with
-                                                                |   Token.TypeComment _ ->
-                                                                        let tmpOp = this.Lexer.Symbol
-                                                                        this.Lexer.Advance()
-                                                                        tmpOp
-                                                                |   _ ->
-                                                                        Token.Empty
-                                                com <- typeComm1 :: com
+                                                match this.Lexer.Symbol with
+                                                |   Token.TypeComment _ ->
+                                                        let tmpOp = this.Lexer.Symbol
+                                                        this.Lexer.Advance()
+                                                        com <- tmpOp :: com
+                                                |   _ ->
+                                                        ()
                                         |   _ ->
                                                 ()
                                         false
@@ -1121,14 +1116,13 @@ type Parser(lexer : ITokenizer) =
                                                 |   Token.Comma _ ->
                                                         ops <- this.Lexer.Symbol :: ops
                                                         this.Lexer.Advance()
-                                                        let typeComm1 = match this.Lexer.Symbol with
-                                                                        |   Token.TypeComment _ ->
-                                                                                let tmpOp = this.Lexer.Symbol
-                                                                                this.Lexer.Advance()
-                                                                                tmpOp
-                                                                        |   _ ->
-                                                                                Token.Empty
-                                                        com <- typeComm1 :: com
+                                                        match this.Lexer.Symbol with
+                                                        |   Token.TypeComment _ ->
+                                                                let tmpOp = this.Lexer.Symbol
+                                                                this.Lexer.Advance()
+                                                                com <- tmpOp :: com
+                                                        |   _ ->
+                                                                ()
                                                         match this.Lexer.Symbol with
                                                         |   Token.Colon _
                                                         |   Token.RightParen _ ->
@@ -1147,14 +1141,13 @@ type Parser(lexer : ITokenizer) =
                                                                 |   Token.Comma _ ->
                                                                         ops <- this.Lexer.Symbol :: ops
                                                                         this.Lexer.Advance()
-                                                                        let typeComm1 = match this.Lexer.Symbol with
-                                                                                        |   Token.TypeComment _ ->
-                                                                                                let tmpOp = this.Lexer.Symbol
-                                                                                                this.Lexer.Advance()
-                                                                                                tmpOp
-                                                                                        |   _ ->
-                                                                                                Token.Empty
-                                                                        com <- typeComm1 :: com
+                                                                        match this.Lexer.Symbol with
+                                                                        |   Token.TypeComment _ ->
+                                                                                let tmpOp = this.Lexer.Symbol
+                                                                                this.Lexer.Advance()
+                                                                                com <- tmpOp :: com
+                                                                        |   _ ->
+                                                                                ()
                                                                 |   _ ->
                                                                         ()
                                                                 false
