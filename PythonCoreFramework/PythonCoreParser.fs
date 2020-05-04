@@ -1087,11 +1087,16 @@ type Parser(lexer : ITokenizer) =
                                                 let startDiv = this.Lexer.Position
                                                 let di = this.Lexer.Symbol
                                                 this.Lexer.Advance()
+                                                seenDiv <- true
                                                 nodes <- ASTNode.ArgDiv(startDiv, this.Lexer.Position, di) :: nodes
                                         true
                                 |   Token.Colon _
                                 |   Token.RightParen _ ->
-                                        false
+                                        match seenDiv with
+                                        |   true ->
+                                                false
+                                        |   _   ->
+                                                raise ( SyntaxError ( this.Lexer.Symbol, "Trailing ',' only accepted after '/'  and '*', '**' arguments." ) )
                                 |   Token.Power _ ->
                                         let start2 = this.Lexer.Position
                                         let opPower = this.Lexer.Symbol
