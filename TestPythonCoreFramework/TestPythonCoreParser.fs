@@ -3493,4 +3493,27 @@ module TestsPythonCoreParser =
                                                             
                                                         |], [| |]), parser.ParseVarArgsList())
 
+    [<Fact>]
+    let ``varargslist 20 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Power(0, 2, [| |]), 0 ); ( Token.Name(2, 3, "g", [| |]), 2 );
+                                            ( Token.Comma(4, 5, [| |]), 4 ); ( Token.Colon(6, 7, [| |]), 6 );
+                                            ( Token.EOF([| |]), 8 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.VarArgsList(0, 6, [| 
+                                                        ASTNode.VarPower(0, 4, Token.Power(0, 2, [| |]), ASTNode.Name(2, 4, Token.Name(2, 3, "g", [| |])));
+                                                     |], [| 
+                                                            Token.Comma(4, 5, [| |])
+                                                        |], [| |]), parser.ParseVarArgsList())
 
+    [<Fact>]
+    let ``varargslist 21 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Power(0, 2, [| |]), 0 ); ( Token.Name(2, 3, "g", [| |]), 2 );
+                                            ( Token.EOF([| |]), 4 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.VarArgsList(0, 4, [| 
+                                                        ASTNode.VarPower(0, 4, Token.Power(0, 2, [| |]), ASTNode.Name(2, 4, Token.Name(2, 3, "g", [| |])));
+                                                     |], [| 
+                                                            
+                                                        |], [| |]), parser.ParseVarArgsList())
