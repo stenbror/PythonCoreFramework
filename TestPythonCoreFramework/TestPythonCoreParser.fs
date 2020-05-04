@@ -3398,6 +3398,74 @@ module TestsPythonCoreParser =
                                                             Token.Comma(17, 18, [| |])
                                                         |], [| |]), parser.ParseVarArgsList())
 
-    
+    [<Fact>]
+    let ``varargslist 15 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Mul(0, 1, [| |]), 0 ); ( Token.Name(2, 3, "g", [| |]), 2 );
+                                            ( Token.Comma(4, 5, [| |]), 4 ); ( Token.Name(6, 7, "h", [| |]), 6 );
+                                            ( Token.Comma(8, 9, [| |]), 8 ); ( Token.Name(10, 11, "g", [| |]), 10 ); ( Token.Assign(12, 13, [| |]), 12 ); ( Token.Name(14, 15, "x", [| |]), 14 );
+                                            ( Token.Comma(16, 17, [| |]), 16 ); ( Token.Power(18, 20, [| |]), 18 ); ( Token.Name(21, 22, "y", [| |]), 21 ); 
+                                            ( Token.Comma(23, 24, [| |]), 23 ); ( Token.EOF([| |]), 25 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.VarArgsList(0, 25, [| 
+                                                        ASTNode.VarMul(0, 4, Token.Mul(0, 1, [| |]), ASTNode.Name(2, 4, Token.Name(2, 3, "g", [| |])));
+                                                        ASTNode.Name(6, 8, Token.Name(6, 7, "h", [| |]));
+                                                        ASTNode.VarAssign(10, 16,
+                                                                    ASTNode.Name(10, 12, Token.Name(10, 11, "g", [| |])),
+                                                                    Token.Assign(12, 13, [| |]),
+                                                                    ASTNode.Name(14, 16, Token.Name(14, 15, "x", [| |]))
+                                                                    );
+                                                        ASTNode.VarPower(18, 23, Token.Power(18, 20, [| |]), ASTNode.Name(21, 23, Token.Name(21, 22, "y", [| |])))
+                                                     |], [| 
+                                                            Token.Comma(4, 5, [| |]);
+                                                            Token.Comma(8, 9, [| |]);
+                                                            Token.Comma(16, 17, [| |]);
+                                                            Token.Comma(23, 24, [| |])
+                                                        |], [| |]), parser.ParseVarArgsList())
+
+    [<Fact>]
+    let ``varargslist 16 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Mul(0, 1, [| |]), 0 ); ( Token.Name(2, 3, "g", [| |]), 2 );
+                                            ( Token.Comma(4, 5, [| |]), 4 ); ( Token.Name(6, 7, "h", [| |]), 6 );
+                                            ( Token.Comma(8, 9, [| |]), 8 ); ( Token.Name(10, 11, "g", [| |]), 10 ); ( Token.Assign(12, 13, [| |]), 12 ); ( Token.Name(14, 15, "x", [| |]), 14 );
+                                            ( Token.Comma(16, 17, [| |]), 16 ); ( Token.RightParen(18, 19, [| |]), 18 ); ( Token.EOF([| |]), 20 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.VarArgsList(0, 18, [| 
+                                                        ASTNode.VarMul(0, 4, Token.Mul(0, 1, [| |]), ASTNode.Name(2, 4, Token.Name(2, 3, "g", [| |])));
+                                                        ASTNode.Name(6, 8, Token.Name(6, 7, "h", [| |]));
+                                                        ASTNode.VarAssign(10, 16,
+                                                                    ASTNode.Name(10, 12, Token.Name(10, 11, "g", [| |])),
+                                                                    Token.Assign(12, 13, [| |]),
+                                                                    ASTNode.Name(14, 16, Token.Name(14, 15, "x", [| |]))
+                                                                    );
+                                                        
+                                                     |], [| 
+                                                            Token.Comma(4, 5, [| |]);
+                                                            Token.Comma(8, 9, [| |]);
+                                                            Token.Comma(16, 17, [| |]);
+                                                           
+                                                        |], [| |]), parser.ParseVarArgsList())
+
+    [<Fact>]
+    let ``varargslist 17 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Mul(0, 1, [| |]), 0 ); ( Token.Name(2, 3, "g", [| |]), 2 );
+                                            ( Token.Comma(4, 5, [| |]), 4 ); ( Token.Name(6, 7, "h", [| |]), 6 );
+                                            ( Token.Comma(8, 9, [| |]), 8 ); ( Token.Name(10, 11, "g", [| |]), 10 ); ( Token.Assign(12, 13, [| |]), 12 ); ( Token.Name(14, 15, "x", [| |]), 14 );
+                                            ( Token.EOF([| |]), 16 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.VarArgsList(0, 16, [| 
+                                                        ASTNode.VarMul(0, 4, Token.Mul(0, 1, [| |]), ASTNode.Name(2, 4, Token.Name(2, 3, "g", [| |])));
+                                                        ASTNode.Name(6, 8, Token.Name(6, 7, "h", [| |]));
+                                                        ASTNode.VarAssign(10, 16,
+                                                                    ASTNode.Name(10, 12, Token.Name(10, 11, "g", [| |])),
+                                                                    Token.Assign(12, 13, [| |]),
+                                                                    ASTNode.Name(14, 16, Token.Name(14, 15, "x", [| |]))
+                                                                    );
+                                                     |], [| 
+                                                            Token.Comma(4, 5, [| |]);
+                                                            Token.Comma(8, 9, [| |]);
+                                                        |], [| |]), parser.ParseVarArgsList())
 
 
