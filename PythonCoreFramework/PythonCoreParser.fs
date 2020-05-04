@@ -122,6 +122,7 @@ type ASTNode =
     |   AsyncFuncDef of int * int * Token * ASTNode
     |   FuncDef of int * int * Token * ASTNode * ASTNode * Token * ASTNode * Token * Token * ASTNode
     |   Parameters of int * int * Token * ASTNode * Token
+    |   ArgDiv of int * int * Token
     |   TypedArgsList of int * int * ASTNode array * Token array * Token array
     |   TypedAssign of int * int * ASTNode * Token * ASTNode
     |   TypedMul of int * int * Token * ASTNode
@@ -1062,19 +1063,32 @@ type Parser(lexer : ITokenizer) =
                 |   _ ->
                         ()
         |   _ ->
+                let mutable seenDiv = false
                 nodes <- this.ParseCommonAssignment(typed) :: nodes
                 while   match this.Lexer.Symbol with
                         |   Token.Comma _ ->
                                 ops <- this.Lexer.Symbol :: ops
                                 this.Lexer.Advance()
-                                match this.Lexer.Symbol with
-                                |   Token.TypeComment _ ->
+                                match this.Lexer.Symbol, typed with
+                                |   Token.TypeComment _, true ->
                                         let tmpOp = this.Lexer.Symbol
                                         this.Lexer.Advance()
                                         com <- tmpOp :: com
+                                |   Token.TypeComment _ , false ->
+                                        raise ( SyntaxError(this.Lexer.Symbol, "Type comment not allowed in variable argument list!") )
                                 |   _ ->
                                         ()
                                 match this.Lexer.Symbol with
+                                |   Token.Div _ ->
+                                        match seenDiv with
+                                        |   true ->
+                                                raise ( SyntaxError(this.Lexer.Symbol, "Already seen '/' in argument list.") )
+                                        |   _   ->
+                                                let startDiv = this.Lexer.Position
+                                                let di = this.Lexer.Symbol
+                                                this.Lexer.Advance()
+                                                nodes <- ASTNode.ArgDiv(startDiv, this.Lexer.Position, di) :: nodes
+                                        true
                                 |   Token.Colon _
                                 |   Token.RightParen _ ->
                                         false
