@@ -3375,6 +3375,29 @@ module TestsPythonCoreParser =
                                                             Token.Comma(37, 38, [| |])
                                                         |], [| |]), parser.ParseVarArgsList())
 
+    [<Fact>]
+    let ``varargslist 14 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Assign(6, 7, [| |]), 6 ); ( Token.Name(8, 9, "b", [| |]), 8 ); 
+                                            ( Token.Comma(10, 11, [| |]), 10 ); ( Token.Name(12, 13, "a", [| |]), 12 );
+                                            ( Token.Comma(13, 14, [| |]), 13 ); ( Token.Div(15, 16, [| |]), 15 );
+                                            ( Token.Comma(17, 18, [| |]), 17 ); ( Token.RightParen(19, 20, [| |]), 19 ); ( Token.EOF([| |]), 21 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.VarArgsList(0, 19, [| 
+                                                        ASTNode.VarAssign(0, 10,
+                                                                    ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])),
+                                                                    Token.Assign(6, 7, [| |]),
+                                                                    ASTNode.Name(8, 10, Token.Name(8, 9, "b", [| |]))
+                                                                    );
+                                                        ASTNode.Name(12, 13, Token.Name(12, 13, "a", [| |]));
+                                                        ASTNode.ArgDiv(15, 17, Token.Div(15, 16, [| |]));
+                                                        
+                                                     |], [| 
+                                                            Token.Comma(10, 11, [| |]);
+                                                            Token.Comma(13, 14, [| |]);
+                                                            Token.Comma(17, 18, [| |])
+                                                        |], [| |]), parser.ParseVarArgsList())
+
     
 
 
