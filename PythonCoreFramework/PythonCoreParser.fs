@@ -123,12 +123,12 @@ type ASTNode =
     |   FuncDef of int * int * Token * ASTNode * ASTNode * Token * ASTNode * Token * Token * ASTNode
     |   Parameters of int * int * Token * ASTNode * Token
     |   TypedArgsList of int * int * ASTNode array * Token array * Token array
-    |   TypedAssign of int * int * ASTNode * ASTNode * Token * ASTNode
+    |   TypedAssign of int * int * ASTNode * Token * ASTNode
     |   TypedMul of int * int * Token * ASTNode
     |   TypedPower of int * int * Token * ASTNode
     |   TFPDef of int * int * ASTNode * Token * ASTNode
     |   VarArgsList of int * int * ASTNode array * Token array * Token array
-    |   VarAssign of int * int * ASTNode * ASTNode * Token * ASTNode
+    |   VarAssign of int * int * ASTNode * Token * ASTNode
     |   VarMul of int * int * Token * ASTNode
     |   VarPower of int * int * Token * ASTNode
     |   SimpleStmtList of int * int * ASTNode array * Token array * Token
@@ -1065,7 +1065,7 @@ type Parser(lexer : ITokenizer) =
                 |   _ ->
                         ()
         |   _ ->
-                nodes <- this.ParseTest() :: nodes
+                nodes <- this.ParseCommonAssignment(typed) :: nodes
                 while   match this.Lexer.Symbol with
                         |   Token.Comma _ ->
                                 ops <- this.Lexer.Symbol :: ops
@@ -1190,7 +1190,11 @@ type Parser(lexer : ITokenizer) =
                 let op = this.Lexer.Symbol
                 this.Lexer.Advance()
                 let right = this.ParseTest()
-                ASTNode.Assign(startPos, this.Lexer.Position, left, Token.Empty, op, right)
+                match typed with
+                |   true ->
+                        ASTNode.TypedAssign(startPos, this.Lexer.Position, left, op, right)
+                |   _ ->
+                        ASTNode.VarAssign(startPos, this.Lexer.Position, left, op, right)
         |   _ ->
                 left
 
@@ -1209,7 +1213,11 @@ type Parser(lexer : ITokenizer) =
                                             tmpOp, tmpRight
                                     |   _ ->
                                             Token.Empty, ASTNode.Empty
-                ASTNode.TFPDef(startPos, this.Lexer.Position, left, op1, right)
+                match op1, right with
+                |   Token.Empty, ASTNode.Empty ->
+                        left
+                |   _ , _ ->
+                        ASTNode.TFPDef(startPos, this.Lexer.Position, left, op1, right)
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting name literal in argument!") )
 

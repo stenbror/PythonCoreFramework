@@ -2742,7 +2742,9 @@ module TestsPythonCoreParser =
                                                 Token.Def(0, 3, [| |]),  
                                                 ASTNode.Name(4, 5, Token.Name(4, 5, "a", [| |])), 
                                                 ASTNode.Parameters(5, 11, Token.LeftParen(5, 6, [| |]), 
-                                                            ASTNode.TypedArgsList(7, 9, [| ASTNode.Name(7, 9, Token.Name(7, 8, "b", [| |])) |], [| |], [| |]), 
+                                                            ASTNode.TypedArgsList(7, 9, [| 
+                                                                                            ASTNode.Name(7, 9, Token.Name(7, 8, "b", [| |])) 
+                                                                    |], [| |], [| |]), 
                                                             Token.RightParen(9, 10, [| |])),
                                                 Token.Empty,
                                                 ASTNode.Empty,
@@ -2982,3 +2984,18 @@ module TestsPythonCoreParser =
             lex.Next()
             let parser = new Parser(lex)
             Assert.Equal( ASTNode.VarArgsList(0, 6, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |]))  |], [| |], [| |]), parser.ParseVarArgsList())
+
+    [<Fact>]
+    let ``varargslist 2 test`` () =
+            let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Assign(6, 7, [| |]), 6 ); ( Token.Name(8, 9, "b", [| |]), 8 ); ( Token.EOF([| |]), 10 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.VarArgsList(0, 10, [| 
+                                                        ASTNode.VarAssign(0, 10,
+                                                                    ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])),
+                                                                    Token.Assign(6, 7, [| |]),
+                                                                    ASTNode.Name(8, 10, Token.Name(8, 9, "b", [| |]))
+                                                                    )
+                                                     |], [| |], [| |]), parser.ParseVarArgsList())
+
+
