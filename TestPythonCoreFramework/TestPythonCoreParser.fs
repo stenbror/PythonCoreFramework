@@ -3524,3 +3524,16 @@ module TestsPythonCoreParser =
             lex.Next()
             let parser = new Parser(lex)
             Assert.Equal( ASTNode.TypedArgsList(0, 6, [| ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |]))  |], [| |], [| |]), parser.ParseTypedArgsList())
+
+    [<Fact>]
+    let ``typeargslist 2 test`` () =
+            let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Assign(6, 7, [| |]), 6 ); ( Token.Name(8, 9, "b", [| |]), 8 ); ( Token.EOF([| |]), 10 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.TypedArgsList(0, 10, [|   ASTNode.TypedAssign(0, 10,
+                                                                                    ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])),
+                                                                                    Token.Assign(6, 7, [| |]),
+                                                                                    ASTNode.Name(8, 10, Token.Name(8, 9, "b", [| |])) )
+                                                        |], [| |], [| |]), parser.ParseTypedArgsList())
+
+
