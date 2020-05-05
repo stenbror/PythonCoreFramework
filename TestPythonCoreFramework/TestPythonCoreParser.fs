@@ -3550,4 +3550,38 @@ module TestsPythonCoreParser =
                                                                                     ASTNode.Name(12, 14, Token.Name(12, 13, "b", [| |])) )
                                                         |], [| |], [| |]), parser.ParseTypedArgsList())
 
+    [<Fact>]
+    let ``typeargslist 4 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Colon(6, 7, [| |]), 6 ); ( Token.Name(8, 9, "c", [| |]), 8 ); ( Token.Assign(10, 11, [| |]), 10 ); ( Token.Name(12, 13, "b", [| |]), 12 ); 
+                                            ( Token.Comma(14, 15, [| |]), 14 ); ( Token.TypeComment(16, 26, "#type: int"), 16 ); ( Token.Name(27, 28, "d", [| |]), 27 );
+                                            ( Token.EOF([| |]), 29 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.TypedArgsList(0, 29, [|   ASTNode.TypedAssign(0, 14,
+                                                                                    ASTNode.TFPDef(0, 10,
+                                                                                        ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])),
+                                                                                        Token.Colon(6, 7, [| |]),
+                                                                                        ASTNode.Name(8, 10, Token.Name(8, 9, "c", [| |]))),
+                                                                                    Token.Assign(10, 11, [| |]),
+                                                                                    ASTNode.Name(12, 14, Token.Name(12, 13, "b", [| |])) );
+                                                            ASTNode.Name(27, 29, Token.Name(27, 28, "d", [| |]))
+                                                        |], [| Token.Comma(14, 15, [| |]) |], [| Token.TypeComment(16, 26, "#type: int") |]), parser.ParseTypedArgsList())
+
+    [<Fact>]
+    let ``typeargslist 5 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Colon(6, 7, [| |]), 6 ); ( Token.Name(8, 9, "c", [| |]), 8 ); ( Token.Assign(10, 11, [| |]), 10 ); ( Token.Name(12, 13, "b", [| |]), 12 ); 
+                                            ( Token.Comma(14, 15, [| |]), 14 ); ( Token.Name(27, 28, "d", [| |]), 27 );
+                                            ( Token.EOF([| |]), 29 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.TypedArgsList(0, 29, [|   ASTNode.TypedAssign(0, 14,
+                                                                                    ASTNode.TFPDef(0, 10,
+                                                                                        ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])),
+                                                                                        Token.Colon(6, 7, [| |]),
+                                                                                        ASTNode.Name(8, 10, Token.Name(8, 9, "c", [| |]))),
+                                                                                    Token.Assign(10, 11, [| |]),
+                                                                                    ASTNode.Name(12, 14, Token.Name(12, 13, "b", [| |])) );
+                                                            ASTNode.Name(27, 29, Token.Name(27, 28, "d", [| |]))
+                                                        |], [| Token.Comma(14, 15, [| |]) |], [|  |]), parser.ParseTypedArgsList())
+
 
