@@ -3610,3 +3610,30 @@ module TestsPythonCoreParser =
                                                             Token.TypeComment(16, 26, "#type: int") 
                                                         |]), parser.ParseTypedArgsList())
 
+    [<Fact>]
+    let ``typeargslist 7 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Colon(6, 7, [| |]), 6 ); ( Token.Name(8, 9, "c", [| |]), 8 ); ( Token.Assign(10, 11, [| |]), 10 ); ( Token.Name(12, 13, "b", [| |]), 12 ); 
+                                            ( Token.Comma(14, 15, [| |]), 14 ); ( Token.TypeComment(16, 26, "#type: int"), 16 ); ( Token.Name(27, 28, "d", [| |]), 27 );
+                                            ( Token.Comma(29, 30, [| |]), 29 ); ( Token.TypeComment(31, 41, "#type: int"), 31 ); ( Token.Div(42, 43, [| |]), 42 );
+                                            ( Token.EOF([| |]), 43 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.TypedArgsList(0, 43, [|   ASTNode.TypedAssign(0, 14,
+                                                                                    ASTNode.TFPDef(0, 10,
+                                                                                        ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])),
+                                                                                        Token.Colon(6, 7, [| |]),
+                                                                                        ASTNode.Name(8, 10, Token.Name(8, 9, "c", [| |]))),
+                                                                                    Token.Assign(10, 11, [| |]),
+                                                                                    ASTNode.Name(12, 14, Token.Name(12, 13, "b", [| |])) );
+                                                            ASTNode.Name(27, 29, Token.Name(27, 28, "d", [| |]));
+                                                            ASTNode.ArgDiv(42, 43, Token.Div(42, 43, [| |]))
+                                                        |], 
+                                                        [| 
+                                                            Token.Comma(14, 15, [| |]);
+                                                            Token.Comma(29, 30, [| |])
+                                                        |], 
+                                                        [| 
+                                                            Token.TypeComment(16, 26, "#type: int");
+                                                            Token.TypeComment(31, 41, "#type: int")
+                                                        |]), parser.ParseTypedArgsList())
+
