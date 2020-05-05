@@ -3711,3 +3711,102 @@ module TestsPythonCoreParser =
                                                             Token.TypeComment(49, 59, "#type: int")
                                                         |]), parser.ParseTypedArgsList())
 
+    [<Fact>]
+    let ``typeargslist 10 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Colon(6, 7, [| |]), 6 ); ( Token.Name(8, 9, "c", [| |]), 8 ); ( Token.Assign(10, 11, [| |]), 10 ); ( Token.Name(12, 13, "b", [| |]), 12 ); 
+                                            ( Token.Comma(14, 15, [| |]), 14 ); ( Token.TypeComment(16, 26, "#type: int"), 16 ); ( Token.Name(27, 28, "d", [| |]), 27 );
+                                            ( Token.Comma(29, 30, [| |]), 29 ); ( Token.TypeComment(31, 41, "#type: int"), 31 ); ( Token.Div(42, 43, [| |]), 42 );
+                                            ( Token.Comma(43, 44, [| |]), 43 ); ( Token.Name(45, 46, "e", [| |]), 45 );
+                                            ( Token.Comma(47, 48, [| |]), 47 ); ( Token.TypeComment(49, 59, "#type: int"), 49 ); ( Token.Name(60, 61, "g", [| |]), 60 ); ( Token.Colon(62, 63, [| |]), 62 ); ( Token.Name(64, 65, "h", [| |]), 64 ); ( Token.Assign(66, 67, [| |]), 66 ); ( Token.Name(68, 69, "i", [| |]), 68 );
+                                            ( Token.Comma(70, 71, [| |]), 70  ); ( Token.Mul(72, 73, [| |]), 72 ); ( Token.Name(73, 74, "a", [| |]), 73 ); ( Token.Colon(75, 76, [| |]), 75 ); ( Token.Name(77, 78, "b", [| |]), 77 );
+                                            ( Token.RightParen(79, 80, [| |]), 79 ); ( Token.EOF([| |]), 81 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.TypedArgsList(0, 79, [|   ASTNode.TypedAssign(0, 14,
+                                                                                    ASTNode.TFPDef(0, 10,
+                                                                                        ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])),
+                                                                                        Token.Colon(6, 7, [| |]),
+                                                                                        ASTNode.Name(8, 10, Token.Name(8, 9, "c", [| |]))),
+                                                                                    Token.Assign(10, 11, [| |]),
+                                                                                    ASTNode.Name(12, 14, Token.Name(12, 13, "b", [| |])) );
+                                                            ASTNode.Name(27, 29, Token.Name(27, 28, "d", [| |]));
+                                                            ASTNode.ArgDiv(42, 43, Token.Div(42, 43, [| |]));
+                                                            ASTNode.Name(45, 47, Token.Name(45, 46, "e", [| |]));
+                                                            ASTNode.TypedAssign(60, 70,
+                                                                                    ASTNode.TFPDef(60, 66,
+                                                                                        ASTNode.Name(60, 62, Token.Name(60, 61, "g", [| |])),
+                                                                                        Token.Colon(62, 63, [| |]),
+                                                                                        ASTNode.Name(64, 66, Token.Name(64, 65, "h", [| |]))),
+                                                                                    Token.Assign(66, 67, [| |]),
+                                                                                    ASTNode.Name(68, 70, Token.Name(68, 69, "i", [| |])) );
+                                                            ASTNode.TypedMul(72, 79, 
+                                                                                    Token.Mul(72, 73, [| |]),
+                                                                                    ASTNode.TFPDef(73, 79,
+                                                                                        ASTNode.Name(73, 75, Token.Name(73, 74, "a", [| |])),
+                                                                                        Token.Colon(75, 76, [| |]),
+                                                                                        ASTNode.Name(77, 79, Token.Name(77, 78, "b", [| |]))
+                                                            ));
+                                                        |], 
+                                                        [| 
+                                                            Token.Comma(14, 15, [| |]);
+                                                            Token.Comma(29, 30, [| |]);
+                                                            Token.Comma(43, 44, [| |]);
+                                                            Token.Comma(47, 48, [| |]);
+                                                            Token.Comma(70, 71, [| |])
+                                                        |], 
+                                                        [| 
+                                                            Token.TypeComment(16, 26, "#type: int");
+                                                            Token.TypeComment(31, 41, "#type: int");
+                                                            Token.TypeComment(49, 59, "#type: int")
+                                                        |]), parser.ParseTypedArgsList())
+
+    [<Fact>]
+    let ``typeargslist 11 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Colon(6, 7, [| |]), 6 ); ( Token.Name(8, 9, "c", [| |]), 8 ); ( Token.Assign(10, 11, [| |]), 10 ); ( Token.Name(12, 13, "b", [| |]), 12 ); 
+                                            ( Token.Comma(14, 15, [| |]), 14 ); ( Token.TypeComment(16, 26, "#type: int"), 16 ); ( Token.Name(27, 28, "d", [| |]), 27 );
+                                            ( Token.Comma(29, 30, [| |]), 29 ); ( Token.TypeComment(31, 41, "#type: int"), 31 ); ( Token.Div(42, 43, [| |]), 42 );
+                                            ( Token.Comma(43, 44, [| |]), 43 ); ( Token.Name(45, 46, "e", [| |]), 45 );
+                                            ( Token.Comma(47, 48, [| |]), 47 ); ( Token.TypeComment(49, 59, "#type: int"), 49 ); ( Token.Name(60, 61, "g", [| |]), 60 ); ( Token.Colon(62, 63, [| |]), 62 ); ( Token.Name(64, 65, "h", [| |]), 64 ); ( Token.Assign(66, 67, [| |]), 66 ); ( Token.Name(68, 69, "i", [| |]), 68 );
+                                            ( Token.Comma(70, 71, [| |]), 70  ); ( Token.Mul(72, 73, [| |]), 72 ); ( Token.Name(73, 74, "a", [| |]), 73 ); ( Token.Colon(75, 76, [| |]), 75 ); ( Token.Name(77, 78, "b", [| |]), 77 );
+                                            ( Token.Comma(79, 80, [| |]), 79 ); ( Token.RightParen(81, 82, [| |]), 81 ); ( Token.EOF([| |]), 83 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.TypedArgsList(0, 81, [|   ASTNode.TypedAssign(0, 14,
+                                                                                    ASTNode.TFPDef(0, 10,
+                                                                                        ASTNode.Name(0, 6, Token.Name(0, 5, "Test1", [| |])),
+                                                                                        Token.Colon(6, 7, [| |]),
+                                                                                        ASTNode.Name(8, 10, Token.Name(8, 9, "c", [| |]))),
+                                                                                    Token.Assign(10, 11, [| |]),
+                                                                                    ASTNode.Name(12, 14, Token.Name(12, 13, "b", [| |])) );
+                                                            ASTNode.Name(27, 29, Token.Name(27, 28, "d", [| |]));
+                                                            ASTNode.ArgDiv(42, 43, Token.Div(42, 43, [| |]));
+                                                            ASTNode.Name(45, 47, Token.Name(45, 46, "e", [| |]));
+                                                            ASTNode.TypedAssign(60, 70,
+                                                                                    ASTNode.TFPDef(60, 66,
+                                                                                        ASTNode.Name(60, 62, Token.Name(60, 61, "g", [| |])),
+                                                                                        Token.Colon(62, 63, [| |]),
+                                                                                        ASTNode.Name(64, 66, Token.Name(64, 65, "h", [| |]))),
+                                                                                    Token.Assign(66, 67, [| |]),
+                                                                                    ASTNode.Name(68, 70, Token.Name(68, 69, "i", [| |])) );
+                                                            ASTNode.TypedMul(72, 79, 
+                                                                                    Token.Mul(72, 73, [| |]),
+                                                                                    ASTNode.TFPDef(73, 79,
+                                                                                        ASTNode.Name(73, 75, Token.Name(73, 74, "a", [| |])),
+                                                                                        Token.Colon(75, 76, [| |]),
+                                                                                        ASTNode.Name(77, 79, Token.Name(77, 78, "b", [| |]))
+                                                            ));
+                                                        |], 
+                                                        [| 
+                                                            Token.Comma(14, 15, [| |]);
+                                                            Token.Comma(29, 30, [| |]);
+                                                            Token.Comma(43, 44, [| |]);
+                                                            Token.Comma(47, 48, [| |]);
+                                                            Token.Comma(70, 71, [| |]);
+                                                            Token.Comma(79, 80, [| |])
+                                                        |], 
+                                                        [| 
+                                                            Token.TypeComment(16, 26, "#type: int");
+                                                            Token.TypeComment(31, 41, "#type: int");
+                                                            Token.TypeComment(49, 59, "#type: int")
+                                                        |]), parser.ParseTypedArgsList())
+
