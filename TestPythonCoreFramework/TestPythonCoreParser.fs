@@ -4104,3 +4104,20 @@ module TestsPythonCoreParser =
                                                             Token.TypeComment(95, 105, "#type: int")
                                                         |]), parser.ParseTypedArgsList())
 
+    [<Fact>]
+    let ``typeargslist 18 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Power(0, 2, [| |]), 0 ); ( Token.Name(2, 3, "c", [| |]), 2 );
+                                            ( Token.Comma(4, 5, [| |]), 4 ); ( Token.TypeComment(6, 16, "#type: int"), 6);
+                                            ( Token.RightParen(17, 18, [| |]), 17 ); ( Token.EOF([| |]), 19 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.TypedArgsList(0, 17, [|   
+                                                            ASTNode.TypedPower(0, 4, Token.Power(0, 2, [| |]), ASTNode.Name(2, 4, Token.Name(2, 3, "c", [| |])))
+                                                        |], 
+                                                        [| 
+                                                            Token.Comma(4, 5, [| |])
+                                                        |], 
+                                                        [| 
+                                                            Token.TypeComment(6, 16, "#type: int")
+                                                        |]), parser.ParseTypedArgsList())
+
