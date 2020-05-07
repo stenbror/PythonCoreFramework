@@ -12,8 +12,15 @@ module TestPythonCoreParserSyntaxErrorHandling =
 
     [<Fact>]
     let ``Template for SyntaxError UnitTest`` () =
-        let lex = new MockTokenizer( [ ( Token.EOF([| |]), 0 ); ] )
-        lex.Next()
-        let parser = new Parser(lex)
-        Assert.Equal( true, true )
+        try
+            let lex = new MockTokenizer( [ ( Token.Comma(0, 1, [| |]), 0 ); ( Token.EOF([| |]), 2 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseAtom() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Comma(0, 1, [| |]), ex.Data0)
+                Assert.Equal( "Illegal literal!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
 
