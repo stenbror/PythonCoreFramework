@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="MockTokenizer.fs" />
+    <Compile Include="TestPythonCoreParserSyntaxErrorHandling.fs" />
     <Compile Include="TestPythonCoreTokenizer.fs" />
     <Compile Include="TestPythonCoreParser.fs" />
     <Compile Include="Program.fs" />
