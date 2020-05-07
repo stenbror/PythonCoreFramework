@@ -4334,3 +4334,22 @@ module TestsPythonCoreParser =
                                                         [| 
                                                         |]), parser.ParseTypedArgsList())
 
+    [<Fact>]
+    let ``typeargslist 28 test`` () =
+            let lex = new MockTokenizer( [  ( Token.Mul(0, 1, [| |]), 0 ); ( Token.Name(2, 3, "a", [| |]), 2 ); ( Token.Colon(4, 5, [| |]), 4 ); ( Token.Name(6, 7, "b", [| |]), 6 );
+                                            ( Token.EOF([| |]), 8 ) ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            Assert.Equal( ASTNode.TypedArgsList(0, 8, [|   ASTNode.TypedMul(0, 8, 
+                                                                                    Token.Mul(0, 1, [| |]),
+                                                                                    ASTNode.TFPDef(2, 8,
+                                                                                        ASTNode.Name(2, 4, Token.Name(2, 3, "a", [| |])),
+                                                                                        Token.Colon(4, 5, [| |]),
+                                                                                        ASTNode.Name(6, 8, Token.Name(6, 7, "b", [| |]))
+                                                            ))
+                                                        |], 
+                                                        [|
+                                                        |], 
+                                                        [| 
+                                                        |]), parser.ParseTypedArgsList())
+
