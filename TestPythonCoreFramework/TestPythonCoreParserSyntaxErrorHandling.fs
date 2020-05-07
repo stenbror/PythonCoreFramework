@@ -11,7 +11,7 @@ open PythonCoreFramework
 module TestPythonCoreParserSyntaxErrorHandling =
 
     [<Fact>]
-    let ``Template for SyntaxError UnitTest`` () =
+    let ``Illegal atom UnitTest`` () =
         try
             let lex = new MockTokenizer( [ ( Token.Comma(0, 1, [| |]), 0 ); ( Token.EOF([| |]), 2 ); ] )
             lex.Next()
