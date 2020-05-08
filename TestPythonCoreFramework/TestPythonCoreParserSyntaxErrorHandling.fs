@@ -52,3 +52,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
         |   _ ->
                 Assert.False(false)
 
+    [<Fact>]
+    let ``lambda UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Comma(0, 1, [| |]), 0 ); ( Token.EOF([| |]), 2 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseLambda() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Comma(0, 1, [| |]), ex.Data0)
+                Assert.Equal( "Expected 'lambda' in lambda expression!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
