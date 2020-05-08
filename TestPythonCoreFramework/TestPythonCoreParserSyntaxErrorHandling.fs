@@ -80,3 +80,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
         |   _ ->
                 Assert.False(false)
 
+    [<Fact>]
+    let ``Test missing else part UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Name(0, 1, "a", [| |]), 0 ); ( Token.If(2, 4, [| |]), 2 ); ( Token.Name(5, 6, "b", [| |]), 5 ); ( Token.Name(7, 8, "c", [| |]), 7 ); ( Token.EOF([| |]), 9 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseTest() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(7, 8, "c", [| |]), ex.Data0)
+                Assert.Equal( "Expected 'else' in test expression!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
