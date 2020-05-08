@@ -2717,7 +2717,7 @@ type Parser(lexer : ITokenizer) =
                         let op2 = this.Lexer.Symbol
                         this.Lexer.Advance()
                         ASTNode.Call(startPos, this.Lexer.Position, op1, right, op2)
-                |   _   ->  raise ( SyntaxError(this.Lexer.Symbol, "") )
+                |   _   ->  raise ( SyntaxError(this.Lexer.Symbol, "Missing ')' in call expression!") )
         |   Token.LeftBracket _ ->
                 let op1 = this.Lexer.Symbol
                 this.Lexer.Advance()
@@ -2731,7 +2731,7 @@ type Parser(lexer : ITokenizer) =
                         let op2 = this.Lexer.Symbol
                         this.Lexer.Advance()
                         ASTNode.Index(startPos, this.Lexer.Position, op1, right, op2)
-                |   _   ->  raise ( SyntaxError(this.Lexer.Symbol, "") )
+                |   _   ->  raise ( SyntaxError(this.Lexer.Symbol, "Missing ']' in index expression!") )
         |   Token.Dot _ ->
                 let op = this.Lexer.Symbol
                 this.Lexer.Advance()
