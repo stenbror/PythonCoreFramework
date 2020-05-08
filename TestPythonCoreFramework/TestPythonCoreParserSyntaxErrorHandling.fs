@@ -66,3 +66,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
         |   _ ->
                 Assert.False(false)
 
+    [<Fact>]
+    let ``lambda mising colon UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Lambda(0, 6, [| |]), 0 ); ( Token.Name(7, 8, "a", [| |]), 7 ); ( Token.Name(9, 10, "b", [| |]), 9 ); ( Token.EOF([| |]), 11 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseLambda() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(9, 10, "b", [| |]), ex.Data0)
+                Assert.Equal( "Expected ':' in lambda expression!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
