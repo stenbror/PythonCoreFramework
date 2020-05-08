@@ -38,3 +38,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
         |   _ ->
                 Assert.False(false)
 
+    [<Fact>]
+    let ``not missing in UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Name(0, 1, "a", [| |]), 0 ); ( Token.Not(2, 5, [| |]), 2 ); ( Token.Name(6, 7, "b", [| |]), 6 ); ( Token.EOF([| |]), 8 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseComparison() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(6, 7, "b", [| |]), ex.Data0)
+                Assert.Equal( "Missing 'in' in 'not in ' expression!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
