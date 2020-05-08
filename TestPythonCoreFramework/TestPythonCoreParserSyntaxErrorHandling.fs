@@ -150,3 +150,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
         |   _ ->
                 Assert.False(false)
 
+    [<Fact>]
+    let ``Missing trailing ']' in index UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.LeftBracket(0, 1, [| |]), 0 ); ( Token.Name(2, 3, "a", [| |]), 2 ); ( Token.Name(4, 5, "b", [| |]), 4 ); ( Token.EOF([| |]), 6 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseTrailer() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(4, 5, "b", [| |]), ex.Data0)
+                Assert.Equal( "Missing ']' in index expression!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
