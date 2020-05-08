@@ -2671,7 +2671,7 @@ type Parser(lexer : ITokenizer) =
                                 |   _ ->
                                         ASTNode.Dictionary(startPos, this.Lexer.Position, op1, List.toArray(List.rev a), List.toArray(List.rev b), op2)
                         |   _   ->
-                                raise ( SyntaxError(this.Lexer.Symbol, "Missing '} in dictionary!") )
+                                raise ( SyntaxError(this.Lexer.Symbol, "Missing '}' in dictionary!") )
         |   _   ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Illegal literal!") )
 
