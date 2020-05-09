@@ -3110,7 +3110,7 @@ type Parser(lexer : ITokenizer) =
                 let right = this.ParseTest()
                 ASTNode.FuncType(startPos, this.Lexer.Position, op1, left, op2, op3, right)
         |   _ ->
-            raise ( SyntaxError(this.Lexer.Symbol, "Expected '(' in func definition!") )
+            raise ( SyntaxError(this.Lexer.Symbol, "Expecting '(' in func definition!") )
 
     member this.ParseTypeList() =
         let startPos = this.Lexer.Position

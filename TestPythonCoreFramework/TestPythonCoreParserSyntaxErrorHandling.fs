@@ -332,3 +332,73 @@ module TestPythonCoreParserSyntaxErrorHandling =
         |   _ ->
                 Assert.False(false)
 
+    [<Fact>]
+    let ``function suite missing indent UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Newline(0, 2, [| |]), 0 ); ( Token.Pass(3, 7, [| |]), 3 ); ( Token.EOF([| |]), 8 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseFuncBodySuite() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(3, 7, [| |]), ex.Data0)
+                Assert.Equal( "Expecting indentation in function block statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``function suite missing newline after typecomment UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Newline(0, 2, [| |]), 0 ); ( Token.Indent([| |]), 2 ); ( Token.TypeComment(3, 13, "#type: int"), 3 ); ( Token.Pass(14, 18, [| |]), 14 ); ( Token.EOF([| |]), 19 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseFuncBodySuite() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(14, 18, [| |]), ex.Data0)
+                Assert.Equal( "Expecting newline after type comment!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``functype missing ')' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.LeftParen(0, 1, [| |]), 1 ); ( Token.Name(2, 3, "a", [| |]), 2 ); ( Token.Name(4, 5, "b", [| |]), 4 ); ( Token.EOF([| |]), 6 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseFuncType() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(4, 5, "b", [| |]), ex.Data0)
+                Assert.Equal( "Expecting ')' in func definition!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``functype missing '->' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.LeftParen(0, 1, [| |]), 1 ); ( Token.Name(2, 3, "a", [| |]), 2 ); ( Token.RightParen(4, 5, [| |]), 4 ); ( Token.Name(6, 7, "b", [| |]), 6 ); ( Token.EOF([| |]), 8 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseFuncType() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(6, 7, "b", [| |]), ex.Data0)
+                Assert.Equal( "Expecting '->' in func definition!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``functype missing '(' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Name(0, 1, "a", [| |]), 0 ); ( Token.RightParen(2, 3, [| |]), 2 ); ( Token.Name(4, 5, "b", [| |]), 4 ); ( Token.EOF([| |]), 6 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseFuncType() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(0, 1, "a", [| |]), ex.Data0)
+                Assert.Equal( "Expecting '(' in func definition!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
