@@ -234,3 +234,45 @@ module TestPythonCoreParserSyntaxErrorHandling =
         |   _ ->
                 Assert.False(false)
 
+    [<Fact>]
+    let ``argument not allowed UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Comma(0, 1, [| |]), 0 ); ( Token.EOF([| |]), 2 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseArgument() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Comma(0, 1, [| |]), ex.Data0)
+                Assert.Equal( "Missing argument!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``argument * mising name UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Mul(0, 1, [| |]), 0 ); ( Token.Comma(2, 3, [| |]), 2 ); ( Token.EOF([| |]), 4 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseArgument() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Comma(2, 3, [| |]), ex.Data0)
+                Assert.Equal( "Missing argument!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``argument ** mising name UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Power(0, 2, [| |]), 0 ); ( Token.Comma(2, 3, [| |]), 2 ); ( Token.EOF([| |]), 4 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseArgument() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Comma(2, 3, [| |]), ex.Data0)
+                Assert.Equal( "Missing argument!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
