@@ -761,7 +761,7 @@ type Parser(lexer : ITokenizer) =
                             raise ( SyntaxError(this.Lexer.Symbol, "Expecting end of file!") )
         ASTNode.EvalInput(startPos, this.Lexer.Position, right, List.toArray(List.rev nodes), op)
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("typecomment", RuleContent ="functype NEWLINE* EOF")>]
     member this.ParseFuncTypeInput() =
         let startPos = 0
         let right = this.ParseFuncType()
@@ -3110,7 +3110,7 @@ type Parser(lexer : ITokenizer) =
         |   _   ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Missing 'if' in comprehension expression!") )
 
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="yield [ FROM test | testlist_star_expr ]")>]
     member this.ParseYieldExpr() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -3123,6 +3123,9 @@ type Parser(lexer : ITokenizer) =
                         this.Lexer.Advance()
                         let right = this.ParseTest()
                         ASTNode.YieldFromExpr(startPos, this.Lexer.Position, op1, op2, right)
+                |   Token.Newline _
+                |   Token.SemiColon _ ->
+                        ASTNode.YieldExpr(startPos, this.Lexer.Position, Token.Empty, ASTNode.Empty)
                 |   _   ->
                         let right = this.ParseTestListComp()
                         ASTNode.YieldExpr(startPos, this.Lexer.Position, op1, right)
@@ -3131,7 +3134,7 @@ type Parser(lexer : ITokenizer) =
 
 // Func rules in Python 3.9 grammar ///////////////////////////////////////////////////////////////
 
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="simple_stmt | NEWLINE [TYPE_COMMENT NEWLINE] INDENT stmt+ DEDENT ")>]
     member this.ParseFuncBodySuite() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
