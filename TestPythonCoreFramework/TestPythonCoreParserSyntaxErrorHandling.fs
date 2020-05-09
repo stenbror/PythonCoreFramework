@@ -276,3 +276,31 @@ module TestPythonCoreParserSyntaxErrorHandling =
         |   _ ->
                 Assert.False(false)
 
+    [<Fact>]
+    let ``comp for missing for UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Comma(0, 1, [| |]), 0 ); ( Token.EOF([| |]), 2 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseSyncCompFor() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Comma(0, 1, [| |]), ex.Data0)
+                Assert.Equal( "Missing 'for' in comprehension expression!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``comp for missing in UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.For(0, 3, [| |]), 0 ); ( Token.Name(4, 5, "a", [| |]), 4 ); ( Token.Name(7, 8, "b", [| |]), 7 ); ( Token.EOF([| |]), 9 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseSyncCompFor() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(7, 8, "b", [| |]), ex.Data0)
+                Assert.Equal( "Missing 'in' in for comprehension expression!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
