@@ -192,3 +192,31 @@ module TestPythonCoreParserSyntaxErrorHandling =
         |   _ ->
                 Assert.False(false)
 
+    [<Fact>]
+    let ``subscript missing item with comma UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Comma(0, 1, [| |]), 0 ); ( Token.EOF([| |]), 2 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseSubscript() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Comma(0, 1, [| |]), ex.Data0)
+                Assert.Equal( "Missing subscript item!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``subscript missing item with ']' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.RightBracket(0, 1, [| |]), 0 ); ( Token.EOF([| |]), 2 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseSubscript() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.RightBracket(0, 1, [| |]), ex.Data0)
+                Assert.Equal( "Missing subscript item!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
