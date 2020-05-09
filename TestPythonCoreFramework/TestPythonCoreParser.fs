@@ -751,6 +751,13 @@ module TestsPythonCoreParser =
                                                         ASTNode.Name(12, 13, Token.Name(12, 17, "Test1", [| |]) ) ), parser.ParseYieldExpr())
 
     [<Fact>]
+    let ``yield expr with no argument test`` () =
+        let lex = new MockTokenizer( [ ( Token.Yield(0, 5, [| |]), 0 ); ( Token.SemiColon(7, 8, [| |]), 7 ); ( Token.EOF([| |]), 9 ) ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.YieldExpr(0, 7,  Token.Yield(0, 5, [| |]), ASTNode.Empty), parser.ParseYieldExpr())
+
+    [<Fact>]
     let ``Testlist compfor with async for entry with if expr test`` () =
         let lex = new MockTokenizer( [ ( Token.Name(0, 5, "Test1", [| |]), 0 ); ( Token.Async(7, 12, [| |]) , 7 ); ( Token.For(14, 17, [| |]), 14 ); ( Token.Name(18, 19, "a", [| |]), 18 ); ( Token.In(21, 22, [| |]), 21 ); ( Token.Name(23, 24, "b", [| |]), 23 ); ( Token.If( 26, 28, [| |]), 26 ); ( Token.Name(30, 35, "Test2", [| |]), 30 ); ( Token.EOF([| |]), 36 ); ] )
         lex.Next()

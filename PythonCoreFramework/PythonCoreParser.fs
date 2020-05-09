@@ -3125,7 +3125,7 @@ type Parser(lexer : ITokenizer) =
                         ASTNode.YieldFromExpr(startPos, this.Lexer.Position, op1, op2, right)
                 |   Token.Newline _
                 |   Token.SemiColon _ ->
-                        ASTNode.YieldExpr(startPos, this.Lexer.Position, Token.Empty, ASTNode.Empty)
+                        ASTNode.YieldExpr(startPos, this.Lexer.Position, op1, ASTNode.Empty)
                 |   _   ->
                         let right = this.ParseTestListComp()
                         ASTNode.YieldExpr(startPos, this.Lexer.Position, op1, right)
