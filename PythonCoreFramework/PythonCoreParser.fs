@@ -3203,7 +3203,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
             raise ( SyntaxError(this.Lexer.Symbol, "Expecting '(' in func definition!") )
 
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="(test (',' test)* [',' ['*' [test] (',' test)* [',' '**' test] | '**' test]] | '*' [test] (',' test)* [',' '**' test] | '**' test)")>]
     member this.ParseTypeList() =
         let startPos = this.Lexer.Position
         let mutable nodes : ASTNode list = []
@@ -3213,7 +3213,11 @@ type Parser(lexer : ITokenizer) =
                 let start2 = this.Lexer.Position
                 let opMul = this.Lexer.Symbol
                 this.Lexer.Advance()
-                let node = this.ParseTest()
+                let node =  match this.Lexer.Symbol with
+                            |   Token.Name _ ->
+                                    this.ParseTest()
+                            |   _ ->
+                                    ASTNode.Empty
                 nodes <- ASTNode.TypedMul(start2, this.Lexer.Position, opMul, node) :: nodes
                 while   match this.Lexer.Symbol with
                         |   Token.Comma _ ->
@@ -3261,7 +3265,11 @@ type Parser(lexer : ITokenizer) =
                                         let start3 = this.Lexer.Position
                                         let opMul = this.Lexer.Symbol
                                         this.Lexer.Advance()
-                                        let node = this.ParseTest()
+                                        let node =  match this.Lexer.Symbol with
+                                        |   Token.Name _ ->
+                                                this.ParseTest()
+                                        |   _ ->
+                                                ASTNode.Empty
                                         nodes <- ASTNode.TypedMul(start3, this.Lexer.Position, opMul, node) :: nodes
                                         while   match this.Lexer.Symbol with
                                                 |   Token.Comma _ ->
