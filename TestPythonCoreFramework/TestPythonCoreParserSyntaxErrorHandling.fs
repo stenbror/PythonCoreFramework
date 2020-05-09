@@ -220,3 +220,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
         |   _ ->
                 Assert.False(false)
 
+    [<Fact>]
+    let ``dictionary entry missing item with ':' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Name(0, 1, "a", [| |]), 0 ); ( Token.Name(2, 3, "b", [| |]), 2 ); ( Token.EOF([| |]), 4 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseSubscript() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(2, 3, "b", [| |]), ex.Data0)
+                Assert.Equal( "Missing ':' in dictionary entry!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
