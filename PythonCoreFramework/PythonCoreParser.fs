@@ -2992,7 +2992,7 @@ type Parser(lexer : ITokenizer) =
                     do ()
         ( nodes, ops, isSet )
 
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="argument (',' argument )* [',']")>]
     member this.ParseArgsList() =
         let startPos = this.Lexer.Position
         let mutable nodes : ASTNode list = []
@@ -3011,7 +3011,7 @@ type Parser(lexer : ITokenizer) =
             do ()
         ASTNode.ArgumentList(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops))
 
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="( test [comp_for] | test ':=' test | test '=' test | '**' test | '*' test )")>]
     member this.ParseArgument() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -3044,7 +3044,7 @@ type Parser(lexer : ITokenizer) =
                         ASTNode.Argument(startPos, this.Lexer.Position, left, Token.Empty, ASTNode.Empty)
         |   _   ->  raise ( SyntaxError(this.Lexer.Symbol, "Missing argument!") ) 
         
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="comp_for | comp_if")>]
     member this.ParseCompIter() =
         match this.Lexer.Symbol with
         |   Token.Async _
@@ -3053,7 +3053,7 @@ type Parser(lexer : ITokenizer) =
         |   _   ->
                 this.ParseCompIf()
 
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="[ASYNC] sync_comp_for")>]
     member this.ParseCompFor() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -3065,7 +3065,7 @@ type Parser(lexer : ITokenizer) =
         |   _   ->
                 this.ParseSyncCompFor()
 
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="'for' exprlist 'in' or_test [comp_iter]")>]
     member this.ParseSyncCompFor() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -3091,7 +3091,7 @@ type Parser(lexer : ITokenizer) =
         |   _   ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Missing 'for' in comprehension expression!") )
        
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="'if' test_nocond [comp_iter]")>]
     member this.ParseCompIf() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
