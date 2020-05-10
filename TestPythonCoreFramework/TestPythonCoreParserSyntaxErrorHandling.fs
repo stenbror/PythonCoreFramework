@@ -505,3 +505,61 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.Equal( "Expecting ':' in else statement!", ex.Data1)
         |   _ ->
                 Assert.False(false)
+
+    [<Fact>]
+    let ``for statement missing 'for' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Name(0, 1, "a", [| |]), 0 ); ( Token.Colon(2, 3, [| |]), 2 ); ( Token.Pass(4, 8, [| |]), 4 ); ( Token.Newline(9, 11, [| |]), 9 ); ( Token.EOF([| |]), 12 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseForStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(0, 1, "a", [| |]), ex.Data0)
+                Assert.Equal( "Expecting 'for' statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``for statement missing 'in' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.For(0, 3, [| |]), 0 ); ( Token.Name(6, 7, "a", [| |]), 6 ); ( Token.Pass(8, 12, [| |]), 8 ); ( Token.Newline(13, 15, [| |]), 13 ); ( Token.EOF([| |]), 16 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseForStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(8, 12, [| |]), ex.Data0)
+                Assert.Equal( "Expecting 'in' in for statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``for statement missing ':' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.For(0, 3, [| |]), 0 ); ( Token.Name(6, 7, "a", [| |]), 6 ); ( Token.In(8, 10, [| |]), 8 ); ( Token.Name(11, 12, "b", [| |]), 11 ); ( Token.Pass(14, 18, [| |]), 14 ); ( Token.Newline(19, 21, [| |]), 19 ); ( Token.EOF([| |]), 22 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseForStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(14, 18, [| |]), ex.Data0)
+                Assert.Equal( "Expecting ':' in for statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``else statement after for statement missing ':' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [  ( Token.For(0, 3, [| |]), 0 ); ( Token.Name(4, 5, "a", [| |]), 4 ); ( Token.In(6, 8, [| |]), 6 ); ( Token.Name(10, 11, "b", [| |]), 10 ); ( Token.Colon(12, 13, [| |]), 12 ); ( Token.Pass(14, 18, [| |]), 14 ); ( Token.Newline(18, 20, [| |]), 18 );
+                                            ( Token.Else(21, 25, [| |]), 21 ); ( Token.Pass(26, 30, [| |]), 26 ); ( Token.Newline(31, 33, [| |]), 31 );
+                                            ( Token.EOF([| |]), 34 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseForStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(26, 30, [| |]), ex.Data0)
+                Assert.Equal( "Expecting ':' in else statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)

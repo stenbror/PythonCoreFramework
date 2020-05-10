@@ -2060,14 +2060,14 @@ type Parser(lexer : ITokenizer) =
                                                 this.FlowLevel <- this.FlowLevel - 1
                                                 ASTNode.For(startPos, this.Lexer.Position, op1, left, op2, right, op3, op4, next, node)
                                         |   _ ->
-                                                raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in else statement!") )
+                                                raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in else statement!") )
                                 |   _   ->
                                         this.FlowLevel <- this.FlowLevel - 1
                                         ASTNode.For(startPos, this.Lexer.Position, op1, left, op2, right, op3, op4, next, ASTNode.Empty)
                         |   _   ->
-                                raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in for statement!") )
+                                raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in for statement!") )
                 |   _   ->
-                        raise ( SyntaxError(this.Lexer.Symbol, "Expected 'in' in for statement!") )
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'in' in for statement!") )
         |   _   ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'for' statement!") )
 
