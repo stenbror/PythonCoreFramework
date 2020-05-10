@@ -402,3 +402,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
         |   _ ->
                 Assert.False(false)
 
+    [<Fact>]
+    let ``if statement missing 'if' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Name(0, 1, "a", [| |]), 0 ); ( Token.Colon(2, 3, [| |]), 2 ); ( Token.Pass(4, 8, [| |]), 4 ); ( Token.Newline(9, 11, [| |]), 9 ); ( Token.EOF([| |]), 12 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseIfStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(0, 1, "a", [| |]), ex.Data0)
+                Assert.Equal( "Expecting 'if' statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
