@@ -1955,7 +1955,7 @@ type Parser(lexer : ITokenizer) =
                                                 let right2 = this.ParseSuite()
                                                 nodes <- ASTNode.Elif(start2, this.Lexer.Position, op3, left2, op4, right2) :: nodes
                                         |   _   ->
-                                                raise ( SyntaxError(this.Lexer.Symbol, "Missing ':' in elif statement!") )
+                                                raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in elif statement!") )
                                         true
                                 |   _   ->  
                                         false
@@ -1974,7 +1974,7 @@ type Parser(lexer : ITokenizer) =
                                         this.FlowLevel <- this.FlowLevel - 1
                                         ASTNode.If(startPos, this.Lexer.Position, op1, left, op2, right, List.toArray(List.rev nodes), node)
                                 |   _ ->
-                                        raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in else statement!") )
+                                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in else statement!") )
                         |   _   ->
                                 this.FlowLevel <- this.FlowLevel - 1
                                 ASTNode.If(startPos, this.Lexer.Position, op1, left, op2, right, List.toArray(List.rev nodes), ASTNode.Empty)
