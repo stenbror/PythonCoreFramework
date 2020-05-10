@@ -1893,7 +1893,7 @@ type Parser(lexer : ITokenizer) =
 
     // Compound Statement rules in Python 3.9 grammar /////////////////////////////////////////////
     
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated | async_stmt")>]
     member this.ParseCompoundStmt() =
         match this.Lexer.Symbol with
         |   Token.If _ -> this.ParseIfStmt()
@@ -1907,7 +1907,7 @@ type Parser(lexer : ITokenizer) =
         |   Token.Async _ -> this.ParseAsyncStmt()
         |   _ -> raise ( SyntaxError(this.Lexer.Symbol, "Unexpected statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'async' ( funcdef | with_stmt | for_stmt )")>]
     member this.ParseAsyncStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1927,7 +1927,7 @@ type Parser(lexer : ITokenizer) =
         |   _   ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'async' in async statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'if' namedexpr_test ':' suite ( 'elif' namedexpr_test ':' suite )* [ 'else' ':' suite ]")>]
     member this.ParseIfStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1983,7 +1983,7 @@ type Parser(lexer : ITokenizer) =
         |   _   ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'if' statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'while' namedexpr_test ':' suite [ 'else' ':' suite ]")>]
     member this.ParseWhileStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -2020,7 +2020,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expected 'while' statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'for' exprlist 'in' testlist ':' [TYPE_COMMENT] suite [ 'else' ':' suite ]")>]
     member this.ParseForStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -2071,7 +2071,7 @@ type Parser(lexer : ITokenizer) =
         |   _   ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'for' statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="('try' ':' suite (( except_clause ':' suite )+ [ 'else' ':' suite ] [ 'finally' ':' suite ] | 'finally' ':' suite )) ")>]
     member this.ParseTryStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -2149,7 +2149,7 @@ type Parser(lexer : ITokenizer) =
         |    _   ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expected 'try' in try statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'with' with_item ( ',' with_item)* ':' [TYPE_COMMENT] suite")>]
     member this.ParseWithStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -2188,7 +2188,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'with' in with statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="test [ 'as' expr ]")>]
     member this.ParseWithItem() =
         let startPos = this.Lexer.Position
         let left = this.ParseTest()
@@ -2201,7 +2201,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 ASTNode.WithItem(startPos, this.Lexer.Position, left, Token.Empty, ASTNode.Empty)
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'except' [ test [ 'as' NAME ]]")>]
     member this.ParseExceptClause() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -2239,7 +2239,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'except' in except statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="simple_stmt | NEWLINE INDENT stmt+ DEDENT")>]
     member this.ParseSuite() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
