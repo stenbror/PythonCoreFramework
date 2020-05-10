@@ -2750,7 +2750,7 @@ type Parser(lexer : ITokenizer) =
         |   _   ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Illegal literal!") )
 
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="(namedexpr_test | star_expr) ( comp_for | (',' (namedexpr_test | star_expr))* [','] )")>]
     member this.ParseTestListComp() =
         let startPos = this.Lexer.Position
         let mutable nodes : ASTNode list = []
@@ -2777,7 +2777,7 @@ type Parser(lexer : ITokenizer) =
                     do ()
         ASTNode.TestList(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops))
 
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="'(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME")>]
     member this.ParseTrailer() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -2820,7 +2820,7 @@ type Parser(lexer : ITokenizer) =
                 |   _   ->  raise ( SyntaxError(this.Lexer.Symbol, "Expecting name literal after '.'") )
         |   _   ->  raise ( SyntaxError(this.Lexer.Symbol, "Expected '(', '[' or '.' in trailer expression!") )
     
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="subscript (',' subscript)* [',']")>]
     member this.ParseSubscriptList() =
         let startPos = this.Lexer.Position
         let mutable nodes : ASTNode list = []
@@ -2839,7 +2839,7 @@ type Parser(lexer : ITokenizer) =
             do ()
         ASTNode.SubscriptList(startPos, this.Lexer.Position, List.toArray( List.rev nodes ), List.toArray( List.rev ops ))
 
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="test | [test] ':' [test] [ ':' [test]]")>]
     member this.ParseSubscript() =
         let startPos = this.Lexer.Position
         let left =  match this.Lexer.Symbol with
@@ -2872,7 +2872,7 @@ type Parser(lexer : ITokenizer) =
         |   _   ->
             ASTNode.Subscript(startPos, this.Lexer.Position, left, Token.Empty, ASTNode.Empty, Token.Empty, ASTNode.Empty)
 
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="(expr | star_expr) (',' (expr | star_expr))* [',']")>]
     member this.ParseExprList() =
         let startPos = this.Lexer.Position
         let mutable nodes : ASTNode list = []
@@ -2892,7 +2892,7 @@ type Parser(lexer : ITokenizer) =
             do ()
         ASTNode.ExprList(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops))
 
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="test (',' test)* [',']")>]
     member this.ParseTestList() =
         let startPos = this.Lexer.Position
         let mutable nodes : ASTNode list = []
@@ -2912,7 +2912,7 @@ type Parser(lexer : ITokenizer) =
             do ()
         ASTNode.TestList(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops))
 
-    [<GrammarRule("expression", RuleContent ="")>]
+    [<GrammarRule("expression", RuleContent ="( ((test ':' test 1 '**' expr) (comp_for | (',' (test ':' test | '**' expr))* [','])) | ((test | starexpr) (comp_for | ',' (test | star_expr))* [','])) )")>]
     member this.ParseDictorSetMaker() : ASTNode list * Token list * bool =
         let startPos = this.Lexer.Position
         let mutable nodes : ASTNode list = []
