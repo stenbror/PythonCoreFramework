@@ -563,3 +563,129 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.Equal( "Expecting ':' in else statement!", ex.Data1)
         |   _ ->
                 Assert.False(false)
+
+    [<Fact>]
+    let ``try statement missing 'try' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Name(0, 1, "a", [| |]), 0 ); ( Token.Colon(2, 3, [| |]), 2 ); ( Token.Pass(4, 8, [| |]), 4 ); ( Token.Newline(9, 11, [| |]), 9 ); ( Token.EOF([| |]), 12 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseTryStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(0, 1, "a", [| |]), ex.Data0)
+                Assert.Equal( "Expecting 'try' in try statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``try statement missing ':' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Try(0, 3, [| |]), 0 ); ( Token.Pass(4, 8, [| |]), 4 ); ( Token.Newline(9, 11, [| |]), 9 ); ( Token.EOF([| |]), 12 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseTryStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(4, 8, [| |]), ex.Data0)
+                Assert.Equal( "Expecting ':' in try statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``try statement missing ':' in finally UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [  ( Token.Try(0, 4, [| |]), 0 ); ( Token.Colon(7, 8, [| |]), 7 ); ( Token.Pass(9, 13, [| |]), 9 ); ( Token.Newline(14, 16, [| |]), 14 );
+                                            ( Token.Finally(17, 24, [| |]), 17 ); ( Token.Pass(25, 29, [| |]), 25 ); ( Token.Newline(30, 32, [| |]), 30 );
+                                            ( Token.EOF([| |]), 33 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseTryStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(25, 29, [| |]), ex.Data0)
+                Assert.Equal( "Expecting ':' in finally statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``try statement missing ':' in finally but with except item UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [  ( Token.Try(0, 4, [| |]), 0 ); ( Token.Colon(7, 8, [| |]), 7 ); ( Token.Pass(9, 13, [| |]), 9 ); ( Token.Newline(14, 16, [| |]), 14 );
+                                            ( Token.Except(17, 23, [| |]), 17 );  ( Token.Pass(26, 30, [| |]), 26 ); ( Token.Newline(31, 33, [| |]), 31 );
+                                            ( Token.Finally(32, 39, [| |]), 32 ); ( Token.Colon(40, 41, [| |]), 40); ( Token.Pass(42, 46, [| |]), 42 ); ( Token.Newline(47, 49, [| |]), 47 );
+                                            ( Token.EOF([| |]), 50 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseTryStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(26, 30, [| |]), ex.Data0)
+                Assert.Equal( "Illegal literal!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``except missing ':' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [  ( Token.Try(0, 4, [| |]), 0 ); ( Token.Colon(7, 8, [| |]), 7 ); ( Token.Pass(9, 13, [| |]), 9 ); ( Token.Newline(14, 16, [| |]), 14 );
+                                            ( Token.Except(17, 23, [| |]), 17 ); ( Token.Colon(24, 25, [| |]), 24 ); ( Token.Pass(26, 30, [| |]), 26 ); ( Token.Newline(31, 33, [| |]), 31 );
+                                            ( Token.EOF([| |]), 50 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseTryStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(26, 30, [| |]), ex.Data0)
+                Assert.Equal( "", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``except missing ':' but with test argument  UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [  ( Token.Try(0, 4, [| |]), 0 ); ( Token.Colon(7, 8, [| |]), 7 ); ( Token.Pass(9, 13, [| |]), 9 ); ( Token.Newline(14, 16, [| |]), 14 );
+                                            ( Token.Except(17, 23, [| |]), 17 ); ( Token.Name(24, 25, "c", [| |]), 24 ); ( Token.Pass(26, 30, [| |]), 26 ); ( Token.Newline(31, 33, [| |]), 31 );
+                                            ( Token.EOF([| |]), 50 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseTryStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(26, 30, [| |]), ex.Data0)
+                Assert.Equal( "Expecting ':' in except statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``except missing ':' but with test argument and 'as' without expr UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [  ( Token.Try(0, 4, [| |]), 0 ); ( Token.Colon(7, 8, [| |]), 7 ); ( Token.Pass(9, 13, [| |]), 9 ); ( Token.Newline(14, 16, [| |]), 14 );
+                                            ( Token.Except(17, 23, [| |]), 17 ); ( Token.Name(24, 25, "c", [| |]), 24 ); ( Token.As(26, 27, [| |]), 26 ); ( Token.Colon(27, 28, [| |]), 27 ); ( Token.Pass(30, 34, [| |]), 30 ); ( Token.Newline(35, 37, [| |]), 35 );
+                                            ( Token.EOF([| |]), 38 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseTryStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Colon(27, 28, [| |]), ex.Data0)
+                Assert.Equal( "Missing name literal afer 'as' in except statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``else missing ':' in try / execept / else statement UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [  ( Token.Try(0, 4, [| |]), 0 ); ( Token.Colon(7, 8, [| |]), 7 ); ( Token.Pass(9, 13, [| |]), 9 ); ( Token.Newline(14, 16, [| |]), 14 );
+                                            ( Token.Except(17, 23, [| |]), 17 ); ( Token.Name(24, 25, "c", [| |]), 24 ); ( Token.As(26, 27, [| |]), 26 ); ( Token.Name(28, 29, "b", [| |]), 28 ); ( Token.Colon(30, 31, [| |]), 30 ); ( Token.Pass(32, 36, [| |]), 32 ); ( Token.Newline(37, 39, [| |]), 37 );
+                                            ( Token.Else(38, 42, [| |]), 38 ); ( Token.Pass(43, 47, [| |]), 43 ); ( Token.Newline(48, 50, [| |]), 48);
+                                            ( Token.EOF([| |]), 51 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseTryStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(43, 47, [| |]), ex.Data0)
+                Assert.Equal( "Expecting ':' in else statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)

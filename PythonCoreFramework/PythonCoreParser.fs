@@ -2098,7 +2098,7 @@ type Parser(lexer : ITokenizer) =
                                         this.FlowLevel <- this.FlowLevel - 1
                                         ASTNode.Try(startPos, this.Lexer.Position, op1, op2, left, [||], ASTNode.Empty, node)
                                 |   _ ->
-                                        raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in finally statement!") )
+                                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in finally statement!") )
                         |   _ ->
                                 match this.Lexer.Symbol with
                                 |   Token.Except _ ->
@@ -2122,7 +2122,7 @@ type Parser(lexer : ITokenizer) =
                                                                     let right5 = this.ParseSuite()
                                                                     ASTNode.Else(start2, this.Lexer.Position, op6, op7, right5)
                                                             |   _ ->
-                                                                    raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in else statement!") )
+                                                                    raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in else statement!") )
                                                     |   _ ->
                                                             ASTNode.Empty
                                         let fin =   match this.Lexer.Symbol with
@@ -2137,17 +2137,17 @@ type Parser(lexer : ITokenizer) =
                                                                     let right4 = this.ParseSuite()
                                                                     ASTNode.Finally(start3, this.Lexer.Position, op5, op6, right4)
                                                             | _ ->
-                                                                    raise ( SyntaxError(this.Lexer.Symbol, "Missing ':' in finally statement!") )
+                                                                    raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in finally statement!") )
                                                     |   _ ->
                                                             ASTNode.Empty
                                         this.FlowLevel <- this.FlowLevel - 1
                                         ASTNode.Try(startPos, this.Lexer.Position, op1, op2, left, List.toArray(List.rev nodes), node, fin)
                                 |   _ ->
-                                        raise ( SyntaxError(this.Lexer.Symbol, "Missing expect statement!") )
+                                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'expect' statement!") )
                 |   _   ->
-                        raise ( SyntaxError(this.Lexer.Symbol, "Missing ':' in try statement!") )
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in try statement!") )
         |    _   ->
-                raise ( SyntaxError(this.Lexer.Symbol, "Expected 'try' in try statement!") )
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'try' in try statement!") )
 
     [<GrammarRule("statement", RuleContent ="'with' with_item ( ',' with_item)* ':' [TYPE_COMMENT] suite")>]
     member this.ParseWithStmt() =
