@@ -683,7 +683,7 @@ type Parser(lexer : ITokenizer) =
 
     // Start rules in Python 3.9 grammar //////////////////////////////////////////////////////////
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="NEWLINE | simple_stmt | compound_stmt NEWLINE")>]
     member this.ParseSingleInput() =
         this.FuncFlowLevel <- 0
         this.FlowLevel <- 0
@@ -716,7 +716,7 @@ type Parser(lexer : ITokenizer) =
                                 Token.Empty, tmpNode
         ASTNode.SingleInput(startPos, this.Lexer.Position, node, op)
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="( NEWLINE | stmt )* EOF")>]
     member this.ParseFileInput() =
         this.FuncFlowLevel <- 0
         this.FlowLevel <- 0
@@ -741,7 +741,7 @@ type Parser(lexer : ITokenizer) =
                             raise ( SyntaxError(this.Lexer.Symbol, "Expecting end of file!") )
         ASTNode.FileInput(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops), op)
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="testlist NEWLINE* EOF")>]
     member this.ParseEvalInput() =
         let startPos = 0
         let right = this.ParseTestList()
@@ -783,7 +783,7 @@ type Parser(lexer : ITokenizer) =
 
     // Block rules in Python 3.9 grammar //////////////////////////////////////////////////////////
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="decorators ( classdef | funcdef | async_funcdef )")>]
     member this.ParseDecorated() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -804,7 +804,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting '@' in decorator statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="decorator+")>]
     member this.ParseDecorators() =
         match this.Lexer.Symbol with
         |   Token.Matrice _ ->
@@ -821,7 +821,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                  raise ( SyntaxError(this.Lexer.Symbol, "Expecting '@' in decorator statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'@' dotted_name [ '(' [arglist] ')' ] NEWLINE")>]
     member this.ParseDecorator() =
         match this.Lexer.Symbol with
         |   Token.Matrice _ ->
@@ -863,7 +863,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting '@' in decorator statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'class' NAME [ '(' [arglist] ')' ] ':' suite")>]
     member this.ParseClassStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -908,7 +908,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'class' in class declaration!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'async' funcdef")>]
     member this.ParseAsyncFuncDefStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -920,7 +920,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'async' in async function declaration!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'def' NAME parameters [ '->' test  ] ':' [TYPE_COMMENT] func_body_suite")>]
     member this.ParseFuncDefStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -965,7 +965,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'def' in function declaration!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'(' [typedargslist] ')'")>]
     member this.ParseParameters() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -988,11 +988,11 @@ type Parser(lexer : ITokenizer) =
         | _ ->  
                 raise ( SyntaxError(this.Lexer.Symbol, "Expected '(' in function declaration!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent = "( (tfpdef ['=' test] (',' [TYPE_COMMENT] tfpdef ['=' test])* ',' [TYPE_COMMENT] '/' [',' [ [TYPE_COMMENT] tfpdef ['=' test] (',' [TYPE_COMMENT] tfpdef ['=' test])* (TYPE_COMMENT | [',' [TYPE_COMMENT] ['*' [tfpdef] (',' [TYPE_COMMENT] tfpdef ['=' test])* (TYPE_COMMENT | [',' [TYPE_COMMENT] ['**' tfpdef [','] [TYPE_COMMENT]]])| '**' tfpdef [','] [TYPE_COMMENT]]])| '*' [tfpdef] (',' [TYPE_COMMENT] tfpdef ['=' test])* (TYPE_COMMENT | [',' [TYPE_COMMENT] ['**' tfpdef [','] [TYPE_COMMENT]]])| '**' tfpdef [','] [TYPE_COMMENT]]] )|  (tfpdef ['=' test] (',' [TYPE_COMMENT] tfpdef ['=' test])* (TYPE_COMMENT | [',' [TYPE_COMMENT] ['*' [tfpdef] (',' [TYPE_COMMENT] tfpdef ['=' test])* (TYPE_COMMENT | [',' [TYPE_COMMENT] ['**' tfpdef [','] [TYPE_COMMENT]]])| '**' tfpdef [','] [TYPE_COMMENT]]])| '*' [tfpdef] (',' [TYPE_COMMENT] tfpdef ['=' test])* (TYPE_COMMENT | [',' [TYPE_COMMENT] ['**' tfpdef [','] [TYPE_COMMENT]]])| '**' tfpdef [','] [TYPE_COMMENT]))")>]
     member this.ParseTypedArgsList() =
         this.ParseCommonArgsList(true)
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="vfpdef ['=' test ](',' vfpdef ['=' test])* ',' '/' [',' [ (vfpdef ['=' test] (',' vfpdef ['=' test])* [',' ['*' [vfpdef] (',' vfpdef ['=' test])* [',' ['**' vfpdef [',']]]| '**' vfpdef [',']]]| '*' [vfpdef] (',' vfpdef ['=' test])* [',' ['**' vfpdef [',']]]| '**' vfpdef [',']) ]] | (vfpdef ['=' test] (',' vfpdef ['=' test])* [',' ['*' [vfpdef] (',' vfpdef ['=' test])* [',' ['**' vfpdef [',']]]| '**' vfpdef [',']]]| '*' [vfpdef] (',' vfpdef ['=' test])* [',' ['**' vfpdef [',']]]| '**' vfpdef [','])")>]
     member this.ParseVarArgsList() =
         this.ParseCommonArgsList()
 
@@ -1221,7 +1221,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 ASTNode.VarArgsList(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops), List.toArray(List.rev com))
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="typed => TFPDef [ '=' test ] | => VFPDef [ '=' test ]")>]
     member private this.ParseCommonAssignment(?isTyped : bool) =
         let typed = match isTyped with Some x -> x | _ -> false
         let startPos = this.Lexer.Position
@@ -1243,7 +1243,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 left
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="NAME [':' test]")>]
     member this.ParseTFPDef() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1267,7 +1267,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting name literal in argument!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="NAME")>]
     member this.ParseVFPDef() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1280,7 +1280,7 @@ type Parser(lexer : ITokenizer) =
 
     // Simple Statement rules in Python 3.9 grammar ///////////////////////////////////////////////
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="simple_stmt | compound_stmt")>]
     member this.ParseStmt() =
         match this.Lexer.Symbol with
         |   Token.If _
@@ -1296,7 +1296,7 @@ type Parser(lexer : ITokenizer) =
         |   _   ->
                 this.ParseSimpleStmt()
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="small_stmt (';' small_stmt)* [';'] NEWLINE")>]
     member this.ParseSimpleStmt() =
         let startPos = this.Lexer.Position
         let mutable nodes : ASTNode list = []
@@ -1320,7 +1320,7 @@ type Parser(lexer : ITokenizer) =
                             raise ( SyntaxError(this.Lexer.Symbol, "Expecting newline after statements!") )
         ASTNode.SimpleStmtList(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops), op)
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="(expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt)")>]
     member this.ParseSmallStmt() =
         match this.Lexer.Symbol with
         |   Token.Del _ ->
@@ -1345,7 +1345,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 this.ParseExprStmt()
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="testlist_star_expr ( (':' test ['=' (yield_expr|testlist_star_expr)]) | ( '+=' | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' | '<<=' | '>>=' | '**=' | '//=' ) (yield_expr|testlist) | [('=' (yield_expr|testlist_star_expr))+ [TYPE_COMMENT]] )")>]
     member this.ParseExprStmt() =
         let startPos = this.Lexer.Position
         let left = this.ParseTestListStarExpr()
@@ -1455,7 +1455,7 @@ type Parser(lexer : ITokenizer) =
         |   _   ->
                 left
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="(test|star_expr) (',' (test|star_expr))* [',']")>]
     member this.ParseTestListStarExpr() =
         let startPos = this.Lexer.Position
         let mutable nodes : ASTNode list = []
@@ -1492,7 +1492,7 @@ type Parser(lexer : ITokenizer) =
             do ()
         ASTNode.TestList(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops))
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'del' exprlist")>]
     member this.ParseDelStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1504,7 +1504,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'del' in del statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'pass'")>]
     member this.ParsePassStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1515,7 +1515,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'pass' in pass statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="break_stmt | continue_stmt | return_stmt | raise_stmt | yield_stmt")>]
     member this.ParseFlowStmt() =
         match this.Lexer.Symbol, this.FuncFlowLevel, this.FlowLevel with
         |   Token.Return _ , _ , _ when this.FuncFlowLevel <= 0 ->
@@ -1541,7 +1541,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Illegal flow statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'break'")>]
     member this.ParseBreakStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1552,7 +1552,7 @@ type Parser(lexer : ITokenizer) =
         | _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'break' statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'continue'")>]
     member this.ParseContinueStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1563,7 +1563,7 @@ type Parser(lexer : ITokenizer) =
         | _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'continue' statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'return' [testlist_star_expr]")>]
     member this.ParseReturnStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1580,11 +1580,11 @@ type Parser(lexer : ITokenizer) =
         | _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'return' statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="yield_expr")>]
     member this.ParseYieldStmt() =
         this.ParseYieldExpr()
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'raise' [test ['from' test]]")>]
     member this.ParseRaiseStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1608,7 +1608,7 @@ type Parser(lexer : ITokenizer) =
         | _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'raise' statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="import_name | import_from")>]
     member this.ParseImportStmt() =
         match this.Lexer.Symbol with
         |   Token.Import _ ->
@@ -1618,7 +1618,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expected 'import' or 'from' in import statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'import' dotted_as_names")>]
     member this.ParseImportNameStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1630,7 +1630,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'import' in import statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="('from' (('.' | '...')* dotted_name | ('.' | '...')+) 'import' ('*' | '(' import_as_names ')' | import_as_names))")>]
     member this.ParseImportFromStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1683,7 +1683,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'from' in imort statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="NAME ['as' NAME]")>]
     member this.ParseImportAsNameStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1709,7 +1709,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting name of import statement entry.") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="dotted_name ['as' NAME]")>]
     member this.ParseDottedAsNameStmt() =
         let startPos = this.Lexer.Position
         let left = this.ParseDottedNameStmt()
@@ -1729,7 +1729,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 ASTNode.DottedAsName(startPos, this.Lexer.Position, left, Token.Empty, ASTNode.Empty)
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="import_as_name (',' import_as_name)* [',']")>]
     member this.ParseImportAsNamesStmt() =
         let startPos = this.Lexer.Position
         let mutable nodes : ASTNode list = []
@@ -1746,7 +1746,7 @@ type Parser(lexer : ITokenizer) =
             do ()
         ASTNode.ImportAsNames(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops))
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="dotted_as_name (',' dotted_as_name)*")>]
     member this.ParseDottedAsNamesStmt() =
         let startPos = this.Lexer.Position
         let mutable nodes : ASTNode list = []
@@ -1763,7 +1763,7 @@ type Parser(lexer : ITokenizer) =
             do ()
         ASTNode.DottedAsNames(startPos, this.Lexer.Position, List.toArray(List.rev nodes), List.toArray(List.rev ops))
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="NAME ('.' NAME)*")>]
     member this.ParseDottedNameStmt() =
         let startPos = this.Lexer.Position
         let mutable nodes : ASTNode list = []
@@ -1794,7 +1794,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Missing name literal!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'global' NAME (',' NAME)*")>]
     member this.ParseGlobalStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1833,7 +1833,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
             raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'global' in global statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'nonlocal' NAME (',' NAME)*")>]
     member this.ParseNonlocalStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
@@ -1872,7 +1872,7 @@ type Parser(lexer : ITokenizer) =
         |   _ ->
             raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'nonlocal' in nonlocal statement!") )
 
-    [<GrammarRule("statement", RuleContent ="")>]
+    [<GrammarRule("statement", RuleContent ="'assert' test [',' test]")>]
     member this.ParseAssertStmt() =
         let startPos = this.Lexer.Position
         match this.Lexer.Symbol with
