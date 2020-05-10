@@ -731,3 +731,31 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.Equal( "Illegal literal!", ex.Data1)
         |   _ ->
                 Assert.False(false)
+
+    [<Fact>]
+    let ``Suite missing indent token UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Newline(0, 2, [| |]), 0 ); ( Token.Pass(3, 7, [| |]), 3 ); ( Token.Newline(8, 10, [| |]), 8 ); ( Token.EOF([| |]), 11 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseSuite() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(3, 7, [| |]), ex.Data0)
+                Assert.Equal( "Expecting indentation in statement block!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``Suite missing dedent token UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Newline(0, 2, [| |]), 0 ); ( Token.Indent([| |]), 3 ); ( Token.Pass(3, 7, [| |]), 3 ); ( Token.Newline(8, 10, [| |]), 8 ); ( Token.EOF([| |]), 11 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseSuite() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.EOF([| |]), ex.Data0)
+                Assert.Equal( "Expecting dedentation in statement block!", ex.Data1)
+        |   _ ->
+                Assert.False(false)

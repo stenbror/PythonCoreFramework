@@ -2255,6 +2255,8 @@ type Parser(lexer : ITokenizer) =
                         while   match this.Lexer.Symbol with
                                 |   Token.Dedent _ ->
                                         false
+                                |   Token.EOF _ ->
+                                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting dedentation in statement block!") )
                                 |   _ ->
                                         nodes <- this.ParseStmt() :: nodes
                                         true
