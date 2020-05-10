@@ -2011,14 +2011,14 @@ type Parser(lexer : ITokenizer) =
                                         this.FlowLevel <- this.FlowLevel - 1
                                         ASTNode.While(startPos, this.Lexer.Position, op1, left, op2, right, node)
                                 |   _ ->
-                                        raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in else statement!") )
+                                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in else statement!") )
                         |   _ ->
                                 this.FlowLevel <- this.FlowLevel - 1
                                 ASTNode.While(startPos, this.Lexer.Position, op1, left, op2, right, ASTNode.Empty)
                 |   _ ->
-                        raise ( SyntaxError(this.Lexer.Symbol, "Missing ':' in while statement!") )
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in while statement!") )
         |   _ ->
-                raise ( SyntaxError(this.Lexer.Symbol, "Expected 'while' statement!") )
+                raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'while' statement!") )
 
     [<GrammarRule("statement", RuleContent ="'for' exprlist 'in' testlist ':' [TYPE_COMMENT] suite [ 'else' ':' suite ]")>]
     member this.ParseForStmt() =

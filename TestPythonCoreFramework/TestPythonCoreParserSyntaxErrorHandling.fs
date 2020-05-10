@@ -461,3 +461,47 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.Equal( "Expecting ':' in else statement!", ex.Data1)
         |   _ ->
                 Assert.False(false)
+
+    [<Fact>]
+    let ``while statement missing 'while' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Name(0, 1, "a", [| |]), 0 ); ( Token.Colon(2, 3, [| |]), 2 ); ( Token.Pass(4, 8, [| |]), 4 ); ( Token.Newline(9, 11, [| |]), 9 ); ( Token.EOF([| |]), 12 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseWhileStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(0, 1, "a", [| |]), ex.Data0)
+                Assert.Equal( "Expecting 'while' statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``while statement missing ':' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.While(0, 5, [| |]), 0 ); ( Token.Name(6, 7, "a", [| |]), 6 ); ( Token.Pass(8, 12, [| |]), 8 ); ( Token.Newline(13, 15, [| |]), 13 ); ( Token.EOF([| |]), 16 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseWhileStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(8, 12, [| |]), ex.Data0)
+                Assert.Equal( "Expecting ':' in while statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``else statement after while statement missing ':' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [  ( Token.While(0, 5, [| |]), 0 ); ( Token.Name(6, 7, "a", [| |]), 6 ); ( Token.Colon(8, 9, [| |]), 8 ); ( Token.Pass(10, 14, [| |]), 10 ); ( Token.Newline(14, 16, [| |]), 12 );
+                                            ( Token.Else(16, 20, [| |]), 16 ); ( Token.Pass(22, 26, [| |]), 22 ); ( Token.Newline(27, 29, [| |]), 27 );
+                                            ( Token.EOF([| |]), 30 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseWhileStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(22, 26, [| |]), ex.Data0)
+                Assert.Equal( "Expecting ':' in else statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
