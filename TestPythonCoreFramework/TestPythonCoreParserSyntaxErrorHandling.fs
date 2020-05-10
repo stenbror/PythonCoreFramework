@@ -689,3 +689,45 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.Equal( "Expecting ':' in else statement!", ex.Data1)
         |   _ ->
                 Assert.False(false)
+
+    [<Fact>]
+    let ``with statement missing 'with' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Name(0, 1, "a", [| |]), 0 ); ( Token.Colon(2, 3, [| |]), 2 ); ( Token.Pass(4, 8, [| |]), 4 ); ( Token.Newline(9, 11, [| |]), 9 ); ( Token.EOF([| |]), 12 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseWithStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Name(0, 1, "a", [| |]), ex.Data0)
+                Assert.Equal( "Expecting 'with' in with statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``with statement missing ':' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.With(0, 4, [| |]), 0 ); ( Token.Name(5, 6, "a", [| |]), 5 ); ( Token.Pass(9, 13, [| |]), 9 ); ( Token.Newline(14, 16, [| |]), 14 ); ( Token.EOF([| |]), 17 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseWithStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(9, 13, [| |]), ex.Data0)
+                Assert.Equal( "Expecting ':' in with statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``with statement with with_item with 'as' missing next argument UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.With(0, 4, [| |]), 0 ); ( Token.Name(5, 6, "a", [| |]), 5 ); ( Token.As(7, 9, [| |]), 7); ( Token.Colon(10, 11, [| |]), 10 ); ( Token.Pass(12, 16, [| |]), 12 ); ( Token.Newline(17, 19, [| |]), 17 ); ( Token.EOF([| |]), 20 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseWithStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Colon(10, 11, [| |]), ex.Data0)
+                Assert.Equal( "Illegal literal!", ex.Data1)
+        |   _ ->
+                Assert.False(false)

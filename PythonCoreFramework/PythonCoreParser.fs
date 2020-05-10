@@ -2184,7 +2184,7 @@ type Parser(lexer : ITokenizer) =
                         this.FlowLevel <- this.FlowLevel - 1
                         ASTNode.With(startPos, this.Lexer.Position, op1, List.toArray(List.rev nodes), List.toArray(List.rev ops), op2, op3, right)
                 |   _   ->
-                        raise ( SyntaxError(this.Lexer.Symbol, "Expected ':' in with statement!") )
+                        raise ( SyntaxError(this.Lexer.Symbol, "Expecting ':' in with statement!") )
         |   _ ->
                 raise ( SyntaxError(this.Lexer.Symbol, "Expecting 'with' in with statement!") )
 
