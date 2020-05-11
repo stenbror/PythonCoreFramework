@@ -4351,3 +4351,17 @@ module TestsPythonCoreParser =
                                                         |], 
                                                         [| 
                                                         |]), parser.ParseTypedArgsList())
+
+    [<Fact>]
+    let ``Simple statement list with semicolon between test`` () =
+        let lex = new MockTokenizer( [ ( Token.Pass(0, 5, [| |]), 0 ); ( Token.SemiColon(5, 6, [| |]), 5 ); ( Token.Pass(7, 11, [| |]), 7 ); ( Token.Newline(12, 14, [| |]), 12 ); ( Token.EOF([| |]), 15 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 15, [| ASTNode.Pass(0, 5, Token.Pass(0, 5, [| |])); ASTNode.Pass(7, 12, Token.Pass(7, 11, [| |])) |], [| Token.SemiColon(5, 6, [| |]) |], Token.Newline(12, 14, [| |])) , parser.ParseStmt())
+
+    [<Fact>]
+    let ``Simple statement list with semicolon at end of simple statement test`` () =
+        let lex = new MockTokenizer( [ ( Token.Pass(0, 5, [| |]), 0 ); ( Token.SemiColon(5, 6, [| |]), 5 ); ( Token.Newline(12, 14, [| |]), 12 ); ( Token.EOF([| |]), 15 ); ] )
+        lex.Next()
+        let parser = new Parser(lex)
+        Assert.Equal( ASTNode.SimpleStmtList(0, 15, [| ASTNode.Pass(0, 5, Token.Pass(0, 5, [| |])); |], [| Token.SemiColon(5, 6, [| |]) |], Token.Newline(12, 14, [| |])) , parser.ParseStmt())
