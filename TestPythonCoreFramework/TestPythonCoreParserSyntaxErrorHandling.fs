@@ -165,7 +165,7 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.False(false)
 
     [<Fact>]
-    let ``Missing name after '.' in dot name UnitTest`` () =
+    let ``Missing name after dot in dot name UnitTest`` () =
         try
             let lex = new MockTokenizer( [ ( Token.Dot(0, 1, [| |]), 0 ); ( Token.Dot(1, 2, [| |]), 1 ); ( Token.Name(3, 4, "b", [| |]), 3 ); ( Token.EOF([| |]), 5 ); ] )
             lex.Next()
@@ -757,5 +757,33 @@ module TestPythonCoreParserSyntaxErrorHandling =
         |   :? SyntaxError as ex ->
                 Assert.Equal( Token.EOF([| |]), ex.Data0)
                 Assert.Equal( "Expecting dedentation in statement block!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``Simple statement missing trailing newline UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Pass(0, 4, [| |]), 0 ); ( Token.EOF([| |]), 5 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseSuite() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.EOF([| |]), ex.Data0)
+                Assert.Equal( "Expecting newline after statements!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
+
+    [<Fact>]
+    let ``Simple statement missing ';' between statements before newline UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Pass(0, 4, [| |]), 0 ); ( Token.Pass(5, 9, [| |]), 5 ); ( Token.Newline(10, 12, [| |]), 10 ); ( Token.EOF([| |]), 13 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseSuite() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(5, 9, [| |]), ex.Data0)
+                Assert.Equal( "Expecting newline after statements!", ex.Data1)
         |   _ ->
                 Assert.False(false)

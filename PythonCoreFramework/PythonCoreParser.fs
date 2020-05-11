@@ -1306,8 +1306,12 @@ type Parser(lexer : ITokenizer) =
                 |   Token.SemiColon _   ->
                         ops <- this.Lexer.Symbol :: ops
                         this.Lexer.Advance()
-                        nodes <- this.ParseSmallStmt() :: nodes
-                        true
+                        match this.Lexer.Symbol with
+                        |   Token.Newline _ ->
+                                false
+                        |   _ ->
+                                nodes <- this.ParseSmallStmt() :: nodes
+                                true
                 |   _   ->
                         false
             do ()
