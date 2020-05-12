@@ -787,3 +787,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.Equal( "Expecting newline after statements!", ex.Data1)
         |   _ ->
                 Assert.False(false)
+
+    [<Fact>]
+    let ``Asign after typecomment error UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Name(0, 1, "a", [| |]), 0 ); ( Token.Assign(2, 3, [| |]), 2 ); ( Token.Name(4, 5, "b", [| |]), 4 ); ( Token.TypeComment(6, 16, "#type: int"), 6 ); ( Token.Assign(17, 18, [| |]), 17 ); ( Token.Name(19, 20, "c", [| |]), 19 ); ( Token.Newline(21, 23, [| |]), 21 ); ( Token.EOF([| |]), 24 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Assign(17, 18, [| |]), ex.Data0)
+                Assert.Equal( "Type comment only after last '=' expression.", ex.Data1)
+        |   _ ->
+                Assert.False(false)
