@@ -899,3 +899,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.Equal( "Found 'raise' outside of loop statement!", ex.Data1)
         |   _ ->
                 Assert.False(false)
+
+    [<Fact>]
+    let ``yield statement outside of flow statement UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Yield(0, 5, [| |]), 0 ); ( Token.EOF([| |]), 6 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseFlowStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Yield(0, 5, [| |]), ex.Data0)
+                Assert.Equal( "Found 'yield' outside of loop statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
