@@ -843,3 +843,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.Equal( "Illegal flow statement!", ex.Data1)
         |   _ ->
                 Assert.False(false)
+
+    [<Fact>]
+    let ``return statement outside of flow statement UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Return(0, 6, [| |]), 0 ); ( Token.EOF([| |]), 7 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseFlowStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Return(0, 6, [| |]), ex.Data0)
+                Assert.Equal( "Found 'return' outside of function!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
