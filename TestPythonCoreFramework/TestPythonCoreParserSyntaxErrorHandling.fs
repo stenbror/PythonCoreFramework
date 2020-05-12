@@ -829,3 +829,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.Equal( "Expecting 'pass' in pass statement!", ex.Data1)
         |   _ ->
                 Assert.False(false)
+
+    [<Fact>]
+    let ``illegal flow statement UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Pass(0, 4, [| |]), 0 ); ( Token.EOF([| |]), 5 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseFlowStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(0, 4, [| |]), ex.Data0)
+                Assert.Equal( "Illegal flow statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
