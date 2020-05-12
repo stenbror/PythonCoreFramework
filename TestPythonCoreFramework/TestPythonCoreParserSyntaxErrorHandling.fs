@@ -871,3 +871,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.Equal( "Found 'break' outside of loop statement!", ex.Data1)
         |   _ ->
                 Assert.False(false)
+
+    [<Fact>]
+    let ``continue statement outside of flow statement UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Continue(0, 8, [| |]), 0 ); ( Token.EOF([| |]), 9 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseFlowStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Continue(0, 8, [| |]), ex.Data0)
+                Assert.Equal( "Found 'continue' outside of loop statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
