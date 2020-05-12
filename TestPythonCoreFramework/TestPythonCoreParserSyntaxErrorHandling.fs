@@ -815,3 +815,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.Equal( "Expecting 'del' in del statement!", ex.Data1)
         |   _ ->
                 Assert.False(false)
+
+    [<Fact>]
+    let ``pass statement missing 'pas' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Del(0, 3, [| |]), 0 ); ( Token.EOF([| |]), 4 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParsePassStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Del(0, 3, [| |]), ex.Data0)
+                Assert.Equal( "Expecting 'pass' in pass statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
