@@ -801,3 +801,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.Equal( "Type comment only after last '=' expression.", ex.Data1)
         |   _ ->
                 Assert.False(false)
+
+    [<Fact>]
+    let ``del statement missing 'del' UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Pass(0, 4, [| |]), 0 ); ( Token.EOF([| |]), 5 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseDelStmt() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.Pass(0, 4, [| |]), ex.Data0)
+                Assert.Equal( "Expecting 'del' in del statement!", ex.Data1)
+        |   _ ->
+                Assert.False(false)
