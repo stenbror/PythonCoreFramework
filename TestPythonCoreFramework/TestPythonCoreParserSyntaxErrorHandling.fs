@@ -913,3 +913,17 @@ module TestPythonCoreParserSyntaxErrorHandling =
                 Assert.Equal( "Found 'yield' outside of loop statement!", ex.Data1)
         |   _ ->
                 Assert.False(false)
+
+    [<Fact>]
+    let ``Handle no name left side of ':=' operator UnitTest`` () =
+        try
+            let lex = new MockTokenizer( [ ( Token.Number(0, 1, "1", [| |]), 0 ); ( Token.ColonAssign(2, 4, [| |]), 1 ); ( Token.Number(5, 6, "2", [| |]), 5 ); ( Token.EOF([| |]), 7 ); ] )
+            lex.Next()
+            let parser = new Parser(lex)
+            parser.ParseNamedExpr() |> ignore
+        with
+        |   :? SyntaxError as ex ->
+                Assert.Equal( Token.ColonAssign(2, 4, [| |]), ex.Data0)
+                Assert.Equal( "Must be NAME literal on left side of ':=' operator!", ex.Data1)
+        |   _ ->
+                Assert.False(false)

@@ -2288,7 +2288,7 @@ type Parser(lexer : ITokenizer) =
                         let right = this.ParseTest();
                         ASTNode.NamedExpr(startPos, this.Lexer.Position, left, op, right)
                 |   _ ->
-                        raise ( SyntaxError(this.Lexer.Symbol, "Must be NAME literal on left side of ':=' operator.") )
+                        raise ( SyntaxError(this.Lexer.Symbol, "Must be NAME literal on left side of ':=' operator!") )
         |   _   ->  left
 
     [<GrammarRule("expression", RuleContent ="or_test ['if' or_test 'else' test] | lambdef")>]
